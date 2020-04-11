@@ -1,9 +1,10 @@
 package bot
 
 import (
+	"fmt"
 	"strings"
 
-	"github.com/go-snart/snart/lib/route"
+	"github.com/go-snart/route"
 
 	dg "github.com/bwmarrin/discordgo"
 )

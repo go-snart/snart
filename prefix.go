@@ -2,6 +2,7 @@ package bot
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"

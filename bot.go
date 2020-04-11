@@ -1,11 +1,12 @@
 package bot
 
 import (
+	"fmt"
 	"os"
 	"time"
 
-	"github.com/go-snart/snart/lib/db"
-	"github.com/go-snart/snart/lib/route"
+	"github.com/go-snart/db"
+	"github.com/go-snart/route"
 	"github.com/superloach/minori"
 
 	dg "github.com/bwmarrin/discordgo"

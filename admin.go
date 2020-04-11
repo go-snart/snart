@@ -1,6 +1,8 @@
 package bot
 
 import (
+	"fmt"
+
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 

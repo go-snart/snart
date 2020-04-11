@@ -2,10 +2,10 @@ package bot
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path"
 	"plugin"
-	"strings"
 )
 
 func (b *Bot) Register(dir, name string) error {

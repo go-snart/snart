@@ -1,4 +1,4 @@
-package bot
+package snart
 
 import (
 	"fmt"
@@ -45,9 +45,29 @@ func (b *Bot) Start() error {
 	signal.Notify(b.Sig, os.Interrupt)
 	signal.Notify(b.Sig, syscall.SIGTERM)
 	<-b.Sig
-	Log.Info(_f, "exiting")
+	Log.Info(_f, "interrupt")
 
-	return nil
+	if !b.Session.State.User.Bot {
+		err = b.Session.Logout()
+		if err != nil {
+			err = fmt.Errorf("logout: %w", err)
+			Log.Error(_f, err)
+			return err
+		} else {
+			Log.Info(_f, "logged out")
+			return nil
+		}
+	}
+
+	err = b.Session.Close()
+	if err != nil {
+		err = fmt.Errorf("close: %w", err)
+		Log.Error(_f, err)
+		return err
+	} else {
+		Log.Info(_f, "session closed")
+		return nil
+	}
 }
 
 func (b *Bot) Uptime() time.Duration {

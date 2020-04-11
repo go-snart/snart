@@ -1,4 +1,4 @@
-package bot
+package snart
 
 import r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 

@@ -1,4 +1,4 @@
-package bot
+package snart
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-snart/db"
 	"github.com/go-snart/route"
-	"github.com/superloach/minori"
 
 	dg "github.com/bwmarrin/discordgo"
 )
@@ -19,8 +18,6 @@ type Bot struct {
 	Routes  []*route.Route
 	Sig     chan os.Signal
 }
-
-var Log = minori.GetLogger("bot")
 
 func MkBot(dburl string) (*Bot, error) {
 	_f := "MkBot"

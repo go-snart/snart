@@ -6,14 +6,14 @@ import (
 
 	"github.com/superloach/minori"
 
-	"github.com/go-snart/snart"
+	"github.com/go-snart/bot"
 )
 
 var debug = flag.Bool("debug", false, "print debug messages")
 var plugins = flag.String("plugins", "", "`dir` to load plugins from")
 var dburl = flag.String("dburl", ":28015", "rethinkdb url")
 
-var Log = minori.GetLogger("cmd/snart")
+var Log = minori.GetLogger("snart")
 
 func main() {
 	_f := "main"
@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// make bot
-	b, err := snart.MkBot(*dburl)
+	b, err := bot.MkBot(*dburl)
 	if err != nil {
 		err = fmt.Errorf("mkbot %#v: %w", *dburl, err)
 		Log.Fatal(_f, err)

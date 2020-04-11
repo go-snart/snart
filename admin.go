@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"github.com/go-snart/snart/lib/errs"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -27,7 +26,7 @@ func (b *Bot) Admins() ([]string, error) {
 
 	err := q.ReadAll(&ads, b.DB)
 	if err != nil {
-		errs.Wrap(&err, `q.ReadAll(&ads, d)`)
+		err = fmt.Errorf("readall &ads: %w", err)
 		Log.Error(_f, err)
 		return nil, err
 	}

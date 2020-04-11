@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/go-snart/snart/lib/errs"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -34,7 +33,7 @@ func (b *Bot) Prefix(guild, cont string) (string, string, error) {
 	q := r.DB("config").Table("prefix").Filter(gu.Eq("").Or(gu.Eq(guild)))
 	err := q.ReadAll(&pfxs, b.DB)
 	if err != nil {
-		errs.Wrap(&err, `q.ReadAll(&pfxs, d)`)
+		err = fmt.Errorf("readall &pfxs: %w", err)
 		Log.Error(_f, err)
 		return "", "", err
 	}
@@ -59,7 +58,7 @@ func (b *Bot) Prefix(guild, cont string) (string, string, error) {
 	mment := ""
 	g, err := b.Session.Guild(guild)
 	if err != nil {
-		errs.Wrap(&err, `s.Guild(%#v)`, guild)
+		err = fmt.Errorf("guild %#v: %w", guild, err)
 		Log.Error(_f, err)
 		return "", "", err
 	}

@@ -3,7 +3,6 @@ package bot
 import (
 	"errors"
 
-	"github.com/go-snart/snart/lib/errs"
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -26,7 +25,7 @@ func (b *Bot) Token() (*Token, error) {
 	q := r.DB("config").Table("token")
 	err := q.ReadAll(&toks, b.DB)
 	if err != nil {
-		errs.Wrap(&err, `q.ReadAll(&toks, d)`)
+		err = fmt.Errorf("readall &toks: %w", err)
 		Log.Error(_f, err)
 		return nil, err
 	}

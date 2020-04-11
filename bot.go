@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-snart/snart/lib/db"
-	"github.com/go-snart/snart/lib/errs"
 	"github.com/go-snart/snart/lib/route"
 	"github.com/superloach/minori"
 
@@ -30,7 +29,7 @@ func MkBot(dburl string) (*Bot, error) {
 
 	s, err := dg.New()
 	if err != nil {
-		errs.Wrap(&err, `dg.New()`)
+		err = fmt.Errorf("dg new: %w", err)
 		Log.Error(_f, err)
 		return nil, err
 	}

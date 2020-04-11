@@ -6,27 +6,25 @@ import (
 	"path"
 	"plugin"
 	"strings"
-
-	"github.com/go-snart/snart/lib/errs"
 )
 
 func (b *Bot) Register(dir, name string) error {
 	_f := "(*Bot).Register"
 	Log.Infof(_f, "reg plug %s", name)
 
-	filename := path.Join(dir, name+".so")
+	filename := path.Join(dir, name)
 	Log.Infof(_f, "path %s", filename)
 
 	plug, err := plugin.Open(filename)
 	if err != nil {
-		errs.Wrap(&err, `plugin.Open("%s")`, filename)
+		err = fmt.Errorf("plugin open %#v: %w", filename, err)
 		Log.Error(_f, err)
 		return err
 	}
 
 	iregf, err := plug.Lookup("Register")
 	if err != nil {
-		errs.Wrap(&err, `plug.Lookup("Register")`)
+		err = fmt.Errorf("lookup register: %w", err)
 		Log.Error(_f, err)
 		return err
 	}
@@ -45,37 +43,22 @@ func (b *Bot) RegisterAll(dir string) error {
 	_f := "(*Bot).RegisterAll"
 	f, err := os.Open(dir)
 	if err != nil {
-		errs.Wrap(&err, `os.Open(%#v)`, dir)
+		err = fmt.Errorf("open %#v: %w", dir, err)
 		Log.Error(_f, err)
 		return err
 	}
-	defer func() {
-		err = f.Close()
-		if err != nil {
-			errs.Wrap(&err, `f.Close()`)
-			Log.Error(_f, err)
-		}
-	}()
+	defer f.Close()
 
 	files, err := f.Readdir(-1)
 	if err != nil {
-		errs.Wrap(&err, `f.Readdir(-1)`)
+		err = fmt.Errorf("readdir -1: %w", err)
 		Log.Error(_f, err)
 		return err
 	}
 
 	for _, file := range files {
-		fname := file.Name()
-		if !strings.HasSuffix(fname, ".so") {
-			continue
-		}
-		name := strings.TrimSuffix(fname, ".so")
-		err = b.Register(dir, name)
-		if err != nil {
-			errs.Wrap(&err, `b.Register(%#v, %#v)`, dir, name)
-			Log.Error(_f, err)
-			return err
-		}
+		name := file.Name()
+		_ = b.Register(dir, name)
 	}
 
 	return nil

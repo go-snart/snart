@@ -5,8 +5,6 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/go-snart/snart/lib/errs"
 )
 
 func (b *Bot) Start() error {
@@ -17,7 +15,7 @@ func (b *Bot) Start() error {
 
 	err := b.DB.Start()
 	if err != nil {
-		errs.Wrap(&err, `b.DB.Start()`)
+		err = fmt.Errorf("db start: %w", err)
 		Log.Error(_f, err)
 		return err
 	}
@@ -25,7 +23,7 @@ func (b *Bot) Start() error {
 
 	tok, err := b.Token()
 	if err != nil {
-		errs.Wrap(&err, `b.Token()`)
+		err = fmt.Errorf("token: %w", err)
 		Log.Error(_f, err)
 		return err
 	}
@@ -34,7 +32,7 @@ func (b *Bot) Start() error {
 
 	err = b.Session.Open()
 	if err != nil {
-		errs.Wrap(&err, `b.Session.Open()`)
+		err = fmt.Errorf("session open: %w", err)
 		Log.Error(_f, err)
 		return err
 	}

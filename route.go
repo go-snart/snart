@@ -3,7 +3,6 @@ package bot
 import (
 	"strings"
 
-	"github.com/go-snart/snart/lib/errs"
 	"github.com/go-snart/snart/lib/route"
 
 	dg "github.com/bwmarrin/discordgo"
@@ -31,14 +30,14 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 			if err == PrefixFail {
 				continue
 			}
-			errs.Wrap(&err, `b.Prefix(%#v, %#v)`, msg.GuildID, msg.Content)
+			err = fmt.Errorf("prefix %#v %#v: %w", msg.GuildID, msg.Content, err)
 			Log.Warn(_f, err)
 			continue
 		}
 
 		ctx, err := route.GetCtx(pfx, cpfx, s, msg, b.Routes)
 		if err != nil {
-			errs.Wrap(&err, `route.GetCtx(GetPrefix(b.DB, s), s, msg, b.Routes)`)
+			err = fmt.Errorf("get ctx: %w", err)
 			Log.Warn(_f, err)
 			continue
 		}
@@ -49,7 +48,7 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 
 		err = ctx.Run()
 		if err != nil {
-			errs.Wrap(&err, `ctx.Run()`)
+			err = fmt.Errorf("ctx run: %w", err)
 			Log.Warn(_f, err)
 			continue
 		}

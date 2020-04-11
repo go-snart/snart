@@ -6,7 +6,7 @@ import (
 
 	"github.com/superloach/minori"
 
-	"github.com/go-snart/bot"
+	"github.com/go-snart/snart"
 )
 
 var debug = flag.Bool("debug", false, "print debug messages")
@@ -31,7 +31,7 @@ func main() {
 	}
 
 	// make bot
-	b, err := bot.MkBot(*dburl)
+	b, err := snart.MkBot(*dburl)
 	if err != nil {
 		err = fmt.Errorf("mkbot %#v: %w", *dburl, err)
 		Log.Fatal(_f, err)

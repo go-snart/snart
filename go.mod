@@ -1,4 +1,4 @@
-module github.com/go-snart/bot
+module github.com/go-snart/snart
 
 go 1.14
 

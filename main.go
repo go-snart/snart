@@ -1,27 +1,28 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 
-	"github.com/superloach/minori"
-
 	"github.com/go-snart/bot"
+	"github.com/namsral/flag"
+	"github.com/superloach/minori"
 )
 
-var debug = flag.Bool("debug", false, "print debug messages")
-var plugins = flag.String("plugins", "", "`dir` to load plugins from")
-var dburl = flag.String("dburl", ":28015", "rethinkdb url")
+var (
+	debug = flag.Bool("debug", false, "print debug messages")
+
+	dburl  = flag.String("dburl", "", "rethinkdb url")
+	dbuser = flag.String("dbuser", "", "rethinkdb username")
+	dbpass = flag.String("dbpass", "", "rethinkdb password")
+
+	plugins = flag.String("plugins", "", "dir to load plugins from")
+)
 
 var Log = minori.GetLogger("snart")
 
 func main() {
 	_f := "main"
 	flag.Parse()
-
-	if *dburl == "" {
-		Log.Fatal(_f, "empty dburl")
-	}
 
 	if *debug {
 		minori.Level = minori.DEBUG
@@ -31,7 +32,7 @@ func main() {
 	}
 
 	// make bot
-	b, err := bot.MkBot(*dburl)
+	b, err := bot.MkBot(*dburl, *dbuser, *dbpass)
 	if err != nil {
 		err = fmt.Errorf("mkbot %#v: %w", *dburl, err)
 		Log.Fatal(_f, err)

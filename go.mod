@@ -3,7 +3,13 @@ module github.com/go-snart/snart
 go 1.14
 
 require (
-	github.com/go-snart/bot v0.0.0-20200416182002-3c89c7b3344a
+	github.com/go-snart/bot v0.0.0-00010101000000-000000000000
 	github.com/namsral/flag v1.7.4-pre
 	github.com/superloach/minori v0.0.0-20200401022729-31f6f02808bc
+)
+
+replace (
+	github.com/go-snart/bot => ../bot
+	github.com/go-snart/db => ../db
+	github.com/go-snart/route => ../route
 )

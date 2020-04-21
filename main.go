@@ -39,8 +39,8 @@ func main() {
 	}
 
 	if *plugins == "" {
-		Log.Warn(_f, "trying to load plugins from .")
-		*plugins = "."
+		Log.Warn(_f, "trying to load plugins from ./plugins")
+		*plugins = "./plugins"
 	}
 
 	// register plugins

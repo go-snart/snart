@@ -17,8 +17,5 @@ RUN go build -v -x -o /snart github.com/go-snart/snart
 RUN go build -v -x -o /plugins/help -buildmode=plugin github.com/go-snart/plugin-help
 RUN go build -v -x -o /plugins/admin -buildmode=plugin github.com/go-snart/plugin-admin
 
-# cleanup
-RUN rm -r -f -v /go/src
-
 # cmd
 CMD ["./snart"]

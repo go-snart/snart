@@ -3,19 +3,23 @@ package main
 import (
 	"fmt"
 
-	"github.com/go-snart/bot"
 	"github.com/namsral/flag"
 	"github.com/superloach/minori"
+
+	"github.com/go-snart/bot"
+	"github.com/go-snart/db"
+
+	_ "github.com/go-snart/plugin-admin"
+	_ "github.com/go-snart/plugin-help"
 )
 
 var (
 	debug = flag.Bool("debug", false, "print debug messages")
 
-	dburl  = flag.String("dburl", "", "rethinkdb url")
-	dbuser = flag.String("dbuser", "", "rethinkdb username")
+	dbhost = flag.String("dbhost", "localhost", "rethinkdb host")
+	dbport = flag.Int("dbport", 28015, "rethinkdb port")
+	dbuser = flag.String("dbuser", "admin", "rethinkdb username")
 	dbpass = flag.String("dbpass", "", "rethinkdb password")
-
-	plugins = flag.String("plugins", "", "dir to load plugins from")
 )
 
 var Log = minori.GetLogger("snart")
@@ -31,22 +35,17 @@ func main() {
 		minori.Level = minori.INFO
 	}
 
+	d := &db.DB{
+		Host: *dbhost,
+		Port: *dbport,
+		User: *dbuser,
+		Pass: *dbpass,
+	}
+
 	// make bot
-	b, err := bot.MkBot(*dburl, *dbuser, *dbpass)
+	b, err := bot.MkBot(d)
 	if err != nil {
-		err = fmt.Errorf("mkbot %#v: %w", *dburl, err)
-		Log.Fatal(_f, err)
-	}
-
-	if *plugins == "" {
-		Log.Warn(_f, "trying to load plugins from ./plugins")
-		*plugins = "./plugins"
-	}
-
-	// register plugins
-	err = b.RegisterAll(*plugins)
-	if err != nil {
-		err = fmt.Errorf("registerall %#v: %w", *plugins, err)
+		err = fmt.Errorf("mkbot %#v: %w", d, err)
 		Log.Fatal(_f, err)
 	}
 

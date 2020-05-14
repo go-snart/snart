@@ -2,8 +2,9 @@ package route
 
 import (
 	"fmt"
-	dg "github.com/bwmarrin/discordgo"
 	re "regexp"
+
+	dg "github.com/bwmarrin/discordgo"
 )
 
 type Okay func(*Ctx) bool

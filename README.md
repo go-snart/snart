@@ -1,5 +1,6 @@
 snart
 =====
+an example bot for the go-snart framework. copy or fork this for your own bot!
 
 test server
 -----------
@@ -7,4 +8,4 @@ test server
 
 requirements
 ------------
-- rethinkdb  instance
+- rethinkdb instance

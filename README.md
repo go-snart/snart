@@ -9,3 +9,7 @@ test server
 requirements
 ------------
 - rethinkdb instance
+
+example bot
+-----------
+[go-snart/example](https://github.com/go-snart/example)

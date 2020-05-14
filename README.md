@@ -1,6 +1,6 @@
 snart
 =====
-an example bot for the go-snart framework. copy or fork this for your own bot!
+a discord bot framework. currently still a little janky, but feel free to use if you know what you're doing!
 
 test server
 -----------

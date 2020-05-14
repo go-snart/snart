@@ -1,0 +1,5 @@
+FROM golang:1.14 AS snart
+RUN bash -c "go get -d -v -x github.com/go-snart/{snart,plugin-{help,admin}}"
+WORKDIR /go/src/github.com/go-snart/snart/cmd/snart
+RUN go install -i -v -x .
+CMD ["snart"]

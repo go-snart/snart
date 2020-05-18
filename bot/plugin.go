@@ -11,18 +11,20 @@ func Register(name string, plug Plugin) {
 		return
 	}
 	Plugins[name] = plug
-}
-
-func warnPlug(_f string, b *Bot, name string, plug Plugin) {
-	err := plug(b)
-	if err != nil {
-		Log.Warnf(_f, "plugin %s: %s", name, err)
-	}
+	Log.Info(_f, "registered as %s: %s", name, plug)
 }
 
 func (b *Bot) GoPlugins() {
 	_f := "(*Bot).GoPlugins"
+
 	for name, plug := range Plugins {
-		go warnPlug(_f, b, name, plug)
+		go func(n string, p Plugin) {
+			err := p(b)
+			if err != nil {
+				Log.Warnf(_f, "plugin %s: %s", n, err)
+				return
+			}
+			Log.Infof(_f, "plugin %s :)", n)
+		}(name, plug)
 	}
 }

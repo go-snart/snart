@@ -14,7 +14,9 @@ import (
 type Bot struct {
 	DB      *db.DB
 	Session *dg.Session
-	Router  *route.Router
+
+	Router *route.Router
+	Gamers []Gamer
 
 	Sig     chan os.Signal
 	Startup time.Time
@@ -38,6 +40,10 @@ func MkBot(d *db.DB) (*Bot, error) {
 	b.Session.AddHandler(b.Route)
 
 	b.Router = route.NewRouter()
+	b.Gamers = []Gamer{
+		GamerUptime,
+	}
+
 	b.Sig = make(chan os.Signal)
 
 	Log.Info(_f, "made bot")

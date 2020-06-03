@@ -31,8 +31,8 @@ func All(chs ...Okay) Okay {
 	}
 }
 
-var BotOwner Okay = func(c *Ctx) bool {
-	_f := "BotOwner"
+func BotOwner(c *Ctx) bool {
+	_f := "Owner"
 	app, err := c.Session.Application("@me")
 	if err != nil {
 		err = fmt.Errorf("app @me: %w", err)

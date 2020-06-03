@@ -11,7 +11,7 @@ func Register(name string, plug Plugin) {
 		return
 	}
 	Plugins[name] = plug
-	Log.Infof(_f, "registered as %s: %s", name, plug)
+	Log.Infof(_f, "registered as %s: %#v", name, plug)
 }
 
 func (b *Bot) GoPlugins() {

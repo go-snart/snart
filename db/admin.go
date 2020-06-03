@@ -14,8 +14,8 @@ var AdminTable = r.DB("config").TableCreate(
 	"admin",
 )
 
-func (d *DB) AdminsIDs() ([]string, error) {
-	_f := "(*DB).Admins"
+func (d *DB) AdminIDs() ([]string, error) {
+	_f := "(*DB).AdminIDs"
 
 	d.Once(ConfigDB)
 	d.Once(AdminTable)

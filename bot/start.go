@@ -41,6 +41,8 @@ func (b *Bot) Start() error {
 	}
 	Log.Info(_f, "session opened")
 
+	go b.CycleGamers()
+
 	b.WaitReady()
 	Log.Info(_f, "ready")
 

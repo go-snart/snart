@@ -45,3 +45,9 @@ func GamerUptime(b *Bot) (*dg.Game, error) {
 		Type: dg.GameTypeGame,
 	}, nil
 }
+
+func GamerText(text string, typ dg.GameType) Gamer {
+	return func(b *Bot) (*dg.Game, error) {
+		return &dg.Game{Name: text, Type: typ}, nil
+	}
+}

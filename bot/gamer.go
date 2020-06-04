@@ -41,7 +41,7 @@ func (b *Bot) AddGamer(g Gamer) {
 
 func GamerUptime(b *Bot) (*dg.Game, error) {
 	return &dg.Game{
-		Name: fmt.Sprintf("for %s", time.Now().Sub(b.Startup)),
+		Name: fmt.Sprintf("for %s", time.Now().Sub(b.Startup).Round(time.Second)),
 		Type: dg.GameTypeGame,
 	}, nil
 }

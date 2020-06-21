@@ -27,8 +27,8 @@ func (d *DB) Queryer(getq func(*route.Ctx) (r.Term, error)) func(*route.Ctx) err
 			return err
 		}
 
-		tmp := make([]interface{}, 0)
-		err = q.ReadAll(tmp, d)
+		var tmp []interface{}
+		err = q.ReadAll(&tmp, d)
 		if err != nil {
 			err = fmt.Errorf("readall tmp %s: %w", q, err)
 
@@ -64,6 +64,7 @@ func (d *DB) Queryer(getq func(*route.Ctx) (r.Term, error)) func(*route.Ctx) err
 				rep.Content = "```json\n"
 			}
 		}
+		rep.Content += "```"
 		return rep.Send()
 	}
 }

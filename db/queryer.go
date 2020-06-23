@@ -26,6 +26,9 @@ func (d *DB) Queryer(getq func(*route.Ctx) (r.Term, error)) func(*route.Ctx) err
 
 			return err
 		}
+		if q.String() == r.Expr(nil).String() {
+			return nil
+		}
 
 		var tmp []interface{}
 		err = q.ReadAll(&tmp, d)

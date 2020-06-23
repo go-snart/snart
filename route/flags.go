@@ -12,6 +12,7 @@ type Flags struct {
 	*flag.FlagSet
 	args []string
 	ctx  *Ctx
+	err  error
 }
 
 func MkFlags(ctx *Ctx, name string, args []string) *Flags {
@@ -20,15 +21,18 @@ func MkFlags(ctx *Ctx, name string, args []string) *Flags {
 	f.ctx = ctx
 	f.args = args
 
-	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.Usage = f.Usage
-	f.FlagSet = fs
+	f.FlagSet = flag.NewFlagSet(name, flag.ContinueOnError)
+	f.FlagSet.Usage = f.Usage
+	f.FlagSet.SetOutput(&strings.Builder{})
 
 	return f
 }
 
 func (f *Flags) Usage() {
 	rep := f.ctx.Reply()
+	if f.err != nil {
+		rep.Content = "**Error:** " + f.err.Error()
+	}
 	rep.Embed = &dg.MessageEmbed{
 		Title:       "Usage of `" + f.ctx.Route.Name + "`",
 		Description: f.ctx.Route.Desc,
@@ -47,9 +51,10 @@ func (f *Flags) Usage() {
 
 func (f *Flags) Parse() error {
 	_f := "(*Flags).Parse"
-	err := f.FlagSet.Parse(f.args)
 
+	err := f.FlagSet.Parse(f.args)
 	if err != nil {
+		f.err = err
 		err = fmt.Errorf("flag parse %#v: %w", f.args, err)
 		Log.Error(_f, err)
 		return err
@@ -59,11 +64,12 @@ func (f *Flags) Parse() error {
 }
 
 func (f *Flags) Output() string {
-	b, ok := f.FlagSet.Output().(*strings.Builder)
-	if !ok {
-		return ""
+	if b, ok := f.FlagSet.Output().(interface {
+		String() string
+	}); ok {
+		return b.String()
 	}
-	return b.String()
+	return ""
 }
 
 type DgUserValue struct {

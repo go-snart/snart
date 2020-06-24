@@ -15,20 +15,32 @@ type Flags struct {
 	err  error
 }
 
-func MkFlags(ctx *Ctx, name string, args []string) *Flags {
+func NewFlags(ctx *Ctx, name string, args []string) *Flags {
 	f := &Flags{}
 
 	f.ctx = ctx
 	f.args = args
 
 	f.FlagSet = flag.NewFlagSet(name, flag.ContinueOnError)
-	f.FlagSet.Usage = f.Usage
+	f.FlagSet.Usage = func() {
+		f.Usage().Send()
+	}
 	f.FlagSet.SetOutput(&strings.Builder{})
 
 	return f
 }
 
-func (f *Flags) Usage() {
+func visitor(rep *Reply) func(f *flag.Flag) {
+	return func(f *flag.Flag) {
+		field := &dg.MessageEmbedField{
+			Name:  "Flag `-" + f.Name + "`",
+			Value: f.Usage,
+		}
+		rep.Embed.Fields = append(rep.Embed.Fields, field)
+	}
+}
+
+func (f *Flags) Usage() *Reply {
 	rep := f.ctx.Reply()
 	if f.err != nil {
 		rep.Content = "**Error:** " + f.err.Error()
@@ -38,15 +50,9 @@ func (f *Flags) Usage() {
 		Description: f.ctx.Route.Desc,
 		Fields:      make([]*dg.MessageEmbedField, 0),
 	}
-	f.VisitAll(func(f *flag.Flag) {
-		field := &dg.MessageEmbedField{
-			Name:  "Flag `-" + f.Name + "`",
-			Value: f.Usage,
-		}
-		rep.Embed.Fields = append(rep.Embed.Fields, field)
-	})
+	f.VisitAll(visitor(rep))
 
-	rep.Send()
+	return rep
 }
 
 func (f *Flags) Parse() error {
@@ -70,46 +76,4 @@ func (f *Flags) Output() string {
 		return b.String()
 	}
 	return ""
-}
-
-type DgUserValue struct {
-	user *dg.User
-	ctx  *Ctx
-}
-
-func (d *DgUserValue) String() string {
-	return d.user.String()
-}
-
-func (d *DgUserValue) Set(s string) error {
-	g, err := d.ctx.Session.Guild(d.ctx.Message.GuildID)
-	if err != nil {
-		return err
-	}
-
-	for _, m := range g.Members {
-		if m.Mention() == s ||
-			m.Nick == s ||
-			m.User.Mention() == s ||
-			m.User.String() == s ||
-			m.User.Username == s ||
-			m.User.Username == s ||
-			m.User.ID == s {
-			d.user = m.User
-			return nil
-		}
-	}
-
-	return nil
-}
-
-func (f *Flags) User(name string, value *dg.User, usage string) *dg.User {
-	val := &DgUserValue{
-		user: value,
-		ctx:  f.ctx,
-	}
-
-	f.Var(val, name, usage)
-
-	return val.user
 }

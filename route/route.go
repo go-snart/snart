@@ -1,12 +1,17 @@
 package route
 
-import "github.com/superloach/minori"
+import (
+	re "regexp"
+
+	"github.com/superloach/minori"
+)
 
 var Log = minori.GetLogger("route")
 
 type Route struct {
 	Name  string
 	Match string
+	match *re.Regexp
 	Cat   string
 	Desc  string
 	Okay  Okay

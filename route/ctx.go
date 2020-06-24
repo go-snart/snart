@@ -1,8 +1,6 @@
 package route
 
-import (
-	dg "github.com/bwmarrin/discordgo"
-)
+import dg "github.com/bwmarrin/discordgo"
 
 type Ctx struct {
 	Prefix      string

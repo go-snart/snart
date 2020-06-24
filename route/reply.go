@@ -9,6 +9,14 @@ type Reply struct {
 	ChannelID string
 }
 
+func (c *Ctx) Reply() *Reply {
+	return &Reply{
+		MessageSend: &dg.MessageSend{},
+		Session:     c.Session,
+		ChannelID:   c.Message.ChannelID,
+	}
+}
+
 func (r *Reply) SendMsg() (*dg.Message, error) {
 	return r.Session.ChannelMessageSendComplex(r.ChannelID, r.MessageSend)
 }
@@ -20,12 +28,4 @@ func (r *Reply) Send() error {
 		Log.Warn(_f, err)
 	}
 	return err
-}
-
-func (c *Ctx) Reply() *Reply {
-	return &Reply{
-		MessageSend: &dg.MessageSend{},
-		Session:     c.Session,
-		ChannelID:   c.Message.ChannelID,
-	}
 }

@@ -19,7 +19,7 @@ func (rr *Router) Add(rs ...*Route) {
 	*rr = append(*rr, rs...)
 }
 
-func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line string) (*Ctx, error) {
+func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line string) *Ctx {
 	_f := "(Router).Ctx"
 
 	Log.Debugf(_f, "%s %s %s %s", m.GuildID, line, pfx, cpfx)
@@ -32,29 +32,19 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 
 	cont := strings.TrimPrefix(line, pfx)
 	cont = strings.Trim(cont, " ")
-	args, err := Split(cont)
-	if err != nil {
-		err = fmt.Errorf("split %#v: %w", cont, err)
-		Log.Error(_f, err)
-		return nil, err
-	}
+	args := Split(cont)
 	Log.Debugf(_f, "%#v", args)
 
 	if len(args) == 0 {
-		return nil, nil
+		return nil
 	}
 
 	cmd := args[0]
-
-	if len(args) == 1 {
-		args = make([]string, 0)
-	} else {
-		args = args[1:]
-	}
+	args = args[1:]
 
 	Log.Debug(_f, "args", args)
 
-	c.Flags = MkFlags(c, cmd, args)
+	c.Flags = NewFlags(c, cmd, args)
 
 	for _, r := range *rr {
 		Log.Debug(_f, "try route", r)
@@ -64,8 +54,8 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 		matched, err := re.MatchString("^"+r.Match+"$", c.Flags.Name())
 		if err != nil {
 			err = fmt.Errorf("re match %#v %#v: %w", r.Match, c.Flags.Name(), err)
-			Log.Error(_f, err)
-			return nil, err
+			Log.Warn(_f, err)
+			return nil
 		}
 
 		var ok bool
@@ -84,8 +74,8 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 	Log.Debugf(_f, "ctx %#v", c)
 
 	if c.Route == nil {
-		return nil, nil
+		return nil
 	}
 
-	return c, nil
+	return c
 }

@@ -4,15 +4,12 @@ import re2 "github.com/dlclark/regexp2"
 
 var splitter = re2.MustCompile(`((\x60+)(.+?)\2)|(\S+)`, 0)
 
-func Split(s string) ([]string, error) {
+func Split(s string) []string {
 	subj := []rune(s)
 	args := make([]string, 0)
 
 	for {
-		m, err := splitter.FindRunesMatch(subj)
-		if err != nil {
-			return nil, err
-		}
+		m, _ := splitter.FindRunesMatch(subj)
 		if m == nil {
 			break
 		}
@@ -32,5 +29,5 @@ func Split(s string) ([]string, error) {
 		subj = subj[l:]
 	}
 
-	return args, nil
+	return args
 }

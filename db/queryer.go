@@ -45,7 +45,7 @@ func (d *DB) Queryer(getq func(*route.Ctx) (r.Term, error)) func(*route.Ctx) err
 
 		cont, err := json.MarshalIndent(tmp, "", "\t")
 		if err != nil {
-			err = fmt.Errorf("marshal cont: %w", q, err)
+			err = fmt.Errorf("marshal cont: %w", err)
 
 			rep.Content = err.Error()
 			rep.Send()

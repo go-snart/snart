@@ -15,7 +15,9 @@ type DB struct {
 	User string
 	Pass string
 
-	Cache map[string]struct{}
+	Cache map[string]Cache
+
+	failed bool
 }
 
 var Log = minori.GetLogger("db")
@@ -29,13 +31,18 @@ func (d *DB) Start() error {
 		Password: d.Pass,
 	})
 	if err != nil {
+		d.failed = true
+
 		err = fmt.Errorf("connect %s:%s@%s:%d: %w", d.User, d.Pass, d.Host, d.Port, err)
 		Log.Error(_f, err)
 		return err
 	}
 	d.Session = s
 
-	d.Cache = make(map[string]struct{})
+	d.Cache = map[string]Cache{
+		"once":   NewMapCache(),
+		"prefix": NewLRUCache(100),
+	}
 
 	return nil
 }

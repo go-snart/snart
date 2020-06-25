@@ -12,8 +12,9 @@ import (
 var PrefixFail = errors.New("failed to get a prefix")
 
 type Prefix struct {
-	Guild string
-	Value string
+	Guild string `rethinkdb:"guild"`
+	Value string `rethinkdb:"value"`
+	Clean string `rethinkdb:"-"`
 }
 
 var PrefixTable = r.DB("config").TableCreate(
@@ -23,61 +24,86 @@ var PrefixTable = r.DB("config").TableCreate(
 	},
 )
 
-func (d *DB) Prefix(ses *dg.Session, guild, cont string) (string, string, error) {
-	_f := "(*DB).Prefix"
+func (d *DB) GuildPrefix(id string) (*Prefix, error) {
+	_f := "(*DB).GuildPrefix"
+
+	if pfx, ok := d.Cache["prefix"].Get(id); ok {
+		return pfx.(*Prefix), nil
+	}
+
+	d.Once(ConfigDB)
+	d.Once(PrefixTable)
+
+	pfxs := []*Prefix{}
+	q := r.DB("config").Table("prefix").Get(id)
+
+	err := q.ReadAll(&pfxs, d)
+	if err != nil {
+		err = fmt.Errorf("readall &pfxs: %w", err)
+		Log.Error(_f, err)
+		return nil, err
+	}
+
+	d.Cache["prefix"].Add(id, pfxs[0])
+	return pfxs[0], nil
+}
+
+func (d *DB) DefaultPrefix() (*Prefix, error) {
+	return d.GuildPrefix("")
+}
+
+func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
+	_f := "(*DB).FindPrefix"
 	Log.Debugf(_f, "prefix %s", guild)
 
 	d.Once(ConfigDB)
 	d.Once(PrefixTable)
 
-	pfxs := make([]Prefix, 0)
-	gu := r.Row.Field("guild")
-	q := r.DB("config").Table("prefix").Filter(gu.Eq("").Or(gu.Eq(guild)))
-	err := q.ReadAll(&pfxs, d)
+	gpfx, err := d.GuildPrefix(guild)
 	if err != nil {
-		err = fmt.Errorf("readall &pfxs: %w", err)
-		Log.Error(_f, err)
-		return "", "", err
+		return nil, err
+	}
+	if gpfx != nil {
+		return gpfx, nil
 	}
 
-	for _, pfx := range pfxs {
-		if pfx.Guild == guild && strings.HasPrefix(cont, pfx.Value) {
-			return pfx.Value, pfx.Value, nil
-		}
+	dpfx, err := d.DefaultPrefix()
+	if err != nil {
+		return nil, err
+	}
+	if dpfx != nil {
+		return dpfx, nil
 	}
 
-	for _, pfx := range pfxs {
-		if pfx.Guild == "" && strings.HasPrefix(cont, pfx.Value) {
-			return pfx.Value, pfx.Value, nil
-		}
-	}
-
-	ument := ses.State.User.Mention() + " "
+	ument := ses.State.User.Mention()
 	if strings.HasPrefix(cont, ument) {
-		return ument, "@" + ses.State.User.Username + " ", nil
+		return &Prefix{
+			Guild: "",
+			Value: ument,
+			Clean: "@" + ses.State.User.Username,
+		}, nil
 	}
 
-	mment := ""
-	g, err := ses.Guild(guild)
+	mme, err := ses.GuildMember(guild, "@me")
 	if err != nil {
-		err = fmt.Errorf("guild %#v: %w", guild, err)
+		err = fmt.Errorf("member %#v @me: %w", guild, err)
 		Log.Error(_f, err)
-		return "", "", err
+		return nil, err
 	}
-	for _, member := range g.Members {
-		if member.User.ID == ses.State.User.ID {
-			mment = member.Mention() + " "
 
-			name := member.Nick
-			if name == "" {
-				name = member.User.Username
-			}
+	mment := mme.Mention()
 
-			if strings.HasPrefix(cont, mment) {
-				return mment, "@" + name + " ", nil
-			}
+	if strings.HasPrefix(cont, mment) {
+		if mme.Nick == "" {
+			mme.Nick = mme.User.Username
 		}
+
+		return &Prefix{
+			Guild: guild,
+			Value: mment,
+			Clean: "@" + mme.Nick,
+		}, nil
 	}
 
-	return "", "", PrefixFail
+	return nil, PrefixFail
 }

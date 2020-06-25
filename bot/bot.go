@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -22,20 +21,15 @@ type Bot struct {
 	Startup time.Time
 }
 
-func MkBot(d *db.DB) (*Bot, error) {
-	_f := "MkBot"
+func NewBot(d *db.DB) (*Bot, error) {
+	_f := "NewBot"
 	b := &Bot{}
 
 	Log.Info(_f, "making bot")
 
 	b.DB = d
 
-	s, err := dg.New()
-	if err != nil {
-		err = fmt.Errorf("dg new: %w", err)
-		Log.Error(_f, err)
-		return nil, err
-	}
+	s, _ := dg.New()
 	b.Session = s
 	b.Session.AddHandler(b.Route)
 

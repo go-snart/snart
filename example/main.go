@@ -45,9 +45,9 @@ func main() {
 	}
 
 	// make bot
-	b, err := bot.MkBot(d)
+	b, err := bot.NewBot(d)
 	if err != nil {
-		err = fmt.Errorf("mkbot %#v: %w", d, err)
+		err = fmt.Errorf("new bot %#v: %w", d, err)
 		Log.Fatal(_f, err)
 	}
 

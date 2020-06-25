@@ -31,9 +31,5 @@ func (d *DB) Token() (*Token, error) {
 		return nil, err
 	}
 
-	if len(toks) == 0 {
-		return nil, TokenFail
-	}
-
 	return toks[0], nil
 }

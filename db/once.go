@@ -11,11 +11,11 @@ func (d *DB) Once(q r.Term) {
 	d.WaitReady()
 
 	qs := q.String()
-	if _, ok := d.Cache[qs]; ok {
+	if d.Cache["once"].Contains(qs) {
 		Log.Debugf(_f, "cache %s", qs)
 		return
 	}
-	d.Cache[qs] = struct{}{}
+	d.Cache["once"].Add(qs, struct{}{})
 
 	err := q.Exec(d)
 	if err != nil {

@@ -7,12 +7,10 @@ import (
 )
 
 type Admin struct {
-	ID string
+	ID string `rethinkdb:"id"`
 }
 
-var AdminTable = r.DB("config").TableCreate(
-	"admin",
-)
+var AdminTable = r.DB("config").TableCreate("admin")
 
 func (d *DB) AdminIDs() ([]string, error) {
 	_f := "(*DB).AdminIDs"

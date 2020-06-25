@@ -23,7 +23,7 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 	for _, line := range lines {
 		Log.Debugf(_f, "line %#v", line)
 
-		pfx, cpfx, err := b.DB.Prefix(b.Session, m.GuildID, line)
+		pfx, err := b.DB.FindPrefix(b.Session, m.GuildID, line)
 		if err != nil {
 			if err == db.PrefixFail {
 				continue
@@ -33,13 +33,12 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 			continue
 		}
 
-		ctx, err := b.Router.Ctx(pfx, cpfx, s, m.Message, line)
-		if err != nil {
-			err = fmt.Errorf("get ctx: %w", err)
-			Log.Warn(_f, err)
-			continue
+		cpfx := pfx.Value
+		if pfx.Clean != "" {
+			cpfx = pfx.Clean
 		}
 
+		ctx := b.Router.Ctx(pfx.Value, cpfx, s, m.Message, line)
 		if ctx == nil {
 			Log.Warn(_f, "nil ctx")
 			continue

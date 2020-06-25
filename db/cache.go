@@ -1,6 +1,10 @@
 package db
 
-import lru "github.com/hashicorp/golang-lru"
+import (
+	"sync"
+
+	lru "github.com/hashicorp/golang-lru"
+)
 
 type Cache interface {
 	Add(key, value interface{})
@@ -10,23 +14,7 @@ type Cache interface {
 }
 
 type LRUCache struct {
-	*lru.Cache
-}
-
-func (l *LRUCache) Add(key, value interface{}) {
-	_ = l.Cache.Add(key, value)
-}
-
-func (l *LRUCache) Contains(key interface{}) bool {
-	return l.Cache.Contains(key)
-}
-
-func (l *LRUCache) Get(key interface{}) (interface{}, bool) {
-	return l.Cache.Get(key)
-}
-
-func (l *LRUCache) Remove(key interface{}) {
-	_ = l.Cache.Remove(key)
+	i *lru.Cache
 }
 
 func NewLRUCache(size int) Cache {
@@ -37,26 +25,43 @@ func NewLRUCache(size int) Cache {
 	return &LRUCache{cache}
 }
 
-type MapCache map[interface{}]interface{}
+func (l *LRUCache) Add(key, value interface{}) {
+	_ = l.i.Add(key, value)
+}
+
+func (l *LRUCache) Contains(key interface{}) bool {
+	return l.i.Contains(key)
+}
+
+func (l *LRUCache) Get(key interface{}) (interface{}, bool) {
+	return l.i.Get(key)
+}
+
+func (l *LRUCache) Remove(key interface{}) {
+	_ = l.i.Remove(key)
+}
+
+type MapCache struct {
+	i *sync.Map
+}
+
+func NewMapCache() Cache {
+	return &MapCache{&sync.Map{}}
+}
 
 func (m *MapCache) Add(key, value interface{}) {
-	(*m)[key] = value
+	m.i.Store(key, value)
 }
 
 func (m *MapCache) Contains(key interface{}) bool {
-	_, ok := (*m)[key]
+	_, ok := m.i.Load(key)
 	return ok
 }
 
 func (m *MapCache) Get(key interface{}) (interface{}, bool) {
-	value, ok := (*m)[key]
-	return value, ok
+	return m.i.Load(key)
 }
 
 func (m *MapCache) Remove(key interface{}) {
-	delete(*m, key)
-}
-
-func NewMapCache() Cache {
-	return &MapCache{}
+	m.i.Delete(key)
 }

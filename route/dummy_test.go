@@ -45,9 +45,9 @@ func sessionDummy() (
 	string,
 	*dg.Session,
 ) {
-	tok := os.Getenv("SNART_TEST_TOKEN")
+	tok := os.Getenv("SNART_TOKEN")
 	if tok == "" {
-		panic("please provide $SNART_TEST_TOKEN")
+		panic("please provide SNART_TOKEN")
 	}
 
 	session, err := dg.New(tok)
@@ -145,3 +145,20 @@ func routeDummy() (
 			Func:  _func,
 		}
 }
+
+func routerDummy() (
+	*Route,
+	*Router,
+) {
+	router := NewRouter()
+
+	_, _, _, _, _, _,
+		route := routeDummy()
+	router.Add(
+		route,
+	)
+
+	return route,
+		router
+}
+

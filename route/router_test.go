@@ -5,22 +5,6 @@ import (
 	"testing"
 )
 
-func routerDummy() (
-	*Route,
-	*Router,
-) {
-	router := NewRouter()
-
-	_, _, _, _, _, _,
-		route := routeDummy()
-	router.Add(
-		route,
-	)
-
-	return route,
-		router
-}
-
 func TestNewRouter(t *testing.T) {
 	route, router := routerDummy()
 
@@ -90,12 +74,15 @@ func TestRouterCtxNilOkay(t *testing.T) {
 	_,
 		ses := sessionDummy()
 	_, _, _, _,
-		msg := messageDummy("owo")
+		msg := messageDummy("yeet")
 	line := strings.Split(msg.Content, "\n")[0]
 
 	c := router.Ctx(pfx, cpfx, ses, msg, line)
-	if c != nil {
-		t.Fatal("c != nil")
+	if c == nil {
+		t.Fatal("c == nil")
+	}
+	if c.Route.Okay((*Ctx)(nil)) != true {
+		t.Fatal("c.Route.Okay != True")
 	}
 }
 
@@ -111,6 +98,26 @@ func TestRouterCtxNoArgs(t *testing.T) {
 		ses := sessionDummy()
 	_, _, _, _,
 		msg := messageDummy("")
+	line := strings.Split(msg.Content, "\n")[0]
+
+	c := router.Ctx(pfx, cpfx, ses, msg, line)
+	if c != nil {
+		t.Fatal("c != nil")
+	}
+}
+
+func TestRouterCtxIndex1(t *testing.T) {
+	_, router := routerDummy()
+
+	var (
+		pfx  = "./"
+		cpfx = "./"
+	)
+
+	_,
+		ses := sessionDummy()
+	_, _, _, _,
+		msg := messageDummy("ayeet")
 	line := strings.Split(msg.Content, "\n")[0]
 
 	c := router.Ctx(pfx, cpfx, ses, msg, line)

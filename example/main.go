@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/namsral/flag"
 	"github.com/superloach/minori"
@@ -12,6 +13,13 @@ import (
 	_ "github.com/go-snart/plugin-admin"
 	_ "github.com/go-snart/plugin-help"
 )
+
+var _ = func() bool {
+	flag.CommandLine = flag.NewFlagSetWithEnvPrefix(
+		os.Args[0], "SNART", flag.ExitOnError,
+	)
+	return false
+}()
 
 var (
 	debug = flag.Bool("debug", false, "print debug messages")

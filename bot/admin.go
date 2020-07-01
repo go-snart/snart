@@ -6,7 +6,7 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
-// Admin checks if the author has bot-wide admin priveleges. (implements route.Okay)
+// Admin checks if the author has bot-wide admin privileges. (implements route.Okay)
 func (b *Bot) Admin(c *route.Ctx) bool {
 	_f := "(*Bot).Admin"
 

@@ -9,6 +9,7 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 )
 
+// Route is an event handler for dispatching a *dg.MessageCreate to the Bot's Router.
 func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 	_f := "(*Bot).Route"
 	Log.Debug(_f, "handling")
@@ -25,7 +26,7 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 
 		pfx, err := b.DB.FindPrefix(b.Session, m.GuildID, line)
 		if err != nil {
-			if err == db.PrefixFail {
+			if err == db.ErrPrefixFail {
 				continue
 			}
 			err = fmt.Errorf("prefix %#v %#v: %w", m.GuildID, line, err)

@@ -2,6 +2,7 @@ package db
 
 import r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 
+// BuildDB provides a r.Term that creates the given DB if it doesn't already exist, and then returns that DB.
 func BuildDB(name interface{}) r.Term {
 	return r.Branch(
 		r.DBList().Contains(name),
@@ -12,6 +13,7 @@ func BuildDB(name interface{}) r.Term {
 	})
 }
 
+// BuildTable provides a r.Term that creates the given table if it doesn't already exist, and then returns that table.
 func BuildTable(db r.Term, name interface{}, co *r.TableCreateOpts, o *r.TableOpts) r.Term {
 	cos := []r.TableCreateOpts{}
 	if co != nil {

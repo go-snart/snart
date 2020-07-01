@@ -1,3 +1,4 @@
+// Package db contains the workings of a DB for a Snart Bot.
 package db
 
 import (
@@ -7,6 +8,10 @@ import (
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
+// Log is the logger for the db package.
+var Log = minori.GetLogger("db")
+
+// DB wraps a RethinkDB session and Cache.
 type DB struct {
 	*r.Session
 
@@ -20,8 +25,7 @@ type DB struct {
 	failed bool
 }
 
-var Log = minori.GetLogger("db")
-
+// Start performs a DB's startup functions.
 func (d *DB) Start() error {
 	_f := "(*DB).Start"
 

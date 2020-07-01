@@ -8,6 +8,7 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 )
 
+// Flags holds a FlagSet for a Ctx.
 type Flags struct {
 	*flag.FlagSet
 	args []string
@@ -15,6 +16,7 @@ type Flags struct {
 	err  error
 }
 
+// NewFlags creates a Flags.
 func NewFlags(ctx *Ctx, name string, args []string) *Flags {
 	f := &Flags{}
 
@@ -40,6 +42,7 @@ func visitor(rep *Reply) func(f *flag.Flag) {
 	}
 }
 
+// Usage generates a *Reply containing usage info from the Flags.
 func (f *Flags) Usage() *Reply {
 	rep := f.ctx.Reply()
 	if f.err != nil {
@@ -55,6 +58,7 @@ func (f *Flags) Usage() *Reply {
 	return rep
 }
 
+// Parse parses the arguments given to the Flags.
 func (f *Flags) Parse() error {
 	_f := "(*Flags).Parse"
 
@@ -69,6 +73,7 @@ func (f *Flags) Parse() error {
 	return nil
 }
 
+// Output retrieves the Flags' FlagSet's Output as a string.
 func (f *Flags) Output() string {
 	if b, ok := f.FlagSet.Output().(interface {
 		String() string

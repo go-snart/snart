@@ -2,12 +2,10 @@ package bot
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 )
 
+// Start performs the Bot's startup functions, and then waits until an interrupt.
 func (b *Bot) Start() error {
 	_f := "(*Bot).Start"
 
@@ -46,10 +44,16 @@ func (b *Bot) Start() error {
 	b.WaitReady()
 	Log.Info(_f, "ready")
 
-	signal.Notify(b.Sig, os.Interrupt)
-	signal.Notify(b.Sig, syscall.SIGTERM)
-	<-b.Sig
-	Log.Info(_f, "interrupt")
+	b.NotifyInterrupt()
+	interrupt := <-b.Interrupt
+	if interrupt.Err != nil {
+		err = fmt.Errorf("interrupt: %w", interrupt.Err)
+	} else if interrupt.Sig != nil {
+		err = fmt.Errorf("interrupt: %s", interrupt.Sig)
+	} else {
+		err = fmt.Errorf("interrupt: unknown")
+	}
+	Log.Error(_f, err)
 
 	if !b.Session.State.User.Bot {
 		err = b.Session.Logout()
@@ -57,10 +61,10 @@ func (b *Bot) Start() error {
 			err = fmt.Errorf("logout: %w", err)
 			Log.Error(_f, err)
 			return err
-		} else {
-			Log.Info(_f, "logged out")
-			return nil
 		}
+
+		Log.Info(_f, "logged out")
+		return nil
 	}
 
 	err = b.Session.Close()
@@ -68,8 +72,8 @@ func (b *Bot) Start() error {
 		err = fmt.Errorf("close: %w", err)
 		Log.Error(_f, err)
 		return err
-	} else {
-		Log.Info(_f, "session closed")
-		return nil
 	}
+
+	Log.Info(_f, "session closed")
+	return nil
 }

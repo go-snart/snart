@@ -9,6 +9,7 @@ import (
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
+// Queryer returns a route handler given a function which produces a r.Term from a route context.
 func (d *DB) Queryer(getq func(*route.Ctx) (r.Term, error)) func(*route.Ctx) error {
 	_f := "Queryer"
 

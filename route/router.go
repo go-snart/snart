@@ -7,17 +7,21 @@ import (
 	re2 "github.com/dlclark/regexp2"
 )
 
+// Router is a slice of Routes.
 type Router []*Route
 
+// NewRouter creates a Router.
 func NewRouter() *Router {
 	rr := make(Router, 0)
 	return &rr
 }
 
+// Add adds a Route to the Router.
 func (rr *Router) Add(rs ...*Route) {
 	*rr = append(*rr, rs...)
 }
 
+// Ctx gets a Ctx by finding an appropriate Route for a given prefix, session, message, etc.
 func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line string) *Ctx {
 	_f := "(*Router).Ctx"
 

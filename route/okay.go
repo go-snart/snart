@@ -6,8 +6,10 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 )
 
+// Okay is a function which checks if a Ctx should be used.
 type Okay func(*Ctx) bool
 
+// Any is a logical OR of Okays.
 func Any(chs ...Okay) Okay {
 	return func(c *Ctx) bool {
 		for _, ch := range chs {
@@ -19,6 +21,7 @@ func Any(chs ...Okay) Okay {
 	}
 }
 
+// All is a logical AND of Okays.
 func All(chs ...Okay) Okay {
 	return func(c *Ctx) bool {
 		for _, ch := range chs {
@@ -30,14 +33,17 @@ func All(chs ...Okay) Okay {
 	}
 }
 
+// False is an Okay that always returns false.
 var False Okay = func(*Ctx) bool {
 	return false
 }
 
+// True is an Okay that always returns true.
 var True Okay = func(*Ctx) bool {
 	return true
 }
 
+// GuildAdmin is an Okay that checks if the user has administrator privileges on the guild.
 var GuildAdmin Okay = func(c *Ctx) bool {
 	_f := "GuildAdmin"
 

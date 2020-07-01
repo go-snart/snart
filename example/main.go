@@ -1,3 +1,4 @@
+// Package main provides an example bot using Snart.
 package main
 
 import (
@@ -30,7 +31,7 @@ var (
 	dbpass = flag.String("dbpass", "", "rethinkdb password")
 )
 
-var Log = minori.GetLogger("example")
+var log = minori.GetLogger("example")
 
 func main() {
 	_f := "main"
@@ -38,12 +39,12 @@ func main() {
 
 	if *debug {
 		minori.Level = minori.DEBUG
-		Log.Debug(_f, "debug mode")
+		log.Debug(_f, "debug mode")
 	} else {
 		minori.Level = minori.INFO
 	}
 
-	Log.Debugf(_f, "plugins: %v", bot.Plugins)
+	log.Debugf(_f, "plugins: %v", bot.Plugins)
 
 	d := &db.DB{
 		Host: *dbhost,
@@ -56,15 +57,15 @@ func main() {
 	b, err := bot.NewBot(d)
 	if err != nil {
 		err = fmt.Errorf("new bot %#v: %w", d, err)
-		Log.Fatal(_f, err)
+		log.Fatal(_f, err)
 	}
 
 	// run the bot
 	err = b.Start()
 	if err != nil {
 		err = fmt.Errorf("start: %w", err)
-		Log.Fatal(_f, err)
+		log.Fatal(_f, err)
 	}
 
-	Log.Info(_f, "bye!")
+	log.Info(_f, "bye!")
 }

@@ -1,7 +1,8 @@
 package db
 
-import "time"
+import "runtime"
 
+// WaitReady loops until the DB has a valid Session.
 func (d *DB) WaitReady() {
 	_f := "(*DB).WaitReady"
 
@@ -10,6 +11,7 @@ func (d *DB) WaitReady() {
 		if d.Session != nil {
 			break
 		}
-		time.Sleep(time.Millisecond * 100)
+
+		runtime.Gosched()
 	}
 }

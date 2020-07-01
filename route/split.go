@@ -4,6 +4,7 @@ import re2 "github.com/dlclark/regexp2"
 
 var splitter = re2.MustCompile(`((\x60+)(.+?)\2)|(\S+)`, 0)
 
+// Split splits a string using a backtick quoting method.
 func Split(s string) []string {
 	subj := []rune(s)
 	args := make([]string, 0)

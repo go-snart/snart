@@ -6,15 +6,18 @@ import (
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
+// Admin contains the user ID of an administrator.
 type Admin struct {
 	ID string `rethinkdb:"id"`
 }
 
+// AdminTable is a table builder for config.admin.
 var AdminTable = BuildTable(
 	ConfigDB, "admin",
 	nil, nil,
 )
 
+// AdminIDs is a convenience method for fetching a list of administrators.
 func (d *DB) AdminIDs() ([]string, error) {
 	_f := "(*DB).AdminIDs"
 

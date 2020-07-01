@@ -2,6 +2,7 @@ package route
 
 import dg "github.com/bwmarrin/discordgo"
 
+// Wait contains two Okays, a Return channel, and a handler cancel function.
 type Wait struct {
 	general  Okay
 	specific Okay
@@ -9,6 +10,7 @@ type Wait struct {
 	cancel   *func()
 }
 
+// WaitCancel creates a Wait from the Ctx and two Okays, with optional cancellation.
 func (c *Ctx) WaitCancel(general Okay, specific Okay, cancel bool) *Wait {
 	w := &Wait{}
 
@@ -26,6 +28,7 @@ func (c *Ctx) WaitCancel(general Okay, specific Okay, cancel bool) *Wait {
 	return w
 }
 
+// Wait creates a Wait from the Ctx and two Okays, with cancellation enabled.
 func (c *Ctx) Wait(general Okay, specific Okay) *Wait {
 	return c.WaitCancel(general, specific, true)
 }

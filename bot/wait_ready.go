@@ -1,7 +1,8 @@
 package bot
 
-import "time"
+import "runtime"
 
+// WaitReady loops until the Bot has a valid Session, and then calls the Bot's DB's WaitReady method.
 func (b *Bot) WaitReady() {
 	_f := "(*Bot).WaitReady"
 
@@ -10,14 +11,9 @@ func (b *Bot) WaitReady() {
 		if b.Session.State.User != nil {
 			break
 		}
-		time.Sleep(time.Millisecond * 100)
+
+		runtime.Gosched()
 	}
 
-	for {
-		Log.Debug(_f, "wait for db")
-		if b.DB.Session != nil {
-			break
-		}
-		time.Sleep(time.Millisecond * 100)
-	}
+	b.DB.WaitReady()
 }

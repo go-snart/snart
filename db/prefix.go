@@ -9,14 +9,17 @@ import (
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
-var PrefixFail = errors.New("failed to get a prefix")
+// ErrPrefixFail is an error which indicates that a function failed to get a prefix.
+var ErrPrefixFail = errors.New("failed to get a prefix")
 
+// Prefix represents a command prefix Value for a given Guild, as well as a human-readable Clean prefix.
 type Prefix struct {
 	Guild string `rethinkdb:"guild"`
 	Value string `rethinkdb:"value"`
 	Clean string `rethinkdb:"-"`
 }
 
+// PrefixTable is a table builder for config.prefix.
 var PrefixTable = BuildTable(
 	ConfigDB, "prefix",
 	&r.TableCreateOpts{
@@ -24,6 +27,7 @@ var PrefixTable = BuildTable(
 	}, nil,
 )
 
+// GuildPrefix gets the prefix for a given Guild.
 func (d *DB) GuildPrefix(id string) (*Prefix, error) {
 	_f := "(*DB).GuildPrefix"
 
@@ -46,14 +50,20 @@ func (d *DB) GuildPrefix(id string) (*Prefix, error) {
 		return nil, err
 	}
 
+	if len(pfxs) == 0 {
+		return nil, ErrPrefixFail
+	}
+
 	d.Cache.Get("prefix").(Cache).Set(id, pfxs[0])
 	return pfxs[0], nil
 }
 
+// DefaultPrefix gets the default prefix (aka the Guild "").
 func (d *DB) DefaultPrefix() (*Prefix, error) {
 	return d.GuildPrefix("")
 }
 
+// FindPrefix finds a matching prefix for a given guild and message content.
 func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
 	_f := "(*DB).FindPrefix"
 	Log.Debugf(_f, "prefix %s", guild)
@@ -104,5 +114,5 @@ func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
 		}, nil
 	}
 
-	return nil, PrefixFail
+	return nil, ErrPrefixFail
 }

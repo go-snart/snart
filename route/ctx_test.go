@@ -10,42 +10,42 @@ func TestNewCtx(t *testing.T) {
 
 	if c.Prefix != prefix {
 		t.Fatalf(
-			"c.Prefix == %q; prefix == %q",
+			"c.Prefix == %q != prefix == %q",
 			c.Prefix, prefix,
 		)
 	}
 
 	if c.CleanPrefix != cleanPrefix {
 		t.Fatalf(
-			"c.CleanPrefix == %q; cleanPrefix == %q",
+			"c.CleanPrefix == %q != cleanPrefix == %q",
 			c.CleanPrefix, cleanPrefix,
 		)
 	}
 
 	if c.Session != session {
 		t.Fatalf(
-			"c.Session == %v; session == %v",
+			"c.Session == %#v != session == %#v",
 			c.Session, session,
 		)
 	}
 
 	if c.Message != message {
 		t.Fatalf(
-			"c.Message == %v; message == %v",
+			"c.Message == %#v != message == %#v",
 			c.Message, message,
 		)
 	}
 
 	if c.Flags != flags {
 		t.Fatalf(
-			"c.Flags == %v; flags == %v",
+			"c.Flags == %#v != flags == %#v",
 			c.Flags, flags,
 		)
 	}
 
 	if c.Route != route {
 		t.Fatalf(
-			"c.Route == %v; route == %v",
+			"c.Route == %#v != route == %#v",
 			c.Route, route,
 		)
 	}
@@ -61,6 +61,6 @@ func TestCtxRun(t *testing.T) {
 	}
 
 	if c.Route.Desc != "run" {
-		t.Fatalf("c.Route.Desc != %q", "run")
+		t.Fatalf("c.Route.Desc != run")
 	}
 }

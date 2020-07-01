@@ -17,25 +17,27 @@ type Prefix struct {
 	Clean string `rethinkdb:"-"`
 }
 
-var PrefixTable = r.DB("config").TableCreate(
-	"prefix",
-	r.TableCreateOpts{
+var PrefixTable = BuildTable(
+	ConfigDB, "prefix",
+	&r.TableCreateOpts{
 		PrimaryKey: "guild",
-	},
+	}, nil,
 )
 
 func (d *DB) GuildPrefix(id string) (*Prefix, error) {
 	_f := "(*DB).GuildPrefix"
 
-	if pfx, ok := d.Cache["prefix"].Get(id); ok {
+	if !d.Cache.Has("prefix") {
+		d.Cache.Set("prefix", NewLRUCache(10))
+	}
+
+	pfx := d.Cache.Get("prefix").(Cache).Get(id)
+	if pfx != nil {
 		return pfx.(*Prefix), nil
 	}
 
-	d.Once(ConfigDB)
-	d.Once(PrefixTable)
-
 	pfxs := []*Prefix{}
-	q := r.DB("config").Table("prefix").Get(id)
+	q := PrefixTable.Get(id)
 
 	err := q.ReadAll(&pfxs, d)
 	if err != nil {
@@ -44,7 +46,7 @@ func (d *DB) GuildPrefix(id string) (*Prefix, error) {
 		return nil, err
 	}
 
-	d.Cache["prefix"].Add(id, pfxs[0])
+	d.Cache.Get("prefix").(Cache).Set(id, pfxs[0])
 	return pfxs[0], nil
 }
 
@@ -55,9 +57,6 @@ func (d *DB) DefaultPrefix() (*Prefix, error) {
 func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
 	_f := "(*DB).FindPrefix"
 	Log.Debugf(_f, "prefix %s", guild)
-
-	d.Once(ConfigDB)
-	d.Once(PrefixTable)
 
 	gpfx, err := d.GuildPrefix(guild)
 	if err != nil {

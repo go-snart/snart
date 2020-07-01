@@ -10,13 +10,13 @@ type Admin struct {
 	ID string `rethinkdb:"id"`
 }
 
-var AdminTable = r.DB("config").TableCreate("admin")
+var AdminTable = BuildTable(
+	ConfigDB, "admin",
+	nil, nil,
+)
 
 func (d *DB) AdminIDs() ([]string, error) {
 	_f := "(*DB).AdminIDs"
-
-	d.Once(ConfigDB)
-	d.Once(AdminTable)
 
 	admins := make([]Admin, 0)
 	q := r.DB("config").Table("admin")

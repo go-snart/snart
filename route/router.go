@@ -1,7 +1,6 @@
 package route
 
 import (
-	"fmt"
 	"strings"
 
 	dg "github.com/bwmarrin/discordgo"
@@ -35,22 +34,24 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 	Log.Debugf(_f, "%#v", *c)
 
 	for _, r := range *rr {
-		Log.Debug(_f, "try route", r)
+		Log.Debugf(_f, "try route %#v", r)
 
 		if r.match == nil {
-			exp, err := re2.Compile(r.Match+`\b`, re2.IgnoreCase)
+			match := `(` + r.Match + `)\b`
+			exp, err := re2.Compile(match, re2.IgnoreCase)
 			if err != nil {
-				err = fmt.Errorf("re compile %q: %w", r.Match+`\b`, err)
-				Log.Warn(_f, err)
+				Log.Warnf(_f, "re compile %#q: %s", match, err)
 				continue
 			}
 			r.match = exp
 		}
 
+		Log.Debugf(_f, "%#v", r.match)
+
 		// can't error - already compiled
 		m, _ := r.match.FindStringMatch(line)
 		if m == nil {
-			Log.Warn(_f, "re match nil")
+			Log.Warnf(_f, "re match nil")
 			continue
 		}
 		if m.Index > 0 {
@@ -59,7 +60,7 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 		}
 
 		if r.Okay == nil {
-			Log.Warn("nil okay, setting to true")
+			Log.Warnf(_f, "nil okay, setting to true")
 			r.Okay = True
 		}
 
@@ -82,7 +83,7 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 	cmd := args[0]
 	args = args[1:]
 
-	Log.Debug(_f, "args", args)
+	Log.Debugf(_f, "args %#v", args)
 
 	c.Flags = NewFlags(c, cmd, args)
 

@@ -70,7 +70,7 @@ func TestFlagsParse(t *testing.T) {
 
 	if len(args) != len(fargs) {
 		t.Fatalf(
-			"len(args) == %d; len(fargs) == %d",
+			"len(args) == %d != len(fargs) == %d",
 			len(args), len(fargs),
 		)
 	}
@@ -78,7 +78,7 @@ func TestFlagsParse(t *testing.T) {
 	for i := 0; i < len(args) && i < len(fargs); i++ {
 		if args[i] != fargs[i] {
 			t.Fatalf(
-				"args[%d] == %q; fargs[%d] == %q",
+				"args[%d] == %q != fargs[%d] == %q",
 				i, args[i],
 				i, fargs[i],
 			)
@@ -137,7 +137,7 @@ func TestFlagsOutputBuilder(t *testing.T) {
 	out := flags.Output()
 	if out != oout {
 		t.Fatalf(
-			"out == %q; oout == %q",
+			"out == %q != oout == %q",
 			out, oout,
 		)
 	}
@@ -162,8 +162,8 @@ func TestFlagsOutputOther(t *testing.T) {
 	}
 
 	out := flags.Output()
-	if out != "" {
-		t.Fatalf("out != %q", "")
+	if len(out) > 0 {
+		t.Fatalf("len(out) == %d > 0", len(out))
 	}
 }
 

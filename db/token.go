@@ -13,14 +13,14 @@ type Token struct {
 	Value string
 }
 
-var TokenTable = r.DB("config").TableCreate("token")
+var TokenTable = BuildTable(
+	ConfigDB, "token",
+	nil, nil,
+)
 
 func (d *DB) Token() (*Token, error) {
 	_f := "(*DB).Token"
 	Log.Debug(_f, "enter")
-
-	d.Once(ConfigDB)
-	d.Once(TokenTable)
 
 	toks := make([]*Token, 0)
 	q := r.DB("config").Table("token")

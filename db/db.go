@@ -15,7 +15,7 @@ type DB struct {
 	User string
 	Pass string
 
-	Cache map[string]Cache
+	Cache *MapCache
 
 	failed bool
 }
@@ -39,10 +39,7 @@ func (d *DB) Start() error {
 	}
 	d.Session = s
 
-	d.Cache = map[string]Cache{
-		"once":   NewMapCache(),
-		"prefix": NewLRUCache(100),
-	}
+	d.Cache = NewMapCache()
 
 	return nil
 }

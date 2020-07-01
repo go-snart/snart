@@ -8,7 +8,7 @@ func (d *DB) WaitReady() {
 
 	for !d.failed {
 		Log.Debug(_f, "wait for db")
-		if d.Session != nil {
+		if d.Session != nil && d.Cache != nil {
 			break
 		}
 

@@ -1,8 +1,6 @@
-package db
+package db_test
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestDBStart(t *testing.T) {
 	_, err := dbDummyStart()

@@ -1,4 +1,4 @@
-package db
+package db_test
 
 import "testing"
 
@@ -8,7 +8,7 @@ func TestWaitReady(t *testing.T) {
 	go func() {
 		err := db.Start()
 		if err != nil {
-			t.Fatal(err)
+			panic(err)
 		}
 	}()
 

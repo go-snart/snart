@@ -32,6 +32,7 @@ func NewLRUCache(size int) *LRUCache {
 	if err != nil {
 		panic(err)
 	}
+
 	return &LRUCache{&sync.Mutex{}, cache}
 }
 
@@ -61,7 +62,7 @@ func (l *LRUCache) Keys() []interface{} {
 	return l.i.Keys()
 }
 
-// MapCache is a Cache using a map[interface{}]interface{}
+// MapCache is a Cache using a map[interface{}]interface{}.
 type MapCache struct {
 	*sync.Mutex
 
@@ -77,8 +78,7 @@ func NewMapCache() *MapCache {
 
 // Get retrieves a value from a given key.
 func (m *MapCache) Get(key interface{}) interface{} {
-	value, _ := m.i[key]
-	return value
+	return m.i[key]
 }
 
 // Set assigns a value to a given key.
@@ -99,9 +99,11 @@ func (m *MapCache) Has(key interface{}) bool {
 
 // Keys returns a slice of all keys present.
 func (m *MapCache) Keys() []interface{} {
-	ks, i := make([]interface{}, len(m.i)), 0
+	ks := []interface{}{}
+
 	for k := range m.i {
-		ks[i], i = k, i+1
+		ks = append(ks, k)
 	}
+
 	return ks
 }

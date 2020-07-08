@@ -47,6 +47,7 @@ func (d *DB) GuildPrefix(id string) (*Prefix, error) {
 	if err != nil {
 		err = fmt.Errorf("readall &pfxs: %w", err)
 		Log.Error(_f, err)
+
 		return nil, err
 	}
 
@@ -55,6 +56,7 @@ func (d *DB) GuildPrefix(id string) (*Prefix, error) {
 	}
 
 	d.Cache.Get("prefix").(Cache).Set(id, pfxs[0])
+
 	return pfxs[0], nil
 }
 
@@ -72,16 +74,22 @@ func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if gpfx != nil {
-		return gpfx, nil
+		if strings.HasPrefix(cont, gpfx.Value) {
+			return gpfx, nil
+		}
 	}
 
 	dpfx, err := d.DefaultPrefix()
 	if err != nil {
 		return nil, err
 	}
+
 	if dpfx != nil {
-		return dpfx, nil
+		if strings.HasPrefix(cont, dpfx.Value) {
+			return dpfx, nil
+		}
 	}
 
 	ument := ses.State.User.Mention()
@@ -97,6 +105,7 @@ func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
 	if err != nil {
 		err = fmt.Errorf("member %#v @me: %w", guild, err)
 		Log.Error(_f, err)
+
 		return nil, err
 	}
 

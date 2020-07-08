@@ -2,8 +2,6 @@ package db
 
 import (
 	"fmt"
-
-	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 // Admin contains the user ID of an administrator.
@@ -22,12 +20,13 @@ func (d *DB) AdminIDs() ([]string, error) {
 	_f := "(*DB).AdminIDs"
 
 	admins := make([]Admin, 0)
-	q := r.DB("config").Table("admin")
+	q := AdminTable
 
 	err := q.ReadAll(&admins, d)
 	if err != nil {
 		err = fmt.Errorf("readall &admins: %w", err)
 		Log.Error(_f, err)
+
 		return nil, err
 	}
 

@@ -39,8 +39,10 @@ func (d *DB) Start() error {
 
 		err = fmt.Errorf("connect %s:%s@%s:%d: %w", d.User, d.Pass, d.Host, d.Port, err)
 		Log.Error(_f, err)
+
 		return err
 	}
+
 	d.Session = s
 
 	d.Cache = NewMapCache()

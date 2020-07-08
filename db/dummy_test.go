@@ -1,14 +1,15 @@
-package db
+package db_test
 
 import (
 	"os"
 	"strconv"
 
 	dg "github.com/bwmarrin/discordgo"
+	"github.com/go-snart/snart/db"
 )
 
-func dbDummy() *DB {
-	db := &DB{
+func dbDummy() *db.DB {
+	d := &db.DB{
 		User: "admin",
 		Pass: "",
 		Host: "localhost",
@@ -16,24 +17,27 @@ func dbDummy() *DB {
 	}
 
 	if u := os.Getenv("SNART_DBUSER"); u != "" {
-		db.User = u
-	}
-	if p := os.Getenv("SNART_DBPASS"); p != "" {
-		db.Pass = p
-	}
-	if h := os.Getenv("SNART_DBHOST"); h != "" {
-		db.Host = h
-	}
-	if t, err := strconv.Atoi(os.Getenv("SNART_DBPORT")); err != nil && t > 0 {
-		db.Port = t
+		d.User = u
 	}
 
-	return db
+	if p := os.Getenv("SNART_DBPASS"); p != "" {
+		d.Pass = p
+	}
+
+	if h := os.Getenv("SNART_DBHOST"); h != "" {
+		d.Host = h
+	}
+
+	if t, err := strconv.Atoi(os.Getenv("SNART_DBPORT")); err != nil && t > 0 {
+		d.Port = t
+	}
+
+	return d
 }
 
-func dbDummyStart() (*DB, error) {
-	db := dbDummy()
-	return db, db.Start()
+func dbDummyStart() (*db.DB, error) {
+	d := dbDummy()
+	return d, d.Start()
 }
 
 func sessionDummy() (

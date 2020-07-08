@@ -3,8 +3,6 @@ package db
 import (
 	"errors"
 	"fmt"
-
-	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 // ErrTokenFail indicates a function failed to get a token.
@@ -27,12 +25,17 @@ func (d *DB) Token() (*Token, error) {
 	Log.Debug(_f, "enter")
 
 	toks := make([]*Token, 0)
-	q := r.DB("config").Table("token")
-	err := q.ReadAll(&toks, d)
+
+	err := TokenTable.ReadAll(&toks, d)
 	if err != nil {
 		err = fmt.Errorf("readall &toks: %w", err)
 		Log.Error(_f, err)
+
 		return nil, err
+	}
+
+	if len(toks) < 1 {
+		return nil, ErrTokenFail
 	}
 
 	return toks[0], nil

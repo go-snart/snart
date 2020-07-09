@@ -31,20 +31,20 @@ var (
 	dbpass = flag.String("dbpass", "", "rethinkdb password")
 )
 
-var log = minori.GetLogger("example")
+var Log = minori.GetLogger("example")
 
 func main() {
 	_f := "main"
+
 	flag.Parse()
 
 	if *debug {
 		minori.Level = minori.DEBUG
-		log.Debug(_f, "debug mode")
-	} else {
-		minori.Level = minori.INFO
+
+		Log.Debug(_f, "debugging :)")
 	}
 
-	log.Debugf(_f, "plugins: %v", bot.Plugins)
+	Log.Debugf(_f, "plugins: %v", bot.Plugins)
 
 	d := &db.DB{
 		Host: *dbhost,
@@ -57,15 +57,15 @@ func main() {
 	b, err := bot.NewBot(d)
 	if err != nil {
 		err = fmt.Errorf("new bot %#v: %w", d, err)
-		log.Fatal(_f, err)
+		Log.Fatal(_f, err)
 	}
 
 	// run the bot
 	err = b.Start()
 	if err != nil {
 		err = fmt.Errorf("start: %w", err)
-		log.Fatal(_f, err)
+		Log.Fatal(_f, err)
 	}
 
-	log.Info(_f, "bye!")
+	Log.Info(_f, "bye!")
 }

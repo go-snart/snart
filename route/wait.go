@@ -32,6 +32,7 @@ func (c *Ctx) Wait(general Okay, specific Okay) *Wait {
 	return c.WaitCancel(general, specific, true)
 }
 
+// Handle handles MessageCreate events and passes them to the Wait's Return chan.
 func (w *Wait) Handle(s *dg.Session, m *dg.MessageCreate) {
 	ctx := &Ctx{
 		Session: s,

@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,7 +15,7 @@ type Interrupt struct {
 
 // NotifyInterrupt uses signal.Notify and a pipe goroutine to send OS-level interrupts on the Bot's Interrupt.
 func (b *Bot) NotifyInterrupt(sigs ...os.Signal) {
-	sig := make(chan os.Signal)
+	sig := make(chan os.Signal, 1)
 
 	go func(sig chan os.Signal, interrupt chan Interrupt) {
 		for s := range sig {
@@ -24,4 +25,22 @@ func (b *Bot) NotifyInterrupt(sigs ...os.Signal) {
 
 	signal.Notify(sig, os.Interrupt)
 	signal.Notify(sig, syscall.SIGTERM)
+}
+
+func (b *Bot) HandleInterrupts() {
+	_f := "(*Bot).HandleInterrupts"
+
+	b.NotifyInterrupt()
+
+	interrupt := <-b.Interrupt
+	err := "interrupt: unknown"
+
+	switch {
+	case interrupt.Err != nil:
+		err = fmt.Sprintf("interrupt: %s", interrupt.Err)
+	case interrupt.Sig != nil:
+		err = fmt.Sprintf("interrupt: %s", interrupt.Sig)
+	}
+
+	Log.Error(_f, err)
 }

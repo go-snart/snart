@@ -6,7 +6,7 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
-// Admin checks if the author has bot-wide admin privileges. (implements route.Okay)
+// Admin checks if the author has bot-wide admin privileges (implements route.Okay).
 func (b *Bot) Admin(c *route.Ctx) bool {
 	_f := "(*Bot).Admin"
 
@@ -14,7 +14,9 @@ func (b *Bot) Admin(c *route.Ctx) bool {
 	if err != nil {
 		err = fmt.Errorf("app @me: %w", err)
 		Log.Warn(_f, err)
-	} else if app.Owner.ID == c.Message.Author.ID {
+	}
+
+	if app.Owner.ID == c.Message.Author.ID {
 		return true
 	}
 
@@ -22,11 +24,11 @@ func (b *Bot) Admin(c *route.Ctx) bool {
 	if err != nil {
 		err = fmt.Errorf("admin ids: %w", err)
 		Log.Warn(_f, err)
-	} else {
-		for _, adminID := range adminIDs {
-			if adminID == c.Message.Author.ID {
-				return true
-			}
+	}
+
+	for _, adminID := range adminIDs {
+		if adminID == c.Message.Author.ID {
+			return true
 		}
 	}
 

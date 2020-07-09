@@ -45,7 +45,7 @@ func (b *Bot) AddGamer(g Gamer) {
 // GamerUptime is an example Gamer that shows the Bot's uptime.
 func GamerUptime(b *Bot) (*dg.Game, error) {
 	return &dg.Game{
-		Name: fmt.Sprintf("for %s", time.Now().Sub(b.Startup).Round(time.Second)),
+		Name: fmt.Sprintf("for %s", time.Since(b.Startup).Round(time.Second)),
 		Type: dg.GameTypeGame,
 	}, nil
 }

@@ -18,25 +18,32 @@ func (b *Bot) Start() error {
 	if err != nil {
 		err = fmt.Errorf("db start: %w", err)
 		Log.Error(_f, err)
+
 		return err
 	}
+
 	Log.Info(_f, "db started")
 
 	tok, err := b.DB.Token()
 	if err != nil {
 		err = fmt.Errorf("token: %w", err)
 		Log.Error(_f, err)
+
 		return err
 	}
-	Log.Info(_f, "get token")
+
+	Log.Info(_f, "got token")
+
 	b.Session.Token = tok.Value
 
 	err = b.Session.Open()
 	if err != nil {
 		err = fmt.Errorf("session open: %w", err)
 		Log.Error(_f, err)
+
 		return err
 	}
+
 	Log.Info(_f, "session opened")
 
 	go b.CycleGamers()
@@ -44,36 +51,21 @@ func (b *Bot) Start() error {
 	b.WaitReady()
 	Log.Info(_f, "ready")
 
-	b.NotifyInterrupt()
-	interrupt := <-b.Interrupt
-	if interrupt.Err != nil {
-		err = fmt.Errorf("interrupt: %w", interrupt.Err)
-	} else if interrupt.Sig != nil {
-		err = fmt.Errorf("interrupt: %s", interrupt.Sig)
-	} else {
-		err = fmt.Errorf("interrupt: unknown")
-	}
-	Log.Error(_f, err)
+	b.HandleInterrupts()
 
-	if !b.Session.State.User.Bot {
-		err = b.Session.Logout()
-		if err != nil {
-			err = fmt.Errorf("logout: %w", err)
-			Log.Error(_f, err)
-			return err
-		}
+	b.Logout()
 
-		Log.Info(_f, "logged out")
-		return nil
-	}
+	return nil
+}
 
-	err = b.Session.Close()
+func (b *Bot) Logout() {
+	_f := "(*Bot).Logout"
+
+	err := b.Session.Close()
 	if err != nil {
 		err = fmt.Errorf("close: %w", err)
-		Log.Error(_f, err)
-		return err
+		Log.Warn(_f, err)
 	}
 
-	Log.Info(_f, "session closed")
-	return nil
+	Log.Info(_f, "logged out")
 }

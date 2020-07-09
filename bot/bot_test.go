@@ -1,9 +1,13 @@
-package bot
+package bot_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/go-snart/snart/bot"
+)
 
 func TestNewBot(t *testing.T) {
-	_, err := NewBot(nil)
+	_, err := bot.NewBot(nil)
 	if err != nil {
 		t.Fatal(err)
 	}

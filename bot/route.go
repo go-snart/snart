@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -21,16 +22,19 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 
 	lines := strings.Split(m.Message.Content, "\n")
 	Log.Debugf(_f, "lines %#v", lines)
+
 	for _, line := range lines {
 		Log.Debugf(_f, "line %#v", line)
 
 		pfx, err := b.DB.FindPrefix(b.Session, m.GuildID, line)
 		if err != nil {
-			if err == db.ErrPrefixFail {
+			if errors.Is(err, db.ErrPrefixFail) {
 				continue
 			}
+
 			err = fmt.Errorf("prefix %#v %#v: %w", m.GuildID, line, err)
 			Log.Warn(_f, err)
+
 			continue
 		}
 
@@ -41,7 +45,6 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 
 		ctx := b.Router.Ctx(pfx.Value, cpfx, s, m.Message, line)
 		if ctx == nil {
-			Log.Warn(_f, "nil ctx")
 			continue
 		}
 
@@ -49,6 +52,7 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 		if err != nil {
 			err = fmt.Errorf("ctx run: %w", err)
 			Log.Warn(_f, err)
+
 			continue
 		}
 	}

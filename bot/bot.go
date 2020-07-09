@@ -31,7 +31,7 @@ func NewBot(d *db.DB) (*Bot, error) {
 	_f := "NewBot"
 	b := &Bot{}
 
-	Log.Info(_f, "making bot")
+	Log.Debug(_f, "making bot")
 
 	b.DB = d
 
@@ -46,6 +46,7 @@ func NewBot(d *db.DB) (*Bot, error) {
 
 	b.Interrupt = make(chan Interrupt)
 
-	Log.Info(_f, "made bot")
+	Log.Debug(_f, "made bot")
+
 	return b, nil
 }

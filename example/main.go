@@ -31,6 +31,7 @@ var (
 	dbpass = flag.String("dbpass", "", "rethinkdb password")
 )
 
+// Log is the logger for the example bot.
 var Log = minori.GetLogger("example")
 
 func main() {

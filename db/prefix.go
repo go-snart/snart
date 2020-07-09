@@ -65,9 +65,68 @@ func (d *DB) DefaultPrefix() (*Prefix, error) {
 	return d.GuildPrefix("")
 }
 
+func userPrefix(ses *dg.Session, cont string, gpfx, dpfx *Prefix) *Prefix {
+	ument := ses.State.User.Mention()
+	if strings.HasPrefix(cont, ument) {
+		pfx := &Prefix{
+			Guild: "",
+			Value: ument,
+		}
+
+		switch {
+		case gpfx != nil:
+			pfx.Clean = gpfx.Value
+		case dpfx != nil:
+			pfx.Clean = dpfx.Value
+		default:
+			pfx.Clean = "@" + ses.State.User.Username + " "
+		}
+
+		return pfx
+	}
+
+	return nil
+}
+
+func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Prefix, error) {
+	_f := "memberPrefix"
+
+	mme, err := ses.GuildMember(guild, "@me")
+	if err != nil {
+		err = fmt.Errorf("member %#v @me: %w", guild, err)
+		Log.Error(_f, err)
+
+		return nil, err
+	}
+
+	mment := mme.Mention()
+	if strings.HasPrefix(cont, mment) {
+		pfx := &Prefix{
+			Guild: "",
+			Value: mment,
+		}
+
+		switch {
+		case gpfx != nil:
+			pfx.Clean = gpfx.Value
+		case dpfx != nil:
+			pfx.Clean = dpfx.Value
+		case mme.Nick != "":
+			pfx.Clean = "@" + mme.Nick + " "
+		default:
+			pfx.Clean = "@" + mme.User.Username + " "
+		}
+
+		return pfx, nil
+	}
+
+	return nil, nil
+}
+
 // FindPrefix finds a matching prefix for a given guild and message content.
 func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
 	_f := "(*DB).FindPrefix"
+
 	Log.Debugf(_f, "prefix %s", guild)
 
 	gpfx, err := d.GuildPrefix(guild)
@@ -92,35 +151,18 @@ func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
 		}
 	}
 
-	ument := ses.State.User.Mention()
-	if strings.HasPrefix(cont, ument) {
-		return &Prefix{
-			Guild: "",
-			Value: ument,
-			Clean: "@" + ses.State.User.Username,
-		}, nil
+	upfx := userPrefix(ses, cont, gpfx, dpfx)
+	if upfx != nil {
+		return upfx, nil
 	}
 
-	mme, err := ses.GuildMember(guild, "@me")
+	mpfx, err := memberPrefix(ses, guild, cont, gpfx, dpfx)
 	if err != nil {
-		err = fmt.Errorf("member %#v @me: %w", guild, err)
-		Log.Error(_f, err)
-
 		return nil, err
 	}
 
-	mment := mme.Mention()
-
-	if strings.HasPrefix(cont, mment) {
-		if mme.Nick == "" {
-			mme.Nick = mme.User.Username
-		}
-
-		return &Prefix{
-			Guild: guild,
-			Value: mment,
-			Clean: "@" + mme.Nick,
-		}, nil
+	if mpfx != nil {
+		return mpfx, nil
 	}
 
 	return nil, ErrPrefixFail

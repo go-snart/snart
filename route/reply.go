@@ -24,12 +24,14 @@ func (r *Reply) SendMsg() (*dg.Message, error) {
 	return r.Session.ChannelMessageSendComplex(r.ChannelID, r.MessageSend)
 }
 
-// Send is a shortcut for SendMsg that just logs a warning on error.
+// Send is a shortcut for SendMsg that logs a warning on error and elides the resulting *dg.Message.
 func (r *Reply) Send() error {
 	_f := "(*Reply).Send"
+
 	_, err := r.SendMsg()
 	if err != nil {
 		Log.Warn(_f, err)
 	}
+
 	return err
 }

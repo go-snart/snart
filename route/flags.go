@@ -25,21 +25,16 @@ func NewFlags(ctx *Ctx, name string, args []string) *Flags {
 
 	f.FlagSet = flag.NewFlagSet(name, flag.ContinueOnError)
 	f.FlagSet.Usage = func() {
-		f.Usage().Send()
+		_f := "f.Flagset.Usage"
+
+		err := f.Usage().Send()
+		if err != nil {
+			Log.Warn(_f, err)
+		}
 	}
 	f.FlagSet.SetOutput(&strings.Builder{})
 
 	return f
-}
-
-func visitor(rep *Reply) func(f *flag.Flag) {
-	return func(f *flag.Flag) {
-		field := &dg.MessageEmbedField{
-			Name:  "Flag `-" + f.Name + "`",
-			Value: f.Usage,
-		}
-		rep.Embed.Fields = append(rep.Embed.Fields, field)
-	}
 }
 
 // Usage generates a *Reply containing usage info from the Flags.
@@ -48,12 +43,20 @@ func (f *Flags) Usage() *Reply {
 	if f.err != nil {
 		rep.Content = "**Error:** " + f.err.Error()
 	}
+
 	rep.Embed = &dg.MessageEmbed{
 		Title:       "Usage of `" + f.ctx.Route.Name + "`",
 		Description: f.ctx.Route.Desc,
 		Fields:      make([]*dg.MessageEmbedField, 0),
 	}
-	f.VisitAll(visitor(rep))
+
+	f.VisitAll(func(f *flag.Flag) {
+		field := &dg.MessageEmbedField{
+			Name:  "Flag `-" + f.Name + "`",
+			Value: f.Usage,
+		}
+		rep.Embed.Fields = append(rep.Embed.Fields, field)
+	})
 
 	return rep
 }
@@ -65,8 +68,10 @@ func (f *Flags) Parse() error {
 	err := f.FlagSet.Parse(f.args)
 	if err != nil {
 		f.err = err
+
 		err = fmt.Errorf("flag parse %#v: %w", f.args, err)
 		Log.Error(_f, err)
+
 		return err
 	}
 
@@ -75,10 +80,9 @@ func (f *Flags) Parse() error {
 
 // Output retrieves the Flags' FlagSet's Output as a string.
 func (f *Flags) Output() string {
-	if b, ok := f.FlagSet.Output().(interface {
-		String() string
-	}); ok {
+	if b, ok := f.FlagSet.Output().(fmt.Stringer); ok {
 		return b.String()
 	}
+
 	return ""
 }

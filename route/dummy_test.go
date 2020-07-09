@@ -1,10 +1,11 @@
-package route
+package route_test
 
 import (
 	"fmt"
 	"os"
 
 	dg "github.com/bwmarrin/discordgo"
+	"github.com/go-snart/snart/route"
 )
 
 func val(v interface{}) string {
@@ -38,7 +39,10 @@ func messageCreateDummy(content string) (
 ) {
 	_, _, _, _,
 		msg := messageDummy(content)
-	return msg, &dg.MessageCreate{msg}
+
+	return msg, &dg.MessageCreate{
+		Message: msg,
+	}
 }
 
 func sessionDummy() (
@@ -68,13 +72,13 @@ func sessionBadDummy() *dg.Session {
 }
 
 func ctxDummy(content string) (
-	string, string, *dg.Session, *dg.Message, *Flags, *Route,
-	*Ctx,
+	string, string, *dg.Session, *dg.Message, *route.Flags, *route.Route,
+	*route.Ctx,
 ) {
 	var (
 		prefix      = "./"
 		cleanPrefix = "./"
-		flags       = &Flags{}
+		flags       = &route.Flags{}
 	)
 
 	_, _, _, _,
@@ -84,29 +88,30 @@ func ctxDummy(content string) (
 		session := sessionDummy()
 
 	_, _, _, _, _, _,
-		route := routeDummy()
+		r := routeDummy()
 
-	return prefix, cleanPrefix, session, message, flags, route,
-		&Ctx{
+	return prefix, cleanPrefix, session, message, flags, r,
+		&route.Ctx{
 			Prefix:      prefix,
 			CleanPrefix: cleanPrefix,
 			Session:     session,
 			Message:     message,
 			Flags:       flags,
-			Route:       route,
+			Route:       r,
 		}
 }
 
-func ctxBadDummy() *Ctx {
+func ctxBadDummy() *route.Ctx {
 	_, _, _, _, _, _,
 		c := ctxDummy("")
 	c.Session = sessionBadDummy()
+
 	return c
 }
 
-func flagsDummy(ctx *Ctx) (
+func flagsDummy(ctx *route.Ctx) (
 	string, []string,
-	*Flags,
+	*route.Flags,
 ) {
 	name := ctx.Route.Name
 	args := []string{
@@ -116,27 +121,27 @@ func flagsDummy(ctx *Ctx) (
 	}
 
 	return name, args,
-		NewFlags(ctx, name, args)
+		route.NewFlags(ctx, name, args)
 }
 
 func routeDummy() (
-	string, string, string, string, Okay, func(*Ctx) error,
-	*Route,
+	string, string, string, string, route.Okay, func(*route.Ctx) error,
+	*route.Route,
 ) {
 	var (
 		name  = "route"
 		match = "route|yeet"
 		cat   = "test"
 		desc  = "a test route"
-		okay  = True
-		_func = func(c *Ctx) error {
+		okay  = route.True
+		_func = func(c *route.Ctx) error {
 			c.Route.Desc = "run"
 			return nil
 		}
 	)
 
 	return name, match, cat, desc, okay, _func,
-		&Route{
+		&route.Route{
 			Name:  name,
 			Match: match,
 			Cat:   cat,
@@ -147,17 +152,15 @@ func routeDummy() (
 }
 
 func routerDummy() (
-	*Route,
-	*Router,
+	*route.Route,
+	*route.Router,
 ) {
-	router := NewRouter()
+	router := route.NewRouter()
 
 	_, _, _, _, _, _,
-		route := routeDummy()
-	router.Add(
-		route,
-	)
+		r := routeDummy()
+	router.Add(r)
 
-	return route,
+	return r,
 		router
 }

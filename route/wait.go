@@ -4,25 +4,24 @@ import dg "github.com/bwmarrin/discordgo"
 
 // Wait contains two Okays, a Return channel, and a handler cancel function.
 type Wait struct {
-	general  Okay
-	specific Okay
+	General  Okay
+	Specific Okay
 	Return   chan *Ctx
-	cancel   *func()
+	Cancel   func()
 }
 
 // WaitCancel creates a Wait from the Ctx and two Okays, with optional cancellation.
 func (c *Ctx) WaitCancel(general Okay, specific Okay, cancel bool) *Wait {
 	w := &Wait{}
 
-	w.general = general
-	w.specific = specific
+	w.General = general
+	w.Specific = specific
 	w.Return = make(chan *Ctx)
 
-	f := c.Session.AddHandler(w.handle)
+	f := c.Session.AddHandler(w.Handle)
+
 	if cancel {
-		w.cancel = &f
-	} else {
-		w.cancel = nil
+		w.Cancel = f
 	}
 
 	return w
@@ -33,23 +32,23 @@ func (c *Ctx) Wait(general Okay, specific Okay) *Wait {
 	return c.WaitCancel(general, specific, true)
 }
 
-func (w *Wait) handle(s *dg.Session, m *dg.MessageCreate) {
+func (w *Wait) Handle(s *dg.Session, m *dg.MessageCreate) {
 	ctx := &Ctx{
 		Session: s,
 		Message: m.Message,
 	}
 
-	if !w.general(ctx) {
+	if !w.General(ctx) {
 		return
 	}
 
-	if !w.specific(ctx) {
+	if !w.Specific(ctx) {
 		w.Return <- nil
 	}
 
 	w.Return <- ctx
 
-	if w.cancel != nil {
-		(*w.cancel)()
+	if w.Cancel != nil {
+		w.Cancel()
 	}
 }

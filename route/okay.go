@@ -17,6 +17,7 @@ func Any(chs ...Okay) Okay {
 				return true
 			}
 		}
+
 		return false
 	}
 }
@@ -29,6 +30,7 @@ func All(chs ...Okay) Okay {
 				return false
 			}
 		}
+
 		return true
 	}
 }

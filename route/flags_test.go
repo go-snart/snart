@@ -1,11 +1,7 @@
-package route
+package route_test
 
 import (
-	"flag"
-	"fmt"
 	"testing"
-
-	dg "github.com/bwmarrin/discordgo"
 )
 
 func TestNewFlags(t *testing.T) {
@@ -14,13 +10,9 @@ func TestNewFlags(t *testing.T) {
 	name, _,
 		flags := flagsDummy(c)
 
-	if flags.ctx != c {
-		t.Fatal("flags.ctx != c")
-	}
 	if flags.Name() != name {
 		t.Fatal("flags.Name() != name")
 	}
-
 }
 
 func TestFlagsUsage(t *testing.T) {
@@ -34,23 +26,7 @@ func TestFlagsUsage(t *testing.T) {
 	if usage.Content != "" {
 		t.Fatal("usage.Content != \"\"")
 	}
-	if usage.Embed.Title != "Usage of `"+c.Route.Name+"`" {
-		t.Fatal("usage.Embed.Title")
-	}
-}
 
-func TestFlagsUsageErr(t *testing.T) {
-	_, _, _, _, _, _,
-		c := ctxDummy("uwu")
-	_, _,
-		flags := flagsDummy(c)
-	flags.err = fmt.Errorf("this is an error")
-
-	usage := flags.Usage()
-
-	if usage.Content != "**Error:** "+flags.err.Error() {
-		t.Fatal("usage.Content")
-	}
 	if usage.Embed.Title != "Usage of `"+c.Route.Name+"`" {
 		t.Fatal("usage.Embed.Title")
 	}
@@ -127,7 +103,7 @@ func TestFlagsOutputBuilder(t *testing.T) {
 	_, _, _, _, _, _,
 		c := ctxDummy("uwu")
 	_, _, flags := flagsDummy(c)
-	const oout = "hello world"
+	oout := "hello world"
 
 	_, err := flags.FlagSet.Output().Write([]byte(oout))
 	if err != nil {
@@ -153,8 +129,9 @@ func TestFlagsOutputOther(t *testing.T) {
 	_, _, _, _, _, _,
 		c := ctxDummy("uwu")
 	_, _, flags := flagsDummy(c)
+	oout := "hello world"
+
 	flags.SetOutput(dummyWriter{})
-	const oout = "hello world"
 
 	_, err := flags.FlagSet.Output().Write([]byte(oout))
 	if err != nil {
@@ -165,33 +142,4 @@ func TestFlagsOutputOther(t *testing.T) {
 	if len(out) > 0 {
 		t.Fatalf("len(out) == %d > 0", len(out))
 	}
-}
-
-type dummyValue struct{}
-
-func (d dummyValue) String() string {
-	return "dummy"
-}
-func (d dummyValue) Set(string) error {
-	return fmt.Errorf("dummy")
-}
-
-func TestFlagsVisitor(t *testing.T) {
-	_, _, _, _, _, _,
-		c := ctxDummy("uwu")
-
-	rep := c.Reply()
-	rep.Embed = &dg.MessageEmbed{
-		Title:       "Usage of `" + c.Route.Name + "`",
-		Description: c.Route.Desc,
-		Fields:      make([]*dg.MessageEmbedField, 0),
-	}
-
-	val := dummyValue{}
-	visitor(rep)(&flag.Flag{
-		Name:     "foo",
-		Usage:    "do the foo thing idk",
-		Value:    val,
-		DefValue: val.String(),
-	})
 }

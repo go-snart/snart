@@ -1,8 +1,10 @@
-package route
+package route_test
 
 import (
 	"strings"
 	"testing"
+
+	"github.com/go-snart/snart/route"
 )
 
 func TestNewRouter(t *testing.T) {
@@ -81,7 +83,8 @@ func TestRouterCtxNilOkay(t *testing.T) {
 	if c == nil {
 		t.Fatal("c == nil")
 	}
-	if c.Route.Okay((*Ctx)(nil)) != true {
+
+	if !c.Route.Okay((*route.Ctx)(nil)) {
 		t.Fatal("c.Route.Okay != True")
 	}
 }

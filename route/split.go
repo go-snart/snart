@@ -16,6 +16,7 @@ func Split(s string) []string {
 		}
 
 		gs := m.Groups()
+
 		match := gs[4].Capture.String()
 		if match == "" {
 			match = gs[3].Capture.String()
@@ -27,6 +28,7 @@ func Split(s string) []string {
 		if l > len(subj) {
 			break
 		}
+
 		subj = subj[l:]
 	}
 

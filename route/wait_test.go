@@ -1,47 +1,48 @@
-package route
+package route_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/go-snart/snart/route"
+)
 
 func TestWait(t *testing.T) {
 	_, _, _, _, _, _,
 		c := ctxDummy("owo")
-	w := c.Wait(True, True)
+	w := c.Wait(route.True, route.True)
 
-	if w == nil {
+	switch {
+	case w == nil:
 		t.Fatal("w == nil")
-	}
-	if val(w.general) != val(True) {
-		t.Fatal("w.general != True")
-	}
-	if val(w.specific) != val(True) {
-		t.Fatal("w.specific != True")
-	}
-	if w.Return == nil {
+	case val(w.General) != val(route.True):
+		t.Fatal("w.General != route.True")
+	case val(w.Specific) != val(route.True):
+		t.Fatal("w.Specific != route.True")
+	case w.Return == nil:
 		t.Fatal("w.Return == nil")
-	}
-	if w.cancel == nil {
-		t.Fatal("w.cancel == nil")
+	case w.Cancel == nil:
+		t.Fatal("w.Cancel == nil")
 	}
 }
 
 func TestWaitNoCancel(t *testing.T) {
 	_, _, _, _, _, _,
 		c := ctxDummy("owo")
-	w := c.WaitCancel(True, True, false)
+	w := c.WaitCancel(route.True, route.True, false)
 
-	if w.cancel != nil {
-		t.Fatal("w.cancel != nil")
+	if w.Cancel != nil {
+		t.Fatal("w.Cancel != nil")
 	}
 }
 
 func TestWaitHandle(t *testing.T) {
 	_, _, _, _, _, _,
 		c := ctxDummy("owo")
-	w := c.Wait(True, True)
+	w := c.Wait(route.True, route.True)
 
 	_,
 		mc := messageCreateDummy("uwu")
-	go w.handle(c.Session, mc)
+	go w.Handle(c.Session, mc)
 
 	nc := <-w.Return
 	if mc.Message != nc.Message {
@@ -52,21 +53,21 @@ func TestWaitHandle(t *testing.T) {
 func TestWaitHandleNoGeneral(t *testing.T) {
 	_, _, _, _, _, _,
 		c := ctxDummy("owo")
-	w := c.Wait(False, True)
+	w := c.Wait(route.False, route.True)
 
 	_,
 		mc := messageCreateDummy("uwu")
-	w.handle(c.Session, mc)
+	w.Handle(c.Session, mc)
 }
 
 func TestWaitHandleNoSpecific(t *testing.T) {
 	_, _, _, _, _, _,
 		c := ctxDummy("owo")
-	w := c.Wait(True, False)
+	w := c.Wait(route.True, route.False)
 
 	_,
 		mc := messageCreateDummy("uwu")
-	go w.handle(c.Session, mc)
+	go w.Handle(c.Session, mc)
 
 	nc := <-w.Return
 	if nc != nil {

@@ -25,28 +25,22 @@ func (rr *Router) Add(rs ...*Route) {
 func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line string) *Ctx {
 	_f := "(*Router).Ctx"
 
-	Log.Debugf(_f, "%s %q %q %q", m.ID, line, pfx, cpfx)
+	c := &Ctx{Prefix: pfx, CleanPrefix: cpfx, Session: s, Message: m}
 
-	c := &Ctx{}
-	c.Prefix = pfx
-	c.CleanPrefix = cpfx
-	c.Session = s
-	c.Message = m
-
-	line = strings.TrimPrefix(line, pfx)
-	Log.Debugf(_f, "%s %q %q %q", m.ID, line, pfx, cpfx)
-	Log.Debugf(_f, "%#v", *c)
+	line = strings.TrimSpace(strings.TrimPrefix(line, pfx))
 
 	for _, r := range *rr {
 		Log.Debugf(_f, "try route %#v", r)
 
 		if r.match == nil {
 			match := `(` + r.Match + `)\b`
+
 			exp, err := re2.Compile(match, re2.IgnoreCase)
 			if err != nil {
-				Log.Warnf(_f, "re compile %#q: %s", match, err)
+				Log.Warnf(_f, "re2 compile %#q: %s", match, err)
 				continue
 			}
+
 			r.match = exp
 		}
 
@@ -54,31 +48,24 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 
 		// can't error - already compiled
 		m, _ := r.match.FindStringMatch(line)
-		if m == nil {
-			Log.Warnf(_f, "re match nil")
-			continue
-		}
-		if m.Index > 0 {
-			Log.Warnf(_f, "re match index == %d > 0", m.Index)
+		if m == nil || m.Index > 0 {
 			continue
 		}
 
 		if r.Okay == nil {
-			Log.Warnf(_f, "nil okay, setting to true")
 			r.Okay = True
 		}
 
 		if r.Okay(c) {
 			c.Route = r
 			line = line[m.Index:]
+
 			break
 		}
 	}
 
-	cont := strings.TrimPrefix(line, pfx)
-	cont = strings.Trim(cont, " ")
+	cont := strings.TrimSpace(strings.TrimPrefix(line, pfx))
 	args := Split(cont)
-	Log.Debugf(_f, "%#v", args)
 
 	if len(args) == 0 {
 		return nil
@@ -86,8 +73,6 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 
 	cmd := args[0]
 	args = args[1:]
-
-	Log.Debugf(_f, "args %#v", args)
 
 	c.Flags = NewFlags(c, cmd, args)
 

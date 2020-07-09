@@ -58,12 +58,19 @@ func (b *Bot) Start() error {
 	return nil
 }
 
+// Logout performs standard disconnect routines.
 func (b *Bot) Logout() {
 	_f := "(*Bot).Logout"
 
 	err := b.Session.Close()
 	if err != nil {
-		err = fmt.Errorf("close: %w", err)
+		err = fmt.Errorf("session close: %w", err)
+		Log.Warn(_f, err)
+	}
+
+	err = b.DB.Close()
+	if err != nil {
+		err = fmt.Errorf("db close: %w", err)
 		Log.Warn(_f, err)
 	}
 

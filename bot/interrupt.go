@@ -27,6 +27,7 @@ func (b *Bot) NotifyInterrupt(sigs ...os.Signal) {
 	signal.Notify(sig, syscall.SIGTERM)
 }
 
+// HandleInterrupts sets up and handles Interrupts for the Bot.
 func (b *Bot) HandleInterrupts() {
 	_f := "(*Bot).HandleInterrupts"
 

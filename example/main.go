@@ -15,11 +15,12 @@ import (
 	_ "github.com/go-snart/plugin-help"
 )
 
-var _ = func() bool {
+var _ = func() interface{} {
 	flag.CommandLine = flag.NewFlagSetWithEnvPrefix(
 		os.Args[0], "SNART", flag.ExitOnError,
 	)
-	return false
+
+	return nil
 }()
 
 var (

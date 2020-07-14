@@ -47,5 +47,7 @@ func (d *DB) Start() error {
 
 	d.Cache = NewMapCache()
 
+	go d.AdminCache()
+
 	return nil
 }

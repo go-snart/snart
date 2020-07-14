@@ -74,6 +74,8 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 	cmd := args[0]
 	args = args[1:]
 
+	Log.Debugf(_f, "cmd %q, args %q", cmd, args)
+
 	c.Flags = NewFlags(c, cmd, args)
 
 	Log.Debugf(_f, "ctx %#v", c)

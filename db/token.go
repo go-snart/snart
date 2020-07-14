@@ -14,10 +14,7 @@ type Token struct {
 }
 
 // TokenTable is a table builder for config.token.
-var TokenTable = BuildTable(
-	ConfigDB, "token",
-	nil, nil,
-)
+var TokenTable = BuildTable(ConfigDB, "token")
 
 // Token retrieves a token for a Bot.
 func (d *DB) Token() (*Token, error) {
@@ -26,7 +23,7 @@ func (d *DB) Token() (*Token, error) {
 
 	toks := make([]*Token, 0)
 
-	err := TokenTable.ReadAll(&toks, d)
+	err := TokenTable.Build(d).ReadAll(&toks, d)
 	if err != nil {
 		err = fmt.Errorf("readall &toks: %w", err)
 		Log.Error(_f, err)

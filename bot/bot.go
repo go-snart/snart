@@ -8,11 +8,7 @@ import (
 	"github.com/go-snart/snart/route"
 
 	dg "github.com/bwmarrin/discordgo"
-	"github.com/superloach/minori"
 )
-
-// Log is the logger for the bot package.
-var Log = minori.GetLogger("bot")
 
 // Bot holds all the internal workings of a Snart bot.
 type Bot struct {
@@ -37,12 +33,11 @@ func NewBot(d *db.DB) (*Bot, error) {
 
 	s, _ := dg.New()
 	b.Session = s
+	b.Session.LogLevel = dg.LogInformational
 	b.Session.AddHandler(b.Route)
 
 	b.Router = route.NewRouter()
-	b.Gamers = []Gamer{
-		GamerUptime,
-	}
+	b.Gamers = []Gamer{GamerUptime}
 
 	b.Interrupt = make(chan Interrupt)
 

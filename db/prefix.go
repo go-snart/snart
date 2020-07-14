@@ -20,12 +20,8 @@ type Prefix struct {
 }
 
 // PrefixTable is a table builder for config.prefix.
-var PrefixTable = BuildTable(
-	ConfigDB, "prefix",
-	&r.TableCreateOpts{
-		PrimaryKey: "guild",
-	}, nil,
-)
+var PrefixTable = BuildTable(ConfigDB, "prefix",
+	r.TableCreateOpts{PrimaryKey: "guild"})
 
 // GuildPrefix gets the prefix for a given Guild.
 func (d *DB) GuildPrefix(id string) (*Prefix, error) {
@@ -41,7 +37,7 @@ func (d *DB) GuildPrefix(id string) (*Prefix, error) {
 	}
 
 	pfxs := []*Prefix{}
-	q := PrefixTable.Get(id)
+	q := PrefixTable.Build(d).Get(id)
 
 	err := q.ReadAll(&pfxs, d)
 	if err != nil {
@@ -91,7 +87,7 @@ func userPrefix(ses *dg.Session, cont string, gpfx, dpfx *Prefix) *Prefix {
 func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Prefix, error) {
 	_f := "memberPrefix"
 
-	mme, err := ses.GuildMember(guild, "@me")
+	mme, err := ses.GuildMember(guild, ses.State.User.ID)
 	if err != nil {
 		err = fmt.Errorf("member %#v @me: %w", guild, err)
 		Log.Error(_f, err)

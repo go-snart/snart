@@ -1,8 +1,8 @@
 package db_test
 
 import (
+	"fmt"
 	"os"
-	"strconv"
 
 	dg "github.com/bwmarrin/discordgo"
 	"github.com/go-snart/snart/db"
@@ -28,7 +28,8 @@ func dbDummy() *db.DB {
 		d.Host = h
 	}
 
-	if t, err := strconv.Atoi(os.Getenv("SNART_DBPORT")); err != nil && t > 0 {
+	t := 0
+	if _, err := fmt.Sscanf(os.Getenv("SNART_DBPORT"), "%d", &t); err != nil && t > 0 {
 		d.Port = t
 	}
 

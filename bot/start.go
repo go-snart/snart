@@ -47,6 +47,7 @@ func (b *Bot) Start() error {
 	Log.Info(_f, "session opened")
 
 	go b.CycleGamers()
+	go b.adminCacheOwner()
 
 	b.WaitReady()
 	Log.Info(_f, "ready")
@@ -68,11 +69,14 @@ func (b *Bot) Logout() {
 		Log.Warn(_f, err)
 	}
 
-	err = b.DB.Close()
-	if err != nil {
-		err = fmt.Errorf("db close: %w", err)
-		Log.Warn(_f, err)
-	}
+	// elide until more graceful shutdown method found
+	/*
+		err = b.DB.Close()
+		if err != nil {
+			err = fmt.Errorf("db close: %w", err)
+			Log.Warn(_f, err)
+		}
+	*/
 
 	Log.Info(_f, "logged out")
 }

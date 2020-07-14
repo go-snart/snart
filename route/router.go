@@ -24,14 +24,10 @@ func (rr *Router) Add(rs ...*Route) {
 // Ctx gets a Ctx by finding an appropriate Route for a given prefix, session, message, etc.
 func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line string) *Ctx {
 	_f := "(*Router).Ctx"
-
 	c := &Ctx{Prefix: pfx, CleanPrefix: cpfx, Session: s, Message: m}
-
 	line = strings.TrimSpace(strings.TrimPrefix(line, pfx))
 
 	for _, r := range *rr {
-		Log.Debugf(_f, "try route %#v", r)
-
 		if r.match == nil {
 			match := `(` + r.Match + `)\b`
 
@@ -43,8 +39,6 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 
 			r.match = exp
 		}
-
-		Log.Debugf(_f, "%#v", r.match)
 
 		// can't error - already compiled
 		m, _ := r.match.FindStringMatch(line)
@@ -73,12 +67,7 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 
 	cmd := args[0]
 	args = args[1:]
-
-	Log.Debugf(_f, "cmd %q, args %q", cmd, args)
-
 	c.Flags = NewFlags(c, cmd, args)
-
-	Log.Debugf(_f, "ctx %#v", c)
 
 	if c.Route == nil {
 		return nil

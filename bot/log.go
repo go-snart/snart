@@ -11,12 +11,12 @@ import (
 var Log = minori.GetLogger("bot")
 
 var _ = func() interface{} {
-	dg.Logger = DiscordGoLogger
+	dg.Logger = DiscordGoLogf
 	return nil
 }()
 
-// DiscordGoLogger replaces dg's Logger with minori.
-func DiscordGoLogger(msgL, caller int, format string, a ...interface{}) {
+// DiscordGoLogf replaces dg's Logger with minori.
+func DiscordGoLogf(msgL, caller int, format string, a ...interface{}) {
 	var lvl rune
 
 	switch msgL {

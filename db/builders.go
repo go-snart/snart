@@ -6,11 +6,14 @@ import (
 	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
+// DBBuilder ensures a RethinkDB DB exists before returning its Term.
+//nolint:golint
 type DBBuilder struct {
 	Name interface{}
 	Term *r.Term
 }
 
+// BuildDB makes a DBBuilder with a given name.
 func BuildDB(name interface{}) *DBBuilder {
 	return &DBBuilder{
 		Name: name,
@@ -18,6 +21,7 @@ func BuildDB(name interface{}) *DBBuilder {
 	}
 }
 
+// Build attempts to create the DB, and then returns its Term.
 func (d *DBBuilder) Build(qe r.QueryExecutor) r.Term {
 	_f := "(*DBBuilder).Build"
 
@@ -26,6 +30,7 @@ func (d *DBBuilder) Build(qe r.QueryExecutor) r.Term {
 	}
 
 	dbList := []interface{}(nil)
+
 	err := r.DBList().ReadAll(&dbList, qe)
 	if err != nil {
 		err = fmt.Errorf("readall dblist: %w", err)
@@ -35,6 +40,7 @@ func (d *DBBuilder) Build(qe r.QueryExecutor) r.Term {
 	}
 
 	found := false
+
 	for _, dbName := range dbList {
 		if dbName == d.Name {
 			found = true
@@ -58,6 +64,7 @@ func (d *DBBuilder) Build(qe r.QueryExecutor) r.Term {
 	return term
 }
 
+// TableBuilder ensures a RethinkDB Table exists before returning its Term.
 type TableBuilder struct {
 	DB         *DBBuilder
 	Name       interface{}
@@ -65,6 +72,7 @@ type TableBuilder struct {
 	Term       *r.Term
 }
 
+// BuildTable makes a TableBuilder with a given db, name, and optional creation options.
 func BuildTable(db *DBBuilder, name interface{}, co ...r.TableCreateOpts) *TableBuilder {
 	return &TableBuilder{
 		DB:         db,
@@ -74,6 +82,7 @@ func BuildTable(db *DBBuilder, name interface{}, co ...r.TableCreateOpts) *Table
 	}
 }
 
+// Build attempts to create the Table, and then returns its Term.
 func (t *TableBuilder) Build(qe r.QueryExecutor) r.Term {
 	_f := "(*TableBuilder).Build"
 
@@ -84,6 +93,7 @@ func (t *TableBuilder) Build(qe r.QueryExecutor) r.Term {
 	db := t.DB.Build(qe)
 
 	tableList := []interface{}(nil)
+
 	err := db.TableList().ReadAll(&tableList, qe)
 	if err != nil {
 		err = fmt.Errorf("readall tablelist: %w", err)
@@ -93,6 +103,7 @@ func (t *TableBuilder) Build(qe r.QueryExecutor) r.Term {
 	}
 
 	found := false
+
 	for _, tableName := range tableList {
 		if tableName == t.Name {
 			found = true

@@ -19,6 +19,7 @@ func (b *Bot) adminCacheOwner() {
 	if err != nil {
 		err = fmt.Errorf("app @me: %w", err)
 		Log.Warn(_f, err)
+
 		return
 	}
 

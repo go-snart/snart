@@ -7,11 +7,8 @@ linters:
     - gochecknoglobals
     - gochecknoinits
     - gomnd
+    - goconst
   fast: true
-
-linters-settings:
-  unused:
-    skip-regexp: .+_test\.go
 
 issues:
   exclude-rules:
@@ -21,3 +18,6 @@ issues:
         - dogsled
         - unparam
         - unused
+
+  include:
+    - EXC0002 # disable excluding of issues about comments from golint

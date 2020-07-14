@@ -17,28 +17,17 @@ var AdminTable = BuildTable(ConfigDB, "admin")
 
 // Admin checks if the author has bot-wide admin privileges (implements route.Okay).
 func (d *DB) Admin(c *route.Ctx) bool {
-	_f := "(*DB).Admin"
-
-	Log.Debug(_f, "admin")
-
-	Log.Debug(_f, "lock d.cache")
 	d.Cache.Lock()
-
-	Log.Debug(_f, "get admin")
 	admin := d.Cache.Get("admin").(Cache)
-
-	Log.Debug(_f, "unlock d.cache")
 	d.Cache.Unlock()
 
-	Log.Debug(_f, "lock admin")
 	admin.Lock()
 	defer admin.Unlock()
 
-	Log.Debug(_f, "has?")
 	return admin.Has(c.Message.Author.ID)
 }
 
-// NeighCache maintains a running state of known Neighs.
+// AdminCache maintains a running state of known Admins.
 func (d *DB) AdminCache() {
 	_f := "(*DB).AdminCache"
 
@@ -51,7 +40,7 @@ func (d *DB) AdminCache() {
 	curs, err := q.Run(d)
 	if err != nil {
 		err = fmt.Errorf("db run %s: %w", q, err)
-		Log.Error(_f, err)
+		Log.Warn(_f, err)
 
 		return
 	}
@@ -62,23 +51,17 @@ func (d *DB) AdminCache() {
 		Old *Admin `rethinkdb:"old_val"`
 	}{}
 
-	Log.Debug(_f, "lock d.cache")
 	d.Cache.Lock()
 
-	Log.Debug(_f, "!has?")
 	if !d.Cache.Has("admin") {
-		Log.Debug(_f, "new cache")
 		d.Cache.Set("admin", NewMapCache())
 	}
 
-	Log.Debug(_f, "get admin")
 	admin := d.Cache.Get("admin").(Cache)
 
-	Log.Debug(_f, "unlock d.cache")
 	d.Cache.Unlock()
 
 	for curs.Next(&chng) {
-		Log.Debug(_f, "lock admin")
 		admin.Lock()
 
 		if chng.New != nil {
@@ -87,7 +70,6 @@ func (d *DB) AdminCache() {
 			admin.Del(chng.Old.ID)
 		}
 
-		Log.Debug(_f, "unlock admin")
 		admin.Unlock()
 	}
 
@@ -102,7 +84,7 @@ func (d *DB) AdminCache() {
 			chng.New, chng.Old,
 			ok, resp,
 		)
-		Log.Error(_f, err)
+		Log.Warn(_f, err)
 
 		return
 	}

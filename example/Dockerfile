@@ -1,6 +1,0 @@
-FROM golang:1.14
-RUN go get -u -v -x github.com/go-snart/snart/...
-WORKDIR /go/src/github.com/go-snart/snart/example
-COPY . .
-RUN go get -u -v -x ./...
-CMD ["example"]

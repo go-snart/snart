@@ -11,13 +11,12 @@ func Register(name string, plug Plugin) {
 	_f := "Register"
 
 	if _, ok := Plugins[name]; ok {
-		Log.Warnf(_f, "plugin %s already registered", name)
-		return
+		Log.Fatalf(_f, "attempted to register plugin %q twice", name)
 	}
 
 	Plugins[name] = plug
 
-	Log.Infof(_f, "registered as %s: %#v", name, plug)
+	Log.Infof(_f, "registered plugin %q", name)
 }
 
 // GoPlugins spawns all of the Plugins on the Bot.
@@ -31,8 +30,6 @@ func (b *Bot) GoPlugins() {
 				Log.Warnf(_f, "plugin %s: %s", n, err)
 				return
 			}
-
-			Log.Infof(_f, "plugin %s :)", n)
 		}(name, plug)
 	}
 }

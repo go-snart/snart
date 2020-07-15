@@ -1,13 +1,14 @@
 package bot
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/go-snart/snart/db"
-
 	dg "github.com/bwmarrin/discordgo"
+
+	"github.com/go-snart/snart/db/prefix"
 )
 
 // Route is an event handler for dispatching a *dg.MessageCreate to the Bot's Router.
@@ -26,9 +27,9 @@ func (b *Bot) Route(s *dg.Session, m *dg.MessageCreate) {
 	for _, line := range lines {
 		Log.Debugf(_f, "line %#v", line)
 
-		pfx, err := b.DB.FindPrefix(b.Session, m.GuildID, line)
+		pfx, err := prefix.FindPrefix(context.Background(), b.DB, b.Session, m.GuildID, line)
 		if err != nil {
-			if errors.Is(err, db.ErrPrefixFail) {
+			if errors.Is(err, prefix.ErrPrefixFail) {
 				continue
 			}
 

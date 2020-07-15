@@ -1,18 +1,22 @@
 package bot
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/db/admin"
+	"github.com/go-snart/snart/db/cache"
 )
 
-func (b *Bot) adminCacheOwner() {
-	_f := "(*Bot).AdminCacheOwner"
+func (b *Bot) adminCache(ctx context.Context) {
+	_f := "(*Bot).adminCache"
 
 	b.WaitReady()
 
+	admin.AdminCache(ctx, b.DB)
+
 	b.DB.Cache.Lock()
-	admin := b.DB.Cache.Get("admin").(db.Cache)
+	adminCache := b.DB.Cache.Get("admin").(cache.Cache)
 	b.DB.Cache.Unlock()
 
 	app, err := b.Session.Application("@me")
@@ -23,7 +27,7 @@ func (b *Bot) adminCacheOwner() {
 		return
 	}
 
-	admin.Lock()
-	admin.Set(app.Owner.ID, &db.Admin{ID: app.Owner.ID})
-	admin.Unlock()
+	adminCache.Lock()
+	adminCache.Set(app.Owner.ID, true)
+	adminCache.Unlock()
 }

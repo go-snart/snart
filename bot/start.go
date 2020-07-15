@@ -1,20 +1,22 @@
 package bot
 
 import (
+	"context"
 	"fmt"
 	"time"
+
+	"github.com/go-snart/snart/db/token"
 )
 
 // Start performs the Bot's startup functions, and then waits until an interrupt.
-func (b *Bot) Start() error {
+func (b *Bot) Start(ctx context.Context) error {
 	_f := "(*Bot).Start"
 
 	b.GoPlugins()
 
 	b.Startup = time.Now()
-	Log.Infof(_f, "startup at %s", b.Startup)
 
-	err := b.DB.Start()
+	err := b.DB.Start(ctx)
 	if err != nil {
 		err = fmt.Errorf("db start: %w", err)
 		Log.Error(_f, err)
@@ -22,9 +24,7 @@ func (b *Bot) Start() error {
 		return err
 	}
 
-	Log.Info(_f, "db started")
-
-	tok, err := b.DB.Token()
+	tok, err := token.Token(ctx, b.DB)
 	if err != nil {
 		err = fmt.Errorf("token: %w", err)
 		Log.Error(_f, err)
@@ -32,9 +32,7 @@ func (b *Bot) Start() error {
 		return err
 	}
 
-	Log.Info(_f, "got token")
-
-	b.Session.Token = tok.Value
+	b.Session.Token = tok
 
 	err = b.Session.Open()
 	if err != nil {
@@ -44,10 +42,8 @@ func (b *Bot) Start() error {
 		return err
 	}
 
-	Log.Info(_f, "session opened")
-
 	go b.CycleGamers()
-	go b.adminCacheOwner()
+	go b.adminCache(context.Background())
 
 	b.WaitReady()
 	Log.Info(_f, "ready")
@@ -68,15 +64,6 @@ func (b *Bot) Logout() {
 		err = fmt.Errorf("session close: %w", err)
 		Log.Warn(_f, err)
 	}
-
-	// elide until more graceful shutdown method found
-	/*
-		err = b.DB.Close()
-		if err != nil {
-			err = fmt.Errorf("db close: %w", err)
-			Log.Warn(_f, err)
-		}
-	*/
 
 	Log.Info(_f, "logged out")
 }

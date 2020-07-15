@@ -1,6 +1,8 @@
 package bot
 
-import "time"
+import (
+	"time"
+)
 
 // WaitReady loops until the Bot has a valid Session, and then calls the Bot's DB's WaitReady method.
 func (b *Bot) WaitReady() {
@@ -15,6 +17,4 @@ func (b *Bot) WaitReady() {
 
 		time.Sleep(time.Second / 10)
 	}
-
-	b.DB.WaitReady()
 }

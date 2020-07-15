@@ -38,9 +38,9 @@ func (b *Bot) HandleInterrupts() {
 
 	switch {
 	case interrupt.Err != nil:
-		err = fmt.Sprintf("interrupt: %s", interrupt.Err)
+		err = fmt.Sprintf("interrupt: err %s", interrupt.Err)
 	case interrupt.Sig != nil:
-		err = fmt.Sprintf("interrupt: %s", interrupt.Sig)
+		err = fmt.Sprintf("interrupt: sig %s", interrupt.Sig)
 	}
 
 	Log.Error(_f, err)

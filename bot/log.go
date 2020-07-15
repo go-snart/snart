@@ -10,32 +10,30 @@ import (
 // Log is the logger for the bot package.
 var Log = minori.GetLogger("bot")
 
-var _ = func() interface{} {
-	dg.Logger = DiscordGoLogf
-	return nil
-}()
+// route discordgo's logging through minori.
+var _ = func() int {
+	dg.Logger = func(msgL, caller int, format string, a ...interface{}) {
+		var lvl rune
 
-// DiscordGoLogf replaces dg's Logger with minori.
-func DiscordGoLogf(msgL, caller int, format string, a ...interface{}) {
-	var lvl rune
+		switch msgL {
+		case dg.LogError:
+			lvl = 'e'
+		case dg.LogWarning:
+			lvl = 'w'
+		case dg.LogInformational:
+			lvl = 'i'
+		case dg.LogDebug:
+			lvl = 'd'
+		default:
+			lvl = '?'
+		}
 
-	switch msgL {
-	case dg.LogError:
-		lvl = 'e'
-	case dg.LogWarning:
-		lvl = 'w'
-	case dg.LogInformational:
-		lvl = 'i'
-	case dg.LogDebug:
-		lvl = 'd'
-	default:
-		lvl = '?'
+		_f := fmt.Sprintf(
+			"[dg:%c:%d]",
+			lvl, caller,
+		)
+
+		Log.Debugf(_f, format, a...)
 	}
-
-	_f := fmt.Sprintf(
-		"[dg:%c:%d]",
-		lvl, caller,
-	)
-
-	Log.Debugf(_f, format, a...)
-}
+	return 0
+}()

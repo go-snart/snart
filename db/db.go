@@ -2,10 +2,13 @@
 package db
 
 import (
+	"context"
 	"fmt"
 
+	pgx "github.com/jackc/pgx/v4"
 	"github.com/superloach/minori"
-	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
+
+	"github.com/go-snart/snart/db/cache"
 )
 
 // Log is the logger for the db package.
@@ -13,41 +16,40 @@ var Log = minori.GetLogger("db")
 
 // DB wraps a RethinkDB session and Cache.
 type DB struct {
-	*r.Session
+	*pgx.Conn
+	*pgx.ConnConfig
 
-	Host string
-	Port int
-	User string
-	Pass string
+	Cache cache.Cache
+}
 
-	Cache *MapCache
+func NewDB(config string) (*DB, error) {
+	conf, err := pgx.ParseConfig(config)
+	if err != nil {
+		return nil, err
+	}
 
-	failed bool
+	return &DB{
+		Conn: nil,
+		ConnConfig: conf,
+		Cache: cache.NewMapCache(),
+	}, nil
 }
 
 // Start performs a DB's startup functions.
-func (d *DB) Start() error {
+func (d *DB) Start(ctx context.Context) error {
 	_f := "(*DB).Start"
 
-	s, err := r.Connect(r.ConnectOpts{
-		Address:  fmt.Sprintf("%s:%d", d.Host, d.Port),
-		Username: d.User,
-		Password: d.Pass,
-	})
-	if err != nil {
-		d.failed = true
+	Log.Debugf(_f, "%#v", d)
 
-		err = fmt.Errorf("connect %s:%s@%s:%d: %w", d.User, d.Pass, d.Host, d.Port, err)
+	conn, err := pgx.ConnectConfig(ctx, d.ConnConfig)
+	if err != nil {
+		err = fmt.Errorf("connect %#v: %w", d.ConnConfig, err)
 		Log.Error(_f, err)
 
 		return err
 	}
 
-	d.Session = s
-
-	d.Cache = NewMapCache()
-
-	go d.AdminCache()
+	d.Conn = conn
 
 	return nil
 }

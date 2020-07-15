@@ -1,16 +1,27 @@
-package db
+package prefix
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
 
 	dg "github.com/bwmarrin/discordgo"
-	r "gopkg.in/rethinkdb/rethinkdb-go.v6"
+
+	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/db/cache"
 )
+
+var Log = db.Log.GetLogger("prefix")
 
 // ErrPrefixFail is an error which indicates that a function failed to get a prefix.
 var ErrPrefixFail = errors.New("failed to get a prefix")
+
+// PrefixTable is a table builder for config.admin.
+func PrefixTable(ctx context.Context, d *db.DB) {
+	x, err := d.Exec(ctx, `CREATE TABLE IF NOT EXISTS prefix(guild TEXT PRIMARY KEY UNIQUE, value TEXT)`)
+	Log.Debugf("prefixtable", "%#v %#v", x, err)
+}
 
 // Prefix represents a command prefix Value for a given Guild, as well as a human-readable Clean prefix.
 type Prefix struct {
@@ -19,46 +30,56 @@ type Prefix struct {
 	Clean string `rethinkdb:"-"`
 }
 
-// PrefixTable is a table builder for config.prefix.
-var PrefixTable = BuildTable(ConfigDB, "prefix",
-	r.TableCreateOpts{PrimaryKey: "guild"})
-
 // GuildPrefix gets the prefix for a given Guild.
-func (d *DB) GuildPrefix(id string) (*Prefix, error) {
-	_f := "(*DB).GuildPrefix"
+func GuildPrefix(ctx context.Context, d *db.DB, id string) (*Prefix, error) {
+	_f := "(*db.DB).GuildPrefix"
 
+	d.Cache.Lock()
 	if !d.Cache.Has("prefix") {
-		d.Cache.Set("prefix", NewLRUCache(10))
+		d.Cache.Set("prefix", cache.NewLRUCache(10))
 	}
 
-	pfx := d.Cache.Get("prefix").(Cache).Get(id)
+	pfxCache := d.Cache.Get("prefix").(cache.Cache)
+	d.Cache.Unlock()
+
+	pfxCache.Lock()
+	pfx := pfxCache.Get(id).(*Prefix)
 	if pfx != nil {
-		return pfx.(*Prefix), nil
+		return pfx, nil
 	}
+	pfxCache.Unlock()
 
-	pfxs := []*Prefix{}
-	q := PrefixTable.Build(d).Get(id)
+	PrefixTable(ctx, d)
 
-	err := q.ReadAll(&pfxs, d)
+	const q = `SELECT (guild, value) FROM prefix WHERE guild == $1`
+
+	rows, err := d.Query(ctx, q, id)
 	if err != nil {
-		err = fmt.Errorf("readall &pfxs: %w", err)
+		err = fmt.Errorf("db query %#q: %w", q, err)
 		Log.Error(_f, err)
 
 		return nil, err
 	}
 
-	if len(pfxs) == 0 {
-		return nil, ErrPrefixFail
+	if rows.Next() {
+		pfx = &Prefix{}
+		rows.Scan(&pfx.Guild, &pfx.Value)
+
+		pfxCache.Lock()
+		pfxCache.Set(pfx.Guild, pfx)
+		pfxCache.Unlock()
+
+		pfx.Clean = pfx.Value
+
+		return pfx, nil
 	}
 
-	d.Cache.Get("prefix").(Cache).Set(id, pfxs[0])
-
-	return pfxs[0], nil
+	return nil, ErrPrefixFail
 }
 
 // DefaultPrefix gets the default prefix (aka the Guild "").
-func (d *DB) DefaultPrefix() (*Prefix, error) {
-	return d.GuildPrefix("")
+func DefaultPrefix(ctx context.Context, d *db.DB) (*Prefix, error) {
+	return GuildPrefix(ctx, d, "")
 }
 
 func userPrefix(ses *dg.Session, cont string, gpfx, dpfx *Prefix) *Prefix {
@@ -120,12 +141,12 @@ func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Pre
 }
 
 // FindPrefix finds a matching prefix for a given guild and message content.
-func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
-	_f := "(*DB).FindPrefix"
+func FindPrefix(ctx context.Context, d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) {
+	_f := "(*db.DB).FindPrefix"
 
 	Log.Debugf(_f, "prefix %s", guild)
 
-	gpfx, err := d.GuildPrefix(guild)
+	gpfx, err := GuildPrefix(ctx, d, guild)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +157,7 @@ func (d *DB) FindPrefix(ses *dg.Session, guild, cont string) (*Prefix, error) {
 		}
 	}
 
-	dpfx, err := d.DefaultPrefix()
+	dpfx, err := DefaultPrefix(ctx, d)
 	if err != nil {
 		return nil, err
 	}

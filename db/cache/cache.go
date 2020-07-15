@@ -1,4 +1,4 @@
-package db
+package cache
 
 import (
 	"sync"
@@ -20,7 +20,6 @@ type Cache interface {
 // LRUCache is a Cache using github.com/hashicorp/golang-lru/simplelru.
 type LRUCache struct {
 	*sync.Mutex
-
 	i *simplelru.LRU
 }
 
@@ -65,7 +64,6 @@ func (l *LRUCache) Keys() []interface{} {
 // MapCache is a Cache using a map[interface{}]interface{}.
 type MapCache struct {
 	*sync.Mutex
-
 	i map[interface{}]interface{}
 }
 

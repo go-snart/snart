@@ -1,3 +1,4 @@
+// Package cache provides caching stuff for db.
 package cache
 
 import (

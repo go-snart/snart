@@ -1,3 +1,4 @@
+// Package token provides auth token stuff for db.
 package token
 
 import (
@@ -7,12 +8,13 @@ import (
 	"github.com/go-snart/snart/db"
 )
 
+// Log is the logger for token.
 var Log = db.Log.GetLogger("token")
 
-// TokenTable is a table builder for config.admin.
-func TokenTable(ctx context.Context, d *db.DB) {
-	x, err := d.Exec(ctx, `CREATE TABLE IF NOT EXISTS token(value TEXT)`)
-	Log.Debugf("Tokentable", "%#v %#v", x, err)
+// Table is a table builder for config.admin.
+func Table(ctx context.Context, d *db.DB) {
+	x, err := d.Conn(&ctx).Exec(ctx, `CREATE TABLE IF NOT EXISTS token(value TEXT)`)
+	Log.Debugf("Table", "%#v %#v", x, err)
 }
 
 // Token retrieves a token for a Bot.
@@ -20,11 +22,11 @@ func Token(ctx context.Context, d *db.DB) (string, error) {
 	_f := "(*DB).Token"
 	Log.Debug(_f, "enter")
 
-	TokenTable(ctx, d)
+	Table(ctx, d)
 
-	const q = `SELECT (value) FROM token`
+	const q = `SELECT value FROM token`
 
-	rows, err := d.Query(ctx, q)
+	rows, err := d.Conn(&ctx).Query(ctx, q)
 	if err != nil {
 		err = fmt.Errorf("db query %#q: %w", q, err)
 		Log.Error(_f, err)
@@ -57,7 +59,7 @@ func Token(ctx context.Context, d *db.DB) (string, error) {
 
 	const q2 = `INSERT INTO token(value) VALUES($1);`
 
-	x, err := d.Exec(ctx, q2, token)
+	x, err := d.Conn(&ctx).Exec(ctx, q2, token)
 	if err != nil {
 		err = fmt.Errorf("db exec %#q(%q): %w", q2, token, err)
 		Log.Error(_f, err)

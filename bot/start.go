@@ -16,14 +16,6 @@ func (b *Bot) Start(ctx context.Context) error {
 
 	b.Startup = time.Now()
 
-	err := b.DB.Start(ctx)
-	if err != nil {
-		err = fmt.Errorf("db start: %w", err)
-		Log.Error(_f, err)
-
-		return err
-	}
-
 	tok, err := token.Token(ctx, b.DB)
 	if err != nil {
 		err = fmt.Errorf("token: %w", err)
@@ -43,7 +35,6 @@ func (b *Bot) Start(ctx context.Context) error {
 	}
 
 	go b.CycleGamers()
-	go b.adminCache(context.Background())
 
 	b.WaitReady()
 	Log.Info(_f, "ready")

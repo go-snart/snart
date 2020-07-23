@@ -1,3 +1,4 @@
+// Package prefix contains command prefix stuff for db.
 package prefix
 
 import (
@@ -12,15 +13,14 @@ import (
 	"github.com/go-snart/snart/db/cache"
 )
 
-var Log = db.Log.GetLogger("prefix")
-
 // ErrPrefixFail is an error which indicates that a function failed to get a prefix.
 var ErrPrefixFail = errors.New("failed to get a prefix")
 
-// PrefixTable is a table builder for config.admin.
-func PrefixTable(ctx context.Context, d *db.DB) {
-	x, err := d.Exec(ctx, `CREATE TABLE IF NOT EXISTS prefix(guild TEXT PRIMARY KEY UNIQUE, value TEXT)`)
-	Log.Debugf("prefixtable", "%#v %#v", x, err)
+// Table is a table builder for config.admin.
+func Table(ctx context.Context, d *db.DB) {
+	x, err := d.Conn(&ctx).
+		Exec(ctx, `CREATE TABLE IF NOT EXISTS prefix(guild TEXT PRIMARY KEY UNIQUE, value TEXT)`)
+	Log.Debugf("Table", "%#v %#v", x, err)
 }
 
 // Prefix represents a command prefix Value for a given Guild, as well as a human-readable Clean prefix.
@@ -43,17 +43,19 @@ func GuildPrefix(ctx context.Context, d *db.DB, id string) (*Prefix, error) {
 	d.Cache.Unlock()
 
 	pfxCache.Lock()
+
 	pfx := pfxCache.Get(id).(*Prefix)
 	if pfx != nil {
 		return pfx, nil
 	}
+
 	pfxCache.Unlock()
 
-	PrefixTable(ctx, d)
+	Table(ctx, d)
 
-	const q = `SELECT (guild, value) FROM prefix WHERE guild == $1`
+	const q = `SELECT guild, value FROM prefix WHERE guild == $1`
 
-	rows, err := d.Query(ctx, q, id)
+	rows, err := d.Conn(&ctx).Query(ctx, q, id)
 	if err != nil {
 		err = fmt.Errorf("db query %#q: %w", q, err)
 		Log.Error(_f, err)
@@ -63,7 +65,14 @@ func GuildPrefix(ctx context.Context, d *db.DB, id string) (*Prefix, error) {
 
 	if rows.Next() {
 		pfx = &Prefix{}
-		rows.Scan(&pfx.Guild, &pfx.Value)
+
+		err = rows.Scan(&pfx.Guild, &pfx.Value)
+		if err != nil {
+			err = fmt.Errorf("scan into pfx: %w", err)
+			Log.Error(_f, err)
+
+			return nil, err
+		}
 
 		pfxCache.Lock()
 		pfxCache.Set(pfx.Guild, pfx)

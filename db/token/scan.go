@@ -2,20 +2,15 @@ package token
 
 import "fmt"
 
+// ScanToken gets a token from input on the command line.
 func ScanToken() (string, error) {
-	_f := "ScanToken"
-
 	fmt.Print("enter your discord token: ")
 
 	tok := ""
 
-	n, err := fmt.Scanln(&tok)
+	_, err := fmt.Scanln(&tok)
 	if err != nil {
-		Log.Fatal(_f, err)
-	}
-
-	if n == 0 {
-		return "", fmt.Errorf("token len %d invalid", n)
+		return "", err
 	}
 
 	return tok, nil

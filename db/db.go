@@ -16,12 +16,12 @@ var Log = minori.GetLogger("db")
 
 // DB wraps a RethinkDB session and Cache.
 type DB struct {
-	*pgx.Conn
 	*pgx.ConnConfig
 
 	Cache cache.Cache
 }
 
+// NewDB creates a database abstraction.
 func NewDB(config string) (*DB, error) {
 	conf, err := pgx.ParseConfig(config)
 	if err != nil {
@@ -29,27 +29,32 @@ func NewDB(config string) (*DB, error) {
 	}
 
 	return &DB{
-		Conn: nil,
 		ConnConfig: conf,
-		Cache: cache.NewMapCache(),
+		Cache:      cache.NewMapCache(),
 	}, nil
 }
 
-// Start performs a DB's startup functions.
-func (d *DB) Start(ctx context.Context) error {
-	_f := "(*DB).Start"
+// ConnKey is the context key type used by (*DB).Conn.
+type ConnKey struct{}
 
-	Log.Debugf(_f, "%#v", d)
+// Conn retrieves a PostgreSQL connection for a given context, inserting the new value if necessary.
+func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
+	_f := "(*DB).Conn"
 
-	conn, err := pgx.ConnectConfig(ctx, d.ConnConfig)
-	if err != nil {
-		err = fmt.Errorf("connect %#v: %w", d.ConnConfig, err)
-		Log.Error(_f, err)
-
-		return err
+	val, ok := (*ctx).Value(ConnKey{}).(*pgx.Conn)
+	if ok && val != nil {
+		return val
 	}
 
-	d.Conn = conn
+	conn, err := pgx.ConnectConfig(*ctx, d.ConnConfig)
+	if err != nil {
+		err = fmt.Errorf("connect %#v: %w", d.ConnConfig, err)
+		Log.Fatal(_f, err)
 
-	return nil
+		return nil
+	}
+
+	*ctx = context.WithValue(*ctx, ConnKey{}, conn)
+
+	return conn
 }

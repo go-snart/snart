@@ -14,7 +14,7 @@ import (
 // Log is the logger for the db package.
 var Log = minori.GetLogger("db")
 
-// DB wraps a RethinkDB session and Cache.
+// DB wraps a PostgreSQL connection and Cache.
 type DB struct {
 	*pgx.ConnConfig
 

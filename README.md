@@ -8,7 +8,7 @@ test server
 
 requirements
 ------------
-- rethinkdb instance
+- postgres instance
 
 example bot
 -----------

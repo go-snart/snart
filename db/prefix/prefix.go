@@ -25,9 +25,9 @@ func Table(ctx context.Context, d *db.DB) {
 
 // Prefix represents a command prefix Value for a given Guild, as well as a human-readable Clean prefix.
 type Prefix struct {
-	Guild string `rethinkdb:"guild"`
-	Value string `rethinkdb:"value"`
-	Clean string `rethinkdb:"-"`
+	Guild string
+	Value string
+	Clean string
 }
 
 // GuildPrefix gets the prefix for a given Guild.

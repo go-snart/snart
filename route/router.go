@@ -1,6 +1,7 @@
 package route
 
 import (
+	"context"
 	"strings"
 
 	dg "github.com/bwmarrin/discordgo"
@@ -24,7 +25,15 @@ func (rr *Router) Add(rs ...*Route) {
 // Ctx gets a Ctx by finding an appropriate Route for a given prefix, session, message, etc.
 func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line string) *Ctx {
 	_f := "(*Router).Ctx"
-	c := &Ctx{Prefix: pfx, CleanPrefix: cpfx, Session: s, Message: m}
+	c := &Ctx{
+		Prefix:      pfx,
+		CleanPrefix: cpfx,
+		Session:     s,
+		Message:     m,
+		Flags:       nil,
+		Route:       nil,
+		Context:     context.Background(),
+	}
 	line = strings.TrimSpace(strings.TrimPrefix(line, pfx))
 
 	for _, r := range *rr {

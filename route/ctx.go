@@ -1,6 +1,11 @@
 package route
 
-import dg "github.com/bwmarrin/discordgo"
+import (
+	"context"
+	"time"
+
+	dg "github.com/bwmarrin/discordgo"
+)
 
 // Ctx holds a command context.
 type Ctx struct {
@@ -10,6 +15,23 @@ type Ctx struct {
 	Message     *dg.Message
 	Flags       *Flags
 	Route       *Route
+	Context     context.Context
+}
+
+func (c *Ctx) Deadline() (time.Time, bool) {
+	return c.Ctx.Deadline()
+}
+
+func (c *Ctx) Done() <-chan struct{} {
+	return c.Ctx.Done()
+}
+
+func (c *Ctx) Err() error {
+	return c.Ctx.Error()
+}
+
+func (c *Ctx) Value(key interface{}) interface{} {
+	return c.Ctx.Value(key)
 }
 
 // Run is a shortcut to c.Route.Func(c).

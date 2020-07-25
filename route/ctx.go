@@ -19,19 +19,19 @@ type Ctx struct {
 }
 
 func (c *Ctx) Deadline() (time.Time, bool) {
-	return c.Ctx.Deadline()
+	return c.Context.Deadline()
 }
 
 func (c *Ctx) Done() <-chan struct{} {
-	return c.Ctx.Done()
+	return c.Context.Done()
 }
 
 func (c *Ctx) Err() error {
-	return c.Ctx.Error()
+	return c.Context.Err()
 }
 
 func (c *Ctx) Value(key interface{}) interface{} {
-	return c.Ctx.Value(key)
+	return c.Context.Value(key)
 }
 
 // Run is a shortcut to c.Route.Func(c).

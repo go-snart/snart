@@ -11,7 +11,12 @@ import (
 func Debug(name string) *nilog.Logger {
 	const EnvName = "SNART_DEBUG"
 
-	debug, err := strconv.ParseBool(os.Getenv(EnvName))
+	env, ok := os.LookupEnv(EnvName)
+	if !ok {
+		return nil
+	}
+
+	debug, err := strconv.ParseBool(env)
 	if err != nil {
 		err = fmt.Errorf("parse $%s: %w", EnvName, err)
 		panic(err)

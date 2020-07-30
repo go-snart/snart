@@ -26,11 +26,9 @@ func (r *Reply) SendMsg() (*dg.Message, error) {
 
 // Send is a shortcut for SendMsg that logs a warning on error and elides the resulting *dg.Message.
 func (r *Reply) Send() error {
-	const _f = "(*Reply).Send"
-
 	_, err := r.SendMsg()
 	if err != nil {
-		Log.Warn(_f, err)
+		Warn.Println(err)
 	}
 
 	return err

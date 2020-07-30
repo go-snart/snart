@@ -26,11 +26,9 @@ func NewFlag(ctx *Ctx, name string, args []string) *Flag {
 
 	f.FlagSet = flag.NewFlagSet(name, flag.ContinueOnError)
 	f.FlagSet.Usage = func() {
-		const _f = "f.FlagSet.Usage"
-
 		err := f.Usage().Send()
 		if err != nil {
-			Log.Warn(_f, err)
+			Warn.Println(err)
 		}
 	}
 	f.FlagSet.SetOutput(&strings.Builder{})
@@ -64,8 +62,6 @@ func (f *Flag) Usage() *Reply {
 
 // Parse parses the arguments given to the Flag.
 func (f *Flag) Parse() error {
-	const _f = "(*Flag).Parse"
-
 	err := f.FlagSet.Parse(f.args)
 	if err != nil {
 		f.err = err
@@ -75,7 +71,7 @@ func (f *Flag) Parse() error {
 		}
 
 		err = fmt.Errorf("flag parse %#v: %w", f.args, err)
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return err
 	}

@@ -5,15 +5,12 @@ import (
 	"fmt"
 
 	dg "github.com/bwmarrin/discordgo"
-	"github.com/superloach/minori"
 
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/db/prefix"
 	"github.com/go-snart/snart/db/token"
 	"github.com/go-snart/snart/route"
 )
-
-var Log = minori.GetLogger("route_test")
 
 func val(v interface{}) string {
 	return fmt.Sprintf("%#v", v)
@@ -23,9 +20,7 @@ func prefixDummy() (
 	string, string,
 	*prefix.Prefix,
 ) {
-	const _f = "prefixDummy"
-
-	Log.Debug(_f, ".")
+	Debug.Println(".")
 
 	const (
 		value = "./"
@@ -43,9 +38,7 @@ func messageDummy(content string) (
 	string, string, string, *dg.User,
 	*dg.Message,
 ) {
-	const _f = "messageDummy"
-
-	Log.Debug(_f, ".")
+	Debug.Println(".")
 
 	const (
 		id        = "12345678900"
@@ -69,9 +62,7 @@ func messageCreateDummy(content string) (
 	*dg.Message,
 	*dg.MessageCreate,
 ) {
-	const _f = "messageCreateDummy"
-
-	Log.Debug(_f, ".")
+	Debug.Println(".")
 
 	_, _, _, _,
 		msg := messageDummy(content)
@@ -85,25 +76,21 @@ func sessionDummy() (
 	string,
 	*dg.Session,
 ) {
-	const _f = "sessionDummy"
-
-	Log.Debug(_f, "enter->db")
+	Debug.Println("enter->db")
 
 	d := db.New()
 
-	Log.Debug(_f, "db->ses")
+	Debug("db->ses")
 
 	ses := token.Open(context.Background(), d)
 
-	Log.Debug(_f, "ses->exit")
+	Debug.Println("ses->exit")
 
 	return ses.Identify.Token, ses
 }
 
 func sessionBadDummy() (string, *dg.Session) {
-	const _f = "sessionBadDummy"
-
-	Log.Debug(_f, ".")
+	Debug.Println(".")
 
 	const tok = "foo"
 
@@ -117,9 +104,7 @@ func ctxDummy(content string) (
 	*prefix.Prefix, *dg.Session, *dg.Message, *route.Flag, *route.Route,
 	*route.Ctx,
 ) {
-	const _f = "ctxDummy"
-
-	Log.Debug(_f, ".")
+	Debug.Println(".")
 
 	var (
 		flag = &route.Flag{}

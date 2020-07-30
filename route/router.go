@@ -29,8 +29,6 @@ func (rr *Router) Add(rs ...*Route) {
 
 // Ctx gets a Ctx by finding an appropriate Route for a given prefix, session, message, etc.
 func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line string) *Ctx {
-	const _f = "(*Router).Ctx"
-
 	c := &Ctx{
 		Prefix:  pfx,
 		Session: s,
@@ -48,7 +46,7 @@ func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m 
 
 			exp, err := re2.Compile(match, re2.IgnoreCase)
 			if err != nil {
-				Log.Warnf(_f, "re2 compile %#q: %s", match, err)
+				Warn.Printf("re2 compile %#q: %s", match, err)
 				continue
 			}
 
@@ -94,27 +92,25 @@ func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m 
 // Handler returns a discordgo handler function for the router.
 func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 	return func(s *dg.Session, m *dg.MessageCreate) {
-		const _f = "(*Router).Handler"
-
-		Log.Debug(_f, "handling")
+		Debug.Println("handling")
 
 		if m.Message.Author.ID == s.State.User.ID {
-			Log.Debug(_f, "ignore self")
+			Debug.Println("ignore self")
 			return
 		}
 
 		if m.Message.Author.Bot {
-			Log.Debug(_f, "ignore bot")
+			Debug.Println("ignore bot")
 			return
 		}
 
 		lines := strings.Split(m.Message.Content, "\n")
-		Log.Debugf(_f, "lines %#v", lines)
+		Debug.Printf("lines %#v", lines)
 
 		for _, line := range lines {
 			ctx := context.Background()
 
-			Log.Debugf(_f, "line %q", line)
+			Debug.Printf("line %q", line)
 
 			pfx, err := prefix.FindPrefix(ctx, d, s, m.GuildID, line)
 			if err != nil {
@@ -123,7 +119,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 				}
 
 				err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
-				Log.Warn(_f, err)
+				Warn.Println(err)
 
 				continue
 			}
@@ -136,7 +132,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 			err = c.Run()
 			if err != nil {
 				err = fmt.Errorf("c run: %w", err)
-				Log.Warn(_f, err)
+				Warn.Println(err)
 
 				continue
 			}

@@ -47,12 +47,12 @@ var True Okay = func(*Ctx) bool {
 
 // GuildAdmin is an Okay that checks if the user has administrator privileges on the guild.
 var GuildAdmin Okay = func(c *Ctx) bool {
-	const _f = "GuildAdmin"
 
 	perm, err := c.Session.UserChannelPermissions(c.Message.Author.ID, c.Message.ChannelID)
 	if err != nil {
 		err = fmt.Errorf("perm: %w", err)
-		Log.Warn(_f, err)
+
+		Warn.Println(err)
 
 		return false
 	}

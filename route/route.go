@@ -3,11 +3,14 @@ package route
 
 import (
 	re2 "github.com/dlclark/regexp2"
-	"github.com/superloach/minori"
+
+	"github.com/go-snart/snart/logs"
 )
 
+const _p = "route"
+
 // Log is the logger for the route package.
-var Log = minori.GetLogger("route")
+var Debug, Info, Warn = logs.Loggers(_p)
 
 // Route is a command route.
 type Route struct {

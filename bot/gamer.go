@@ -12,8 +12,6 @@ type Gamer func(*Bot) (*dg.Game, error)
 
 // CycleGamers cycles through displaying the Gamers registered on the Bot.
 func (b *Bot) CycleGamers() {
-	const _f = "(*Bot).CycleGamers"
-
 	b.WaitReady()
 
 	for {
@@ -22,7 +20,7 @@ func (b *Bot) CycleGamers() {
 			if err != nil {
 				err = fmt.Errorf("gamer: %w", err)
 
-				Log.Warn(_f, err)
+				Warn.Println(err)
 
 				continue
 			}
@@ -35,7 +33,7 @@ func (b *Bot) CycleGamers() {
 			if err != nil {
 				err = fmt.Errorf("update status: %w", err)
 
-				Log.Warn(_f, err)
+				Warn.Println(err)
 
 				continue
 			}

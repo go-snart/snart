@@ -8,26 +8,22 @@ type Plugin func(*Bot) error
 
 // Register adds a Plugin to the Plugins.
 func Register(name string, plug Plugin) {
-	const _f = "Register"
-
 	if _, ok := Plugins[name]; ok {
-		Log.Fatalf(_f, "attempted to register plugin %q twice", name)
+		Info.Fatalf("attempted to register plugin %q twice", name)
 	}
 
 	Plugins[name] = plug
 
-	Log.Infof(_f, "registered plugin %q", name)
+	Info.Printf("registered plugin %q", name)
 }
 
 // GoPlugins spawns all of the Plugins on the Bot.
 func (b *Bot) GoPlugins() {
-	const _f = "(*Bot).GoPlugins"
-
 	for name, plug := range Plugins {
 		go func(n string, p Plugin) {
 			err := p(b)
 			if err != nil {
-				Log.Warnf(_f, "plugin %s: %s", n, err)
+				Info.Printf("plugin %s: %s", n, err)
 				return
 			}
 		}(name, plug)

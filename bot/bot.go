@@ -7,8 +7,13 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/logs"
 	"github.com/go-snart/snart/route"
 )
+
+const _p = "bot"
+
+var Debug, Info, Warn = logs.Loggers(_p)
 
 // Bot holds all the internal workings of a Snart bot.
 type Bot struct {
@@ -35,5 +40,7 @@ func New() *Bot {
 
 		Interrupt: make(chan Interrupt),
 		Startup:   time.Now(),
+
+		Ready: make(chan struct{}),
 	}
 }

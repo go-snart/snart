@@ -14,8 +14,6 @@ var ErrAllToksFailed = errors.New("all tokens failed")
 
 // Start performs the Bot's startup functions, and then waits until an interrupt.
 func (b *Bot) Start(ctx context.Context) error {
-	const _f = "(*Bot).Start"
-
 	b.GoPlugins()
 
 	b.Session = token.Open(ctx, b.DB)
@@ -26,7 +24,7 @@ func (b *Bot) Start(ctx context.Context) error {
 	go b.CycleGamers()
 
 	b.WaitReady()
-	Log.Info(_f, "ready")
+	Info.Println("ready")
 
 	b.HandleInterrupts()
 
@@ -37,13 +35,11 @@ func (b *Bot) Start(ctx context.Context) error {
 
 // Logout performs standard disconnect routines.
 func (b *Bot) Logout() {
-	const _f = "(*Bot).Logout"
-
 	err := b.Session.Close()
 	if err != nil {
 		err = fmt.Errorf("session close: %w", err)
-		Log.Warn(_f, err)
+		Warn.Println(err)
 	}
 
-	Log.Info(_f, "logged out")
+	Info.Println("logged out")
 }

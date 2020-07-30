@@ -29,8 +29,6 @@ func (b *Bot) NotifyInterrupt(sigs ...os.Signal) {
 
 // HandleInterrupts sets up and handles Interrupts for the Bot.
 func (b *Bot) HandleInterrupts() {
-	const _f = "(*Bot).HandleInterrupts"
-
 	b.NotifyInterrupt()
 
 	interrupt := <-b.Interrupt
@@ -43,5 +41,5 @@ func (b *Bot) HandleInterrupts() {
 		err = fmt.Sprintf("interrupt: sig %s", interrupt.Sig)
 	}
 
-	Log.Error(_f, err)
+	Warn.Println(err)
 }

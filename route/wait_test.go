@@ -7,7 +7,7 @@ import (
 )
 
 func TestWait(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("owo")
 	w := c.Wait(route.True, route.True)
 
@@ -26,7 +26,7 @@ func TestWait(t *testing.T) {
 }
 
 func TestWaitNoCancel(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("owo")
 	w := c.WaitCancel(route.True, route.True, false)
 
@@ -36,7 +36,7 @@ func TestWaitNoCancel(t *testing.T) {
 }
 
 func TestWaitHandle(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("owo")
 	w := c.Wait(route.True, route.True)
 
@@ -51,7 +51,7 @@ func TestWaitHandle(t *testing.T) {
 }
 
 func TestWaitHandleNoGeneral(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("owo")
 	w := c.Wait(route.False, route.True)
 
@@ -61,7 +61,7 @@ func TestWaitHandleNoGeneral(t *testing.T) {
 }
 
 func TestWaitHandleNoSpecific(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("owo")
 	w := c.Wait(route.True, route.False)
 

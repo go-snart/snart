@@ -3,7 +3,7 @@ module github.com/go-snart/snart
 go 1.14
 
 require (
-	github.com/bwmarrin/discordgo v0.21.1
+	github.com/bwmarrin/discordgo v0.22.0
 	github.com/dlclark/regexp2 v1.2.0
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.4

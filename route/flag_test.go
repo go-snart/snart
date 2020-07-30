@@ -1,27 +1,25 @@
 package route_test
 
-import (
-	"testing"
-)
+import "testing"
 
-func TestNewFlags(t *testing.T) {
-	_, _, _, _, _, _,
+func TestNewFlag(t *testing.T) {
+	_, _, _, _, _,
 		c := ctxDummy("uwu")
 	name, _,
-		flags := flagsDummy(c)
+		flag := flagDummy(c)
 
-	if flags.Name() != name {
-		t.Fatal("flags.Name() != name")
+	if flag.Name() != name {
+		t.Fatal("flag.Name() != name")
 	}
 }
 
-func TestFlagsUsage(t *testing.T) {
-	_, _, _, _, _, _,
+func TestFlagUsage(t *testing.T) {
+	_, _, _, _, _,
 		c := ctxDummy("uwu")
 	_, _,
-		flags := flagsDummy(c)
+		flag := flagDummy(c)
 
-	usage := flags.Usage()
+	usage := flag.Usage()
 
 	if usage.Content != "" {
 		t.Fatal("usage.Content != \"\"")
@@ -33,16 +31,16 @@ func TestFlagsUsage(t *testing.T) {
 }
 
 func TestFlagsParse(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("uwu")
-	_, args, flags := flagsDummy(c)
+	_, args, flag := flagDummy(c)
 
-	err := flags.Parse()
+	err := flag.Parse()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fargs := flags.Args()
+	fargs := flag.Args()
 
 	if len(args) != len(fargs) {
 		t.Fatalf(
@@ -63,29 +61,29 @@ func TestFlagsParse(t *testing.T) {
 }
 
 func TestFlagsParseErr(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("uwu")
-	_, args, flags := flagsDummy(c)
+	_, args, flag := flagDummy(c)
 	args[0] = "-badflag"
 
-	err := flags.Parse()
+	err := flag.Parse()
 	if err == nil {
 		t.Fatal("err is nil")
 	}
 }
 
 func TestFlagsFlags(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("uwu")
-	_, args, flags := flagsDummy(c)
+	_, args, flag := flagDummy(c)
 	args[0] = "-foo"
 	args[1] = "bar"
 	args[2] = "-baz"
 
-	foo := flags.String("foo", "", "foo flag")
-	baz := flags.Bool("baz", false, "baz flag")
+	foo := flag.String("foo", "", "foo flag")
+	baz := flag.Bool("baz", false, "baz flag")
 
-	err := flags.Parse()
+	err := flag.Parse()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -100,17 +98,17 @@ func TestFlagsFlags(t *testing.T) {
 }
 
 func TestFlagsOutputBuilder(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("uwu")
-	_, _, flags := flagsDummy(c)
+	_, _, flag := flagDummy(c)
 	oout := "hello world"
 
-	_, err := flags.FlagSet.Output().Write([]byte(oout))
+	_, err := flag.FlagSet.Output().Write([]byte(oout))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	out := flags.Output()
+	out := flag.Output()
 	if out != oout {
 		t.Fatalf(
 			"out == %q != oout == %q",
@@ -126,19 +124,19 @@ func (d dummyWriter) Write(p []byte) (int, error) {
 }
 
 func TestFlagsOutputOther(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("uwu")
-	_, _, flags := flagsDummy(c)
+	_, _, flag := flagDummy(c)
 	oout := "hello world"
 
-	flags.SetOutput(dummyWriter{})
+	flag.SetOutput(dummyWriter{})
 
-	_, err := flags.FlagSet.Output().Write([]byte(oout))
+	_, err := flag.FlagSet.Output().Write([]byte(oout))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	out := flags.Output()
+	out := flag.Output()
 	if len(out) > 0 {
 		t.Fatalf("len(out) == %d > 0", len(out))
 	}

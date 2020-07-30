@@ -5,11 +5,29 @@ import (
 	"os"
 
 	dg "github.com/bwmarrin/discordgo"
+
+	"github.com/go-snart/snart/db/prefix"
 	"github.com/go-snart/snart/route"
 )
 
 func val(v interface{}) string {
 	return fmt.Sprintf("%#v", v)
+}
+
+func prefixDummy() (
+	string, string,
+	*prefix.Prefix,
+) {
+	const (
+		value = "./"
+		clean = "./"
+	)
+
+	return value, clean,
+		&prefix.Prefix{
+			Value: value,
+			Clean: clean,
+		}
 }
 
 func messageDummy(content string) (
@@ -72,14 +90,15 @@ func sessionBadDummy() *dg.Session {
 }
 
 func ctxDummy(content string) (
-	string, string, *dg.Session, *dg.Message, *route.Flags, *route.Route,
+	*prefix.Prefix, *dg.Session, *dg.Message, *route.Flag, *route.Route,
 	*route.Ctx,
 ) {
 	var (
-		prefix      = "./"
-		cleanPrefix = "./"
-		flags       = &route.Flags{}
+		flag = &route.Flag{}
 	)
+
+	_, _,
+		pfx := prefixDummy()
 
 	_, _, _, _,
 		message := messageDummy(content)
@@ -90,28 +109,27 @@ func ctxDummy(content string) (
 	_, _, _, _, _, _,
 		r := routeDummy()
 
-	return prefix, cleanPrefix, session, message, flags, r,
+	return pfx, session, message, flag, r,
 		&route.Ctx{
-			Prefix:      prefix,
-			CleanPrefix: cleanPrefix,
-			Session:     session,
-			Message:     message,
-			Flags:       flags,
-			Route:       r,
+			Prefix:  pfx,
+			Session: session,
+			Message: message,
+			Flag:    flag,
+			Route:   r,
 		}
 }
 
 func ctxBadDummy() *route.Ctx {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("")
 	c.Session = sessionBadDummy()
 
 	return c
 }
 
-func flagsDummy(ctx *route.Ctx) (
+func flagDummy(ctx *route.Ctx) (
 	string, []string,
-	*route.Flags,
+	*route.Flag,
 ) {
 	name := ctx.Route.Name
 	args := []string{
@@ -121,7 +139,7 @@ func flagsDummy(ctx *route.Ctx) (
 	}
 
 	return name, args,
-		route.NewFlags(ctx, name, args)
+		route.NewFlag(ctx, name, args)
 }
 
 func routeDummy() (

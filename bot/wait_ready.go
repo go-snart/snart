@@ -1,12 +1,10 @@
 package bot
 
-import (
-	"time"
-)
+import "time"
 
 // WaitReady loops until the Bot has a valid Session, and then calls the Bot's DB's WaitReady method.
 func (b *Bot) WaitReady() {
-	_f := "(*Bot).WaitReady"
+	const _f = "(*Bot).WaitReady"
 
 	for {
 		Log.Debug(_f, "wait for session")

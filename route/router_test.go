@@ -1,6 +1,7 @@
 package route_test
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -24,62 +25,65 @@ func TestNewRouter(t *testing.T) {
 }
 
 func TestRouterCtx(t *testing.T) {
-	_, router := routerDummy()
+	_,
+		router := routerDummy()
 
-	var (
-		pfx  = "./"
-		cpfx = "./"
-	)
+	_, _,
+		pfx := prefixDummy()
 
 	_,
 		ses := sessionDummy()
+
 	_, _, _, _,
 		msg := messageDummy("./yeet bar")
+
 	line := strings.Split(msg.Content, "\n")[0]
 
-	c := router.Ctx(pfx, cpfx, ses, msg, line)
+	c := router.Ctx(context.Background(), pfx, ses, msg, line)
 	if c == nil {
 		t.Fatal("c == nil")
 	}
 }
 
 func TestRouterCtxBadMatch(t *testing.T) {
-	_, router := routerDummy()
+	_,
+		router := routerDummy()
 	(*router)[0].Match = "["
 
-	var (
-		pfx  = "./"
-		cpfx = "./"
-	)
+	_, _,
+		pfx := prefixDummy()
 
 	_,
 		ses := sessionDummy()
+
 	_, _, _, _,
 		msg := messageDummy("owo")
+
 	line := strings.Split(msg.Content, "\n")[0]
 
-	c := router.Ctx(pfx, cpfx, ses, msg, line)
+	c := router.Ctx(context.Background(), pfx, ses, msg, line)
 	if c != nil {
 		t.Fatal("c != nil")
 	}
 }
 
 func TestRouterCtxNilOkay(t *testing.T) {
-	_, router := routerDummy()
+	_,
+		router := routerDummy()
 	(*router)[0].Okay = nil
 
-	var (
-		pfx  = "./"
-		cpfx = "./"
-	)
+	_, _,
+		pfx := prefixDummy()
 
 	_,
 		ses := sessionDummy()
+
 	_, _, _, _,
 		msg := messageDummy("yeet")
+
 	line := strings.Split(msg.Content, "\n")[0]
 
-	c := router.Ctx(pfx, cpfx, ses, msg, line)
+	c := router.Ctx(context.Background(), pfx, ses, msg, line)
 	if c == nil {
 		t.Fatal("c == nil")
 	}
@@ -90,40 +94,42 @@ func TestRouterCtxNilOkay(t *testing.T) {
 }
 
 func TestRouterCtxNoArgs(t *testing.T) {
-	_, router := routerDummy()
+	_,
+		router := routerDummy()
 
-	var (
-		pfx  = "./"
-		cpfx = "./"
-	)
+	_, _,
+		pfx := prefixDummy()
 
 	_,
 		ses := sessionDummy()
+
 	_, _, _, _,
 		msg := messageDummy("")
+
 	line := strings.Split(msg.Content, "\n")[0]
 
-	c := router.Ctx(pfx, cpfx, ses, msg, line)
+	c := router.Ctx(context.Background(), pfx, ses, msg, line)
 	if c != nil {
 		t.Fatal("c != nil")
 	}
 }
 
 func TestRouterCtxIndex1(t *testing.T) {
-	_, router := routerDummy()
+	_,
+		router := routerDummy()
 
-	var (
-		pfx  = "./"
-		cpfx = "./"
-	)
+	_, _,
+		pfx := prefixDummy()
 
 	_,
 		ses := sessionDummy()
+
 	_, _, _, _,
 		msg := messageDummy("ayeet")
+
 	line := strings.Split(msg.Content, "\n")[0]
 
-	c := router.Ctx(pfx, cpfx, ses, msg, line)
+	c := router.Ctx(context.Background(), pfx, ses, msg, line)
 	if c != nil {
 		t.Fatal("c != nil")
 	}

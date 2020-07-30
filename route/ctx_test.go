@@ -1,24 +1,22 @@
 package route_test
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestNewCtx(t *testing.T) {
-	prefix, cleanPrefix, session, message, flags, route,
+	pfx, session, message, flag, route,
 		c := ctxDummy("owo")
 
-	if c.Prefix != prefix {
+	if c.Prefix.Value != pfx.Value {
 		t.Fatalf(
-			"c.Prefix == %q != prefix == %q",
-			c.Prefix, prefix,
+			"c.Prefix.Value == %q != pfx.Value == %q",
+			c.Prefix.Value, pfx.Value,
 		)
 	}
 
-	if c.CleanPrefix != cleanPrefix {
+	if c.Prefix.Clean != pfx.Clean {
 		t.Fatalf(
-			"c.CleanPrefix == %q != cleanPrefix == %q",
-			c.CleanPrefix, cleanPrefix,
+			"c.Prefix.Clean == %q != pfx.Clean == %q",
+			c.Prefix.Clean, pfx.Clean,
 		)
 	}
 
@@ -36,10 +34,10 @@ func TestNewCtx(t *testing.T) {
 		)
 	}
 
-	if c.Flags != flags {
+	if c.Flag != flag {
 		t.Fatalf(
-			"c.Flags == %#v != flags == %#v",
-			c.Flags, flags,
+			"c.Flag == %#v != flag == %#v",
+			c.Flag, flag,
 		)
 	}
 
@@ -52,7 +50,7 @@ func TestNewCtx(t *testing.T) {
 }
 
 func TestCtxRun(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("uwu")
 
 	err := c.Run()

@@ -7,7 +7,7 @@ import (
 )
 
 func TestOkayAnyTrue(t *testing.T) {
-	_, _, _, _, _, _,
+	_, _, _, _, _,
 		c := ctxDummy("owo")
 
 	ok := route.Any(
@@ -22,7 +22,8 @@ func TestOkayAnyTrue(t *testing.T) {
 }
 
 func TestOkayAnyFalse(t *testing.T) {
-	_, _, _, _, _, _, c := ctxDummy("owo")
+	_, _, _, _, _,
+		c := ctxDummy("owo")
 
 	ok := route.Any(
 		route.False,
@@ -36,7 +37,8 @@ func TestOkayAnyFalse(t *testing.T) {
 }
 
 func TestOkayAllTrue(t *testing.T) {
-	_, _, _, _, _, _, c := ctxDummy("owo")
+	_, _, _, _, _,
+		c := ctxDummy("owo")
 
 	ok := route.All(
 		route.True,
@@ -50,7 +52,8 @@ func TestOkayAllTrue(t *testing.T) {
 }
 
 func TestOkayAllFalse(t *testing.T) {
-	_, _, _, _, _, _, c := ctxDummy("owo")
+	_, _, _, _, _,
+		c := ctxDummy("owo")
 
 	ok := route.All(
 		route.True,
@@ -64,7 +67,8 @@ func TestOkayAllFalse(t *testing.T) {
 }
 
 func TestOkayGuildAdmin(t *testing.T) {
-	_, _, _, _, _, _, c := ctxDummy("owo")
+	_, _, _, _, _,
+		c := ctxDummy("owo")
 	c.Message.ID = "707316494132052008"
 	c.Message.ChannelID = "614088693216706590"
 	c.Message.GuildID = "466269100214321154"
@@ -77,7 +81,8 @@ func TestOkayGuildAdmin(t *testing.T) {
 }
 
 func TestOkayGuildAdminBad(t *testing.T) {
-	_, _, _, _, _, _, c := ctxDummy("owo")
+	_, _, _, _, _,
+		c := ctxDummy("owo")
 
 	ok := route.GuildAdmin(c)
 	if ok {

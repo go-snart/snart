@@ -2,10 +2,15 @@ package route
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	dg "github.com/bwmarrin/discordgo"
 	re2 "github.com/dlclark/regexp2"
+
+	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/db/prefix"
 )
 
 // Router is a slice of Routes.
@@ -23,18 +28,19 @@ func (rr *Router) Add(rs ...*Route) {
 }
 
 // Ctx gets a Ctx by finding an appropriate Route for a given prefix, session, message, etc.
-func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line string) *Ctx {
-	_f := "(*Router).Ctx"
+func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line string) *Ctx {
+	const _f = "(*Router).Ctx"
+
 	c := &Ctx{
-		Prefix:      pfx,
-		CleanPrefix: cpfx,
-		Session:     s,
-		Message:     m,
-		Flags:       nil,
-		Route:       nil,
-		Context:     context.Background(),
+		Prefix:  pfx,
+		Session: s,
+		Message: m,
+		Flag:    nil,
+		Route:   nil,
+		ctx:     ctx,
 	}
-	line = strings.TrimSpace(strings.TrimPrefix(line, pfx))
+
+	line = strings.TrimSpace(strings.TrimPrefix(line, pfx.Value))
 
 	for _, r := range *rr {
 		if r.match == nil {
@@ -67,7 +73,7 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 		}
 	}
 
-	cont := strings.TrimSpace(strings.TrimPrefix(line, pfx))
+	cont := strings.TrimSpace(strings.TrimPrefix(line, pfx.Value))
 	args := Split(cont)
 
 	if len(args) == 0 {
@@ -76,11 +82,64 @@ func (rr *Router) Ctx(pfx, cpfx string, s *dg.Session, m *dg.Message, line strin
 
 	cmd := args[0]
 	args = args[1:]
-	c.Flags = NewFlags(c, cmd, args)
+	c.Flag = NewFlag(c, cmd, args)
 
 	if c.Route == nil {
 		return nil
 	}
 
 	return c
+}
+
+// Handler returns a discordgo handler function for the router.
+func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
+	return func(s *dg.Session, m *dg.MessageCreate) {
+		const _f = "(*Router).Handler"
+
+		Log.Debug(_f, "handling")
+
+		if m.Message.Author.ID == s.State.User.ID {
+			Log.Debug(_f, "ignore self")
+			return
+		}
+
+		if m.Message.Author.Bot {
+			Log.Debug(_f, "ignore bot")
+			return
+		}
+
+		lines := strings.Split(m.Message.Content, "\n")
+		Log.Debugf(_f, "lines %#v", lines)
+
+		for _, line := range lines {
+			ctx := context.Background()
+
+			Log.Debugf(_f, "line %q", line)
+
+			pfx, err := prefix.FindPrefix(ctx, d, s, m.GuildID, line)
+			if err != nil {
+				if errors.Is(err, prefix.ErrPrefixFail) {
+					continue
+				}
+
+				err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
+				Log.Warn(_f, err)
+
+				continue
+			}
+
+			c := rr.Ctx(ctx, pfx, s, m.Message, line)
+			if c == nil {
+				continue
+			}
+
+			err = c.Run()
+			if err != nil {
+				err = fmt.Errorf("c run: %w", err)
+				Log.Warn(_f, err)
+
+				continue
+			}
+		}
+	}
 }

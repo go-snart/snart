@@ -12,23 +12,31 @@ type Gamer func(*Bot) (*dg.Game, error)
 
 // CycleGamers cycles through displaying the Gamers registered on the Bot.
 func (b *Bot) CycleGamers() {
-	_f := "(*Bot).CycleGamers"
+	const _f = "(*Bot).CycleGamers"
 
 	b.WaitReady()
 
 	for {
-		gamers := b.Gamers
-
-		for _, gamer := range gamers {
+		for _, gamer := range b.Gamers {
 			game, err := gamer(b)
 			if err != nil {
+				err = fmt.Errorf("gamer: %w", err)
+
 				Log.Warn(_f, err)
+
 				continue
 			}
 
-			err = b.Session.UpdateStatusComplex(dg.UpdateStatusData{Game: game})
+			err = b.Session.UpdateStatusComplex(
+				dg.UpdateStatusData{
+					Game: game,
+				},
+			)
 			if err != nil {
+				err = fmt.Errorf("update status: %w", err)
+
 				Log.Warn(_f, err)
+
 				continue
 			}
 
@@ -51,8 +59,13 @@ func GamerUptime(b *Bot) (*dg.Game, error) {
 }
 
 // GamerText return an example Gamer that shows the given text and game type.
-func GamerText(text string, typ dg.GameType) Gamer {
-	return func(b *Bot) (*dg.Game, error) {
-		return &dg.Game{Name: text, Type: typ}, nil
+func GamerText(name string, typ dg.GameType) Gamer {
+	game := &dg.Game{
+		Name: name,
+		Type: typ,
+	}
+
+	return func(_ *Bot) (*dg.Game, error) {
+		return game, nil
 	}
 }

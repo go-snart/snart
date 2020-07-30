@@ -1,6 +1,7 @@
 package route
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"strings"
@@ -8,24 +9,24 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 )
 
-// Flags holds a FlagSet for a Ctx.
-type Flags struct {
+// Flag holds a FlagSet for a Ctx.
+type Flag struct {
 	*flag.FlagSet
 	args []string
 	ctx  *Ctx
 	err  error
 }
 
-// NewFlags creates a Flags.
-func NewFlags(ctx *Ctx, name string, args []string) *Flags {
-	f := &Flags{}
+// NewFlag creates a Flag.
+func NewFlag(ctx *Ctx, name string, args []string) *Flag {
+	f := &Flag{}
 
 	f.ctx = ctx
 	f.args = args
 
 	f.FlagSet = flag.NewFlagSet(name, flag.ContinueOnError)
 	f.FlagSet.Usage = func() {
-		_f := "f.Flagset.Usage"
+		const _f = "f.FlagSet.Usage"
 
 		err := f.Usage().Send()
 		if err != nil {
@@ -37,8 +38,8 @@ func NewFlags(ctx *Ctx, name string, args []string) *Flags {
 	return f
 }
 
-// Usage generates a *Reply containing usage info from the Flags.
-func (f *Flags) Usage() *Reply {
+// Usage generates a *Reply containing usage info from the Flag.
+func (f *Flag) Usage() *Reply {
 	rep := f.ctx.Reply()
 	if f.err != nil {
 		rep.Content = "**Error:** " + f.err.Error()
@@ -61,13 +62,17 @@ func (f *Flags) Usage() *Reply {
 	return rep
 }
 
-// Parse parses the arguments given to the Flags.
-func (f *Flags) Parse() error {
-	_f := "(*Flags).Parse"
+// Parse parses the arguments given to the Flag.
+func (f *Flag) Parse() error {
+	const _f = "(*Flag).Parse"
 
 	err := f.FlagSet.Parse(f.args)
 	if err != nil {
 		f.err = err
+
+		if errors.Is(err, flag.ErrHelp) {
+			return err
+		}
 
 		err = fmt.Errorf("flag parse %#v: %w", f.args, err)
 		Log.Error(_f, err)
@@ -78,8 +83,8 @@ func (f *Flags) Parse() error {
 	return nil
 }
 
-// Output retrieves the Flags' FlagSet's Output as a string.
-func (f *Flags) Output() string {
+// Output retrieves the Flag's FlagSet's Output as a string.
+func (f *Flag) Output() string {
 	if b, ok := f.FlagSet.Output().(fmt.Stringer); ok {
 		return b.String()
 	}

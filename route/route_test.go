@@ -1,8 +1,6 @@
 package route_test
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestNewRoute(t *testing.T) {
 	name, match, cat, desc, okay, _func,

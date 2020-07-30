@@ -13,13 +13,27 @@ var Log = db.Log.GetLogger("token")
 
 // Table is a table builder for config.admin.
 func Table(ctx context.Context, d *db.DB) {
-	x, err := d.Conn(&ctx).Exec(ctx, `CREATE TABLE IF NOT EXISTS token(value TEXT)`)
-	Log.Debugf("Table", "%#v %#v", x, err)
+	const (
+		_f = "Table"
+		e  = `CREATE TABLE IF NOT EXISTS token(
+			value TEXT
+		)`
+	)
+
+	_, err := d.Conn(&ctx).Exec(ctx, e)
+	if err != nil {
+		err = fmt.Errorf("exec %#q: %w", e, err)
+
+		Log.Error(_f, err)
+
+		return
+	}
 }
 
 // Token retrieves a token for a Bot.
 func Token(ctx context.Context, d *db.DB) (string, error) {
-	_f := "(*DB).Token"
+	const _f = "(*DB).Token"
+
 	Log.Debug(_f, "enter")
 
 	Table(ctx, d)
@@ -28,7 +42,8 @@ func Token(ctx context.Context, d *db.DB) (string, error) {
 
 	rows, err := d.Conn(&ctx).Query(ctx, q)
 	if err != nil {
-		err = fmt.Errorf("db query %#q: %w", q, err)
+		err = fmt.Errorf("query %#q: %w", q, err)
+
 		Log.Error(_f, err)
 
 		return "", err
@@ -59,15 +74,14 @@ func Token(ctx context.Context, d *db.DB) (string, error) {
 
 	const q2 = `INSERT INTO token(value) VALUES($1);`
 
-	x, err := d.Conn(&ctx).Exec(ctx, q2, token)
+	_, err := d.Conn(&ctx).Exec(ctx, q2, token)
 	if err != nil {
-		err = fmt.Errorf("db exec %#q(%q): %w", q2, token, err)
+		err = fmt.Errorf("exec %#q (%q): %w", q2, token, err)
+
 		Log.Error(_f, err)
 
 		return "", err
 	}
-
-	Log.Info(_f, x)
 
 	return token, nil
 }

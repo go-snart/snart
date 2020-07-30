@@ -10,7 +10,7 @@ import (
 
 // Start performs the Bot's startup functions, and then waits until an interrupt.
 func (b *Bot) Start(ctx context.Context) error {
-	_f := "(*Bot).Start"
+	const _f = "(*Bot).Start"
 
 	b.GoPlugins()
 
@@ -48,7 +48,7 @@ func (b *Bot) Start(ctx context.Context) error {
 
 // Logout performs standard disconnect routines.
 func (b *Bot) Logout() {
-	_f := "(*Bot).Logout"
+	const _f = "(*Bot).Logout"
 
 	err := b.Session.Close()
 	if err != nil {

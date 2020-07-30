@@ -1,4 +1,3 @@
-// Package token provides auth token stuff for db.
 package token
 
 import (
@@ -8,13 +7,9 @@ import (
 	"github.com/go-snart/snart/db"
 )
 
-// Log is the logger for token.
-var Log = db.Log.GetLogger("token")
-
-// Table is a table builder for config.admin.
-func Table(ctx context.Context, d *db.DB) {
+func table(ctx context.Context, d *db.DB) {
 	const (
-		_f = "Table"
+		_f = "table"
 		e  = `CREATE TABLE IF NOT EXISTS token(
 			value TEXT
 		)`
@@ -30,13 +25,13 @@ func Table(ctx context.Context, d *db.DB) {
 	}
 }
 
-// Token retrieves a token for a Bot.
-func Token(ctx context.Context, d *db.DB) (string, error) {
-	const _f = "(*DB).Token"
+// SelectTokens retrieves bot tokens from a DB.
+func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
+	const _f = "DBToken"
 
 	Log.Debug(_f, "enter")
 
-	Table(ctx, d)
+	table(ctx, d)
 
 	const q = `SELECT value FROM token`
 
@@ -46,42 +41,63 @@ func Token(ctx context.Context, d *db.DB) (string, error) {
 
 		Log.Error(_f, err)
 
-		return "", err
+		return nil, err
 	}
 	defer rows.Close()
 
-	if rows.Next() {
-		token := ""
+	toks := []string(nil)
 
-		err = rows.Scan(&token)
+	for rows.Next() {
+		tok := ""
+
+		err = rows.Scan(&tok)
 		if err != nil {
-			err = fmt.Errorf("scan token: %w", err)
+			err = fmt.Errorf("scan tok: %w", err)
+
 			Log.Error(_f, err)
 
-			return "", err
+			return nil, err
 		}
 
-		return token, nil
+		toks = append(toks, tok)
 	}
 
-	token, err := ScanToken()
-	if err != nil {
-		err = fmt.Errorf("scan token (cli): %w", err)
-		Log.Error(_f, err)
-
-		return "", err
-	}
-
-	const q2 = `INSERT INTO token(value) VALUES($1);`
-
-	_, err := d.Conn(&ctx).Exec(ctx, q2, token)
-	if err != nil {
-		err = fmt.Errorf("exec %#q (%q): %w", q2, token, err)
+	if err := rows.Err(); err != nil {
+		err = fmt.Errorf("rows: %w", err)
 
 		Log.Error(_f, err)
 
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	return toks, nil
+}
+
+// InsertTokens adds tokens to the database so that they're persistent.
+func InsertTokens(ctx context.Context, d *db.DB, toks []string) {
+	const _f = "InsertTokens"
+
+	table(ctx, d)
+
+	e := `INSERT INTO token(value) VALUES`
+	vals := []interface{}(nil)
+
+	for n, tok := range toks {
+		e += fmt.Sprintf(`($%d)`, n)
+
+		if n < len(toks)-1 {
+			e += `,`
+		}
+
+		vals = append(vals, tok)
+	}
+
+	_, err := d.Conn(&ctx).Exec(ctx, e, vals...)
+	if err != nil {
+		err = fmt.Errorf("exec %#q (%#v): %w", e, vals, err)
+
+		Log.Warn(_f, err)
+
+		return
+	}
 }

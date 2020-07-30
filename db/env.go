@@ -1,4 +1,4 @@
-package token
+package db
 
 import (
 	"errors"
@@ -6,14 +6,14 @@ import (
 	"strings"
 )
 
-// EnvName is the name of the environment variable used to load tokens.
-const EnvName = "SNART_TOKENS"
+// EnvName is the name of the environment variable used to load configs.
+const EnvName = "SNART_CONFIGS"
 
 // ErrEnvUnset occurs when the EnvName environment variable is not set.
 var ErrEnvUnset = errors.New(EnvName + " is not set")
 
-// EnvTokens returns the tokens listed in the EnvName environment variable.
-func EnvTokens() ([]string, error) {
+// EnvConfigs returns the configs listed in the EnvName environment variable.
+func EnvConfigs() ([]string, error) {
 	toks, ok := os.LookupEnv(EnvName)
 	if !ok {
 		return nil, ErrEnvUnset

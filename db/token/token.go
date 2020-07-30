@@ -15,6 +15,8 @@ var Log = db.Log.GetLogger("token")
 func Tokens(ctx context.Context, d *db.DB) []string {
 	const _f = "Tokens"
 
+	Log.Debug(_f, "enter->env")
+
 	allToks := []string(nil)
 
 	toks, err := EnvTokens()
@@ -25,6 +27,8 @@ func Tokens(ctx context.Context, d *db.DB) []string {
 		allToks = append(allToks, toks...)
 	}
 
+	Log.Debug(_f, "env->select")
+
 	toks, err = SelectTokens(ctx, d)
 	if err != nil {
 		err = fmt.Errorf("select tok: %w", err)
@@ -33,17 +37,25 @@ func Tokens(ctx context.Context, d *db.DB) []string {
 		allToks = append(allToks, toks...)
 	}
 
+	Log.Debug(_f, "select->stdin")
+
 	if len(allToks) == 0 {
 		toks, err = StdinTokens()
 		if err != nil {
 			err = fmt.Errorf("stdin tok: %w", err)
 			Log.Warn(_f, err)
 		} else {
+			Log.Debug(_f, "stdin->insert")
+
 			InsertTokens(ctx, d, toks)
+
+			Log.Debug(_f, "insert->exit")
 
 			allToks = append(allToks, toks...)
 		}
 	}
+
+	Log.Debug(_f, "stdin->exit")
 
 	return allToks
 }

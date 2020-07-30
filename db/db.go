@@ -3,29 +3,48 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	pgx "github.com/jackc/pgx/v4"
 	"github.com/superloach/minori"
 )
 
+// ErrNoConfigs occurs when no good configs are found.
+var ErrNoConfigs = errors.New("no good configs found")
+
 // Log is the logger for the db package.
 var Log = minori.GetLogger("db")
 
 // DB wraps a PostgreSQL connection.
 type DB struct {
-	*pgx.ConnConfig
+	Configs []*pgx.ConnConfig
 }
 
-// NewDB creates a database abstraction.
-func NewDB(config string) (*DB, error) {
-	conf, err := pgx.ParseConfig(config)
-	if err != nil {
-		return nil, err
+// New creates a database abstraction.
+func New() (*DB, error) {
+	const _f = "New"
+
+	sconfs := Configs()
+	confs := []*pgx.ConnConfig(nil)
+
+	for _, sconf := range sconfs {
+		conf, err := pgx.ParseConfig(sconf)
+		if err != nil {
+			err = fmt.Errorf("parse %q: %w", sconf, err)
+
+			Log.Warn(_f, err)
+		} else {
+			confs = append(confs, conf)
+		}
+	}
+
+	if len(confs) == 0 {
+		return nil, ErrNoConfigs
 	}
 
 	return &DB{
-		ConnConfig: conf,
+		Configs: confs,
 	}, nil
 }
 
@@ -41,15 +60,19 @@ func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
 		return val
 	}
 
-	conn, err := pgx.ConnectConfig(*ctx, d.ConnConfig)
-	if err != nil {
-		err = fmt.Errorf("connect %#v: %w", d.ConnConfig, err)
-		Log.Fatal(_f, err)
+	for _, conf := range d.Configs {
+		conn, err := pgx.ConnectConfig(*ctx, conf)
+		if err != nil {
+			err = fmt.Errorf("connect %q: %w", conf.ConnString(), err)
+			Log.Warn(_f, err)
+		} else {
+			*ctx = context.WithValue(*ctx, ConnKey{}, conn)
 
-		return nil
+			return conn
+		}
 	}
 
-	*ctx = context.WithValue(*ctx, ConnKey{}, conn)
+	Log.Fatal(_f, "unable to open a connection")
 
-	return conn
+	return nil
 }

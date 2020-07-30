@@ -1,14 +1,19 @@
 package route_test
 
 import (
+	"context"
 	"fmt"
-	"os"
 
 	dg "github.com/bwmarrin/discordgo"
+	"github.com/superloach/minori"
 
+	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/db/prefix"
+	"github.com/go-snart/snart/db/token"
 	"github.com/go-snart/snart/route"
 )
+
+var Log = minori.GetLogger("route_test")
 
 func val(v interface{}) string {
 	return fmt.Sprintf("%#v", v)
@@ -18,6 +23,10 @@ func prefixDummy() (
 	string, string,
 	*prefix.Prefix,
 ) {
+	const _f = "prefixDummy"
+
+	Log.Debug(_f, ".")
+
 	const (
 		value = "./"
 		clean = "./"
@@ -34,12 +43,17 @@ func messageDummy(content string) (
 	string, string, string, *dg.User,
 	*dg.Message,
 ) {
-	var (
+	const _f = "messageDummy"
+
+	Log.Debug(_f, ".")
+
+	const (
 		id        = "12345678900"
 		channelID = "12345678901"
 		guildID   = "12345678902"
-		author    = &dg.User{}
 	)
+
+	var author = &dg.User{}
 
 	return id, channelID, guildID, author,
 		&dg.Message{
@@ -55,6 +69,10 @@ func messageCreateDummy(content string) (
 	*dg.Message,
 	*dg.MessageCreate,
 ) {
+	const _f = "messageCreateDummy"
+
+	Log.Debug(_f, ".")
+
 	_, _, _, _,
 		msg := messageDummy(content)
 
@@ -67,32 +85,49 @@ func sessionDummy() (
 	string,
 	*dg.Session,
 ) {
-	tok := os.Getenv("SNART_TOKEN")
-	if tok == "" {
-		panic("please provide SNART_TOKEN")
-	}
+	const _f = "sessionDummy"
 
-	session, err := dg.New(tok)
+	Log.Debug(_f, "enter->db")
+
+	d, err := db.New()
 	if err != nil {
-		panic(err)
+		err = fmt.Errorf("new db: %w", err)
+
+		Log.Fatal(_f, err)
+
+		return "", nil
 	}
 
-	return tok, session
+	Log.Debug(_f, "db->open")
+
+	ses := token.Open(context.Background(), d)
+
+	Log.Debug(_f, "open->exit")
+
+	return ses.Identify.Token, ses
 }
 
-func sessionBadDummy() *dg.Session {
-	session, err := dg.New("foo")
-	if err != nil {
-		panic(err)
-	}
+func sessionBadDummy() (string, *dg.Session) {
+	const _f = "sessionBadDummy"
 
-	return session
+	Log.Debug(_f, ".")
+
+	const tok = "foo"
+
+	session, _ := dg.New()
+	session.Identify.Token = tok
+
+	return tok, session
 }
 
 func ctxDummy(content string) (
 	*prefix.Prefix, *dg.Session, *dg.Message, *route.Flag, *route.Route,
 	*route.Ctx,
 ) {
+	const _f = "ctxDummy"
+
+	Log.Debug(_f, ".")
+
 	var (
 		flag = &route.Flag{}
 	)
@@ -122,7 +157,11 @@ func ctxDummy(content string) (
 func ctxBadDummy() *route.Ctx {
 	_, _, _, _, _,
 		c := ctxDummy("")
-	c.Session = sessionBadDummy()
+
+	_,
+		ses := sessionBadDummy()
+
+	c.Session = ses
 
 	return c
 }

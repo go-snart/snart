@@ -2,12 +2,14 @@
 package bot
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/db/token"
 	"github.com/go-snart/snart/route"
 )
 
@@ -23,20 +25,22 @@ type Bot struct {
 	Startup   time.Time
 }
 
-// NewBot creates a Bot from a given DB connection.
-func NewBot(d *db.DB) (*Bot, error) {
-	const _f = "NewBot"
+// New creates a Bot.
+func New(ctx context.Context) (*Bot, error) {
+	const _f = "New"
 
 	Log.Debug(_f, "making bot")
 	defer Log.Debug(_f, "made bot")
 
-	ses, err := dg.New()
+	d, err := db.New()
 	if err != nil {
-		err = fmt.Errorf("new ses: %w", err)
+		err = fmt.Errorf("new db: %w", err)
 		Log.Error(_f, err)
 
 		return nil, err
 	}
+
+	ses := token.Open(ctx, d)
 
 	router := route.NewRouter()
 	ses.AddHandler(router.Handler(d))

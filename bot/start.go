@@ -2,11 +2,15 @@ package bot
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/go-snart/snart/db/token"
 )
+
+// ErrAllToksFailed occurs when all of the provided tokens failed to authenticate.
+var ErrAllToksFailed = errors.New("all tokens failed")
 
 // Start performs the Bot's startup functions, and then waits until an interrupt.
 func (b *Bot) Start(ctx context.Context) error {
@@ -16,22 +20,24 @@ func (b *Bot) Start(ctx context.Context) error {
 
 	b.Startup = time.Now()
 
-	tok, err := token.Token(ctx, b.DB)
-	if err != nil {
-		err = fmt.Errorf("token: %w", err)
-		Log.Error(_f, err)
+	toks := token.Tokens(ctx, b.DB)
+	ok := false
 
-		return err
+	for _, tok := range toks {
+		b.Session.Identify.Token = tok
+
+		err := b.Session.Open()
+		if err != nil {
+			err = fmt.Errorf("tok %q: %w", tok, err)
+			Log.Warn(_f, err)
+		} else {
+			ok = true
+			break
+		}
 	}
 
-	b.Session.Token = tok
-
-	err = b.Session.Open()
-	if err != nil {
-		err = fmt.Errorf("session open: %w", err)
-		Log.Error(_f, err)
-
-		return err
+	if !ok {
+		return ErrAllToksFailed
 	}
 
 	go b.CycleGamers()

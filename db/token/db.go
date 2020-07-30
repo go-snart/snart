@@ -29,9 +29,11 @@ func table(ctx context.Context, d *db.DB) {
 func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 	const _f = "DBToken"
 
-	Log.Debug(_f, "enter")
+	Log.Debug(_f, "enter->table")
 
 	table(ctx, d)
+
+	Log.Debug(_f, "table->query")
 
 	const q = `SELECT value FROM token`
 
@@ -44,6 +46,8 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 		return nil, err
 	}
 	defer rows.Close()
+
+	Log.Debug(_f, "query->scan")
 
 	toks := []string(nil)
 
@@ -62,6 +66,8 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 		toks = append(toks, tok)
 	}
 
+	Log.Debug(_f, "scan->err")
+
 	if err := rows.Err(); err != nil {
 		err = fmt.Errorf("rows: %w", err)
 
@@ -69,6 +75,8 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 
 		return nil, err
 	}
+
+	Log.Debug(_f, "err->done")
 
 	return toks, nil
 }

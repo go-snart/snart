@@ -1,13 +1,27 @@
 package logs
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/superloach/nilog"
 )
 
 func Debug(name string) *nilog.Logger {
-	return nilog.New(os.Stdout, "(debug) "+name+": ", nilog.LstdFlags)
+	const EnvName = "SNART_DEBUG"
+
+	debug, err := strconv.ParseBool(os.Getenv(EnvName))
+	if err != nil {
+		err = fmt.Errorf("parse $%s: %w", EnvName, err)
+		panic(err)
+	}
+
+	if debug {
+		return nilog.New(os.Stdout, "(debug) "+name+": ", nilog.LstdFlags)
+	}
+
+	return nil
 }
 
 func Info(name string) *nilog.Logger {

@@ -6,56 +6,57 @@ import (
 	"fmt"
 
 	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/logs"
 )
 
+const _p = "token"
+
 // Log is the logger for token.
-var Log = db.Log.GetLogger("token")
+var Debug, Info, Warn = logs.Loggers(_p)
 
 // Tokens returns a list of suitable tokens.
 func Tokens(ctx context.Context, d *db.DB) []string {
-	const _f = "Tokens"
-
-	Log.Debug(_f, "enter->env")
+	Debug.Println("enter->env")
 
 	allToks := []string(nil)
 
 	toks, err := EnvTokens()
 	if err != nil {
 		err = fmt.Errorf("env tok: %w", err)
-		Log.Warn(_f, err)
+		Warn.Println(err)
 	} else {
 		allToks = append(allToks, toks...)
 	}
 
-	Log.Debug(_f, "env->select")
+	Debug.Println("env->select")
 
 	toks, err = SelectTokens(ctx, d)
 	if err != nil {
 		err = fmt.Errorf("select tok: %w", err)
-		Log.Warn(_f, err)
+		Warn.Println(err)
 	} else {
 		allToks = append(allToks, toks...)
 	}
 
-	Log.Debug(_f, "select->stdin")
+	Debug.Println("select->stdin")
 
 	if len(allToks) == 0 {
 		toks, err = StdinTokens()
 		if err != nil {
 			err = fmt.Errorf("stdin tok: %w", err)
-			Log.Warn(_f, err)
+			Warn.Println(err)
 		} else {
-			Log.Debug(_f, "stdin->insert")
+			Debug.Println("stdin->insert")
 
 			InsertTokens(ctx, d, toks)
 
-			Log.Debug(_f, "insert->exit")
+			Debug.Println("insert->exit")
 
 			allToks = append(allToks, toks...)
 		}
 	}
 
-	Log.Debug(_f, "stdin->exit")
+	Debug.Println("stdin->exit")
 
 	return allToks
 }

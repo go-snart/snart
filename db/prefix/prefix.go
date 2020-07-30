@@ -10,7 +10,12 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/logs"
 )
+
+const _p = "prefix"
+
+var Debug, Info, Warn = logs.Loggers(_p)
 
 // ErrPrefixFail is an error which indicates that a function failed to get a prefix.
 var ErrPrefixFail = errors.New("failed to get a prefix")
@@ -18,8 +23,7 @@ var ErrPrefixFail = errors.New("failed to get a prefix")
 // Table is a table builder for config.admin.
 func Table(ctx context.Context, d *db.DB) {
 	const (
-		_f = "Table"
-		e  = `CREATE TABLE IF NOT EXISTS prefix(
+		e = `CREATE TABLE IF NOT EXISTS prefix(
 			guild TEXT PRIMARY KEY UNIQUE,
 			value TEXT
 		)`
@@ -29,7 +33,7 @@ func Table(ctx context.Context, d *db.DB) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q: %w", e, err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return
 	}
@@ -44,8 +48,6 @@ type Prefix struct {
 
 // GuildPrefix gets the prefix for a given Guild.
 func GuildPrefix(ctx context.Context, d *db.DB, id string) (*Prefix, error) {
-	const _f = "GuildPrefix"
-
 	Table(ctx, d)
 
 	const q = `SELECT guild, value FROM prefix WHERE guild = $1`
@@ -54,7 +56,7 @@ func GuildPrefix(ctx context.Context, d *db.DB, id string) (*Prefix, error) {
 	if err != nil {
 		err = fmt.Errorf("query %#q (%q): %w", q, id, err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}
@@ -66,7 +68,7 @@ func GuildPrefix(ctx context.Context, d *db.DB, id string) (*Prefix, error) {
 		if err != nil {
 			err = fmt.Errorf("scan into pfx: %w", err)
 
-			Log.Error(_f, err)
+			Warn.Println(err)
 
 			return nil, err
 		}
@@ -81,13 +83,11 @@ func GuildPrefix(ctx context.Context, d *db.DB, id string) (*Prefix, error) {
 
 // DefaultPrefix gets the default prefix (aka the Guild "").
 func DefaultPrefix(ctx context.Context, d *db.DB) (*Prefix, error) {
-	const _f = "DefaultPrefix"
-
 	pfx, err := GuildPrefix(ctx, d, "")
 	if err != nil {
 		err = fmt.Errorf("guild prefix %q: %w", "", err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}
@@ -96,10 +96,8 @@ func DefaultPrefix(ctx context.Context, d *db.DB) (*Prefix, error) {
 }
 
 func userPrefix(ses *dg.Session, cont string, gpfx, dpfx *Prefix) *Prefix {
-	const _f = "userPrefix"
-
 	ument := ses.State.User.Mention()
-	Log.Debugf(_f, "%q %q", cont, ument)
+	Debug.Printf("%q %q", cont, ument)
 
 	if strings.HasPrefix(cont, ument) {
 		pfx := &Prefix{
@@ -123,13 +121,11 @@ func userPrefix(ses *dg.Session, cont string, gpfx, dpfx *Prefix) *Prefix {
 }
 
 func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Prefix, error) {
-	const _f = "memberPrefix"
-
 	mme, err := ses.GuildMember(guild, ses.State.User.ID)
 	if err != nil {
 		err = fmt.Errorf("member %q @me: %w", guild, err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}
@@ -160,15 +156,13 @@ func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Pre
 
 // FindPrefix finds a matching prefix for a given guild and message content.
 func FindPrefix(ctx context.Context, d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) {
-	const _f = "(*db.DB).FindPrefix"
-
-	Log.Debugf(_f, "prefix %s", guild)
+	Debug.Printf("prefix %s", guild)
 
 	gpfx, err := GuildPrefix(ctx, d, guild)
 	if err != nil && !errors.Is(err, ErrPrefixFail) {
 		err = fmt.Errorf("guild prefix %q: %w", guild, err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}
@@ -183,7 +177,7 @@ func FindPrefix(ctx context.Context, d *db.DB, ses *dg.Session, guild, cont stri
 	if err != nil && !errors.Is(err, ErrPrefixFail) {
 		err = fmt.Errorf("default prefix: %w", err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}
@@ -203,7 +197,7 @@ func FindPrefix(ctx context.Context, d *db.DB, ses *dg.Session, guild, cont stri
 	if err != nil && !errors.Is(err, ErrPrefixFail) {
 		err = fmt.Errorf("member prefix: %w", err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}

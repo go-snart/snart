@@ -7,8 +7,6 @@ import (
 
 // StdinConfigs gets a config from input on the command line.
 func StdinConfigs() ([]string, error) {
-	const _f = "StdinConfigs"
-
 	fmt.Print("enter your postgres config(s): ")
 
 	confs := ""
@@ -17,7 +15,7 @@ func StdinConfigs() ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("scanln confs: %w", err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}

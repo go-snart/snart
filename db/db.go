@@ -6,11 +6,13 @@ import (
 	"fmt"
 
 	pgx "github.com/jackc/pgx/v4"
-	"github.com/superloach/minori"
+
+	"github.com/go-snart/snart/logs"
 )
 
-// Log is the logger for the db package.
-var Log = minori.GetLogger("db")
+const _p = "db"
+
+var Debug, Info, Warn = logs.Loggers(_p)
 
 // DB wraps a PostgreSQL connection.
 type DB struct {
@@ -19,8 +21,6 @@ type DB struct {
 
 // New creates a database abstraction.
 func New() *DB {
-	const _f = "New"
-
 	sconfs := Configs()
 	confs := []*pgx.ConnConfig(nil)
 
@@ -29,14 +29,14 @@ func New() *DB {
 		if err != nil {
 			err = fmt.Errorf("parse %q: %w", sconf, err)
 
-			Log.Warn(_f, err)
+			Warn.Println(err)
 		} else {
 			confs = append(confs, conf)
 		}
 	}
 
 	if len(confs) == 0 {
-		Log.Fatal(_f, "no good configs found")
+		Info.Fatalln("no good configs found")
 
 		return nil
 	}
@@ -51,8 +51,6 @@ type ConnKey struct{}
 
 // Conn retrieves a PostgreSQL connection for a given context, inserting the new value if necessary.
 func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
-	const _f = "(*DB).Conn"
-
 	val, ok := (*ctx).Value(ConnKey{}).(*pgx.Conn)
 	if ok && val != nil {
 		return val
@@ -62,7 +60,7 @@ func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
 		conn, err := pgx.ConnectConfig(*ctx, conf)
 		if err != nil {
 			err = fmt.Errorf("connect %q: %w", conf.ConnString(), err)
-			Log.Warn(_f, err)
+			Warn.Println(err)
 		} else {
 			*ctx = context.WithValue(*ctx, ConnKey{}, conn)
 
@@ -70,7 +68,7 @@ func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
 		}
 	}
 
-	Log.Fatal(_f, "unable to open a connection")
+	Info.Fatalln("unable to open a connection")
 
 	return nil
 }

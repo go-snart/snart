@@ -4,7 +4,6 @@ import "fmt"
 
 // Configs returns a list of useable db config strings.
 func Configs() []string {
-	const _f = "Configs"
 
 	allConfs := []string(nil)
 
@@ -12,7 +11,7 @@ func Configs() []string {
 	if err != nil {
 		err = fmt.Errorf("env confs: %w", err)
 
-		Log.Warn(_f, err)
+		Warn.Println(err)
 	} else {
 		allConfs = append(allConfs, confs...)
 	}
@@ -22,7 +21,7 @@ func Configs() []string {
 		if err != nil {
 			err = fmt.Errorf("stdin confs: %w", err)
 
-			Log.Warn(_f, err)
+			Warn.Println(err)
 		} else {
 			allConfs = append(allConfs, confs...)
 		}

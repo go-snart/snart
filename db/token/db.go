@@ -9,8 +9,7 @@ import (
 
 func table(ctx context.Context, d *db.DB) {
 	const (
-		_f = "table"
-		e  = `CREATE TABLE IF NOT EXISTS token(
+		e = `CREATE TABLE IF NOT EXISTS token(
 			value TEXT
 		)`
 	)
@@ -19,7 +18,7 @@ func table(ctx context.Context, d *db.DB) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q: %w", e, err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return
 	}
@@ -27,13 +26,11 @@ func table(ctx context.Context, d *db.DB) {
 
 // SelectTokens retrieves bot tokens from a DB.
 func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
-	const _f = "DBToken"
-
-	Log.Debug(_f, "enter->table")
+	Debug.Println("enter->table")
 
 	table(ctx, d)
 
-	Log.Debug(_f, "table->query")
+	Debug.Println("table->query")
 
 	const q = `SELECT value FROM token`
 
@@ -41,13 +38,13 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("query %#q: %w", q, err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}
 	defer rows.Close()
 
-	Log.Debug(_f, "query->scan")
+	Debug.Println("query->scan")
 
 	toks := []string(nil)
 
@@ -58,7 +55,7 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 		if err != nil {
 			err = fmt.Errorf("scan tok: %w", err)
 
-			Log.Error(_f, err)
+			Warn.Println(err)
 
 			return nil, err
 		}
@@ -66,25 +63,23 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 		toks = append(toks, tok)
 	}
 
-	Log.Debug(_f, "scan->err")
+	Debug.Println("scan->err")
 
 	if err := rows.Err(); err != nil {
 		err = fmt.Errorf("rows: %w", err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}
 
-	Log.Debug(_f, "err->done")
+	Debug.Println("err->done")
 
 	return toks, nil
 }
 
 // InsertTokens adds tokens to the database so that they're persistent.
 func InsertTokens(ctx context.Context, d *db.DB, toks []string) {
-	const _f = "InsertTokens"
-
 	table(ctx, d)
 
 	e := `INSERT INTO token(value) VALUES`
@@ -104,7 +99,7 @@ func InsertTokens(ctx context.Context, d *db.DB, toks []string) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q (%#v): %w", e, vals, err)
 
-		Log.Warn(_f, err)
+		Warn.Println(err)
 
 		return
 	}

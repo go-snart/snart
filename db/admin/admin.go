@@ -6,14 +6,18 @@ import (
 	"fmt"
 
 	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/logs"
 	"github.com/go-snart/snart/route"
 )
+
+const _p = "admin"
+
+var Debug, Info, Warn = logs.Loggers(_p)
 
 // Table builds the table of admins.
 func Table(ctx context.Context, d *db.DB) {
 	const (
-		_f = "Table"
-		e  = `CREATE TABLE IF NOT EXISTS admin(
+		e = `CREATE TABLE IF NOT EXISTS admin(
 			id TEXT PRIMARY KEY UNIQUE
 		)`
 	)
@@ -22,7 +26,7 @@ func Table(ctx context.Context, d *db.DB) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q: %w", e, err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return
 	}
@@ -31,8 +35,6 @@ func Table(ctx context.Context, d *db.DB) {
 // IsAdmin checks if the author has bot-wide admin privileges.
 func IsAdmin(d *db.DB) route.Okay {
 	return func(c *route.Ctx) bool {
-		const _f = "IsAdmin"
-
 		for _, admin := range List(c, d) {
 			if c.Message.Author.ID == admin {
 				return true
@@ -42,7 +44,7 @@ func IsAdmin(d *db.DB) route.Okay {
 		app, err := c.Session.Application("@me")
 		if err != nil {
 			err = fmt.Errorf("app @me: %w", err)
-			Log.Warn(_f, err)
+			Warn.Println(err)
 
 			return false
 		}
@@ -69,8 +71,6 @@ func IsAdmin(d *db.DB) route.Okay {
 
 // List returns a list of known admin IDs from the database.
 func List(ctx context.Context, d *db.DB) []string {
-	const _f = "List"
-
 	Table(ctx, d)
 
 	const q = `SELECT id FROM admin`
@@ -79,7 +79,7 @@ func List(ctx context.Context, d *db.DB) []string {
 	if err != nil {
 		err = fmt.Errorf("query %#q: %w", q, err)
 
-		Log.Warn(_f, err)
+		Warn.Println(err)
 
 		return nil
 	}
@@ -93,7 +93,6 @@ func List(ctx context.Context, d *db.DB) []string {
 		err = rows.Scan(&admin)
 		if err != nil {
 			err = fmt.Errorf("scan admin: %w", err)
-			Log.Warn(_f, err)
 
 			return nil
 		}
@@ -104,7 +103,6 @@ func List(ctx context.Context, d *db.DB) []string {
 	err = rows.Err()
 	if err != nil {
 		err = fmt.Errorf("rows err: %w", err)
-		Log.Warn(_f, err)
 
 		return nil
 	}

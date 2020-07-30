@@ -7,8 +7,6 @@ import (
 
 // StdinTokens gets a token from input on the command line.
 func StdinTokens() ([]string, error) {
-	const _f = "StdinTokens"
-
 	fmt.Print("enter your discord token(s): ")
 
 	toks := ""
@@ -17,7 +15,7 @@ func StdinTokens() ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("scanln toks: %w", err)
 
-		Log.Error(_f, err)
+		Warn.Println(err)
 
 		return nil, err
 	}

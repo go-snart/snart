@@ -24,7 +24,7 @@ func debug(name string) *nilog.Logger {
 	}
 
 	if debug {
-		return nilog.New(os.Stdout, "(debug) "+name+": ", nilog.LstdFlags)
+		return nilog.New(os.Stderr, "(debug) "+name+": ", nilog.LstdFlags)
 	}
 
 	return nil

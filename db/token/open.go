@@ -17,36 +17,36 @@ func Open(ctx context.Context, d *db.DB) *dg.Session {
 		return opened
 	}
 
-	Debug.Println("enter->toks")
+	debug.Println("enter->toks")
 
 	toks := Tokens(ctx, d)
 
-	Debug.Println("toks->tries")
+	debug.Println("toks->tries")
 
 	for _, tok := range toks {
-		Debug.Println("tries->new")
+		debug.Println("tries->new")
 
 		session, _ := dg.New()
 		session.Identify.Token = tok
 
-		Debug.Println("new->open")
+		debug.Println("new->open")
 
 		err := session.Open()
 		if err != nil {
 			err = fmt.Errorf("open %q: %w", tok, err)
-			Warn.Println(err)
+			warn.Println(err)
 		} else {
-			Debug.Println("open->exit")
+			debug.Println("open->exit")
 			opened = session
 			return session
 		}
 
-		Debug.Println("open->tries")
+		debug.Println("open->tries")
 	}
 
-	Debug.Println("tries->exit")
+	debug.Println("tries->exit")
 
-	Info.Fatal("no suitable tokens found")
+	info.Fatal("no suitable tokens found")
 
 	return nil
 }

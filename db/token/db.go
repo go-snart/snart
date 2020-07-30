@@ -18,7 +18,7 @@ func table(ctx context.Context, d *db.DB) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q: %w", e, err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return
 	}
@@ -26,11 +26,11 @@ func table(ctx context.Context, d *db.DB) {
 
 // SelectTokens retrieves bot tokens from a DB.
 func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
-	Debug.Println("enter->table")
+	debug.Println("enter->table")
 
 	table(ctx, d)
 
-	Debug.Println("table->query")
+	debug.Println("table->query")
 
 	const q = `SELECT value FROM token`
 
@@ -38,13 +38,13 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("query %#q: %w", q, err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return nil, err
 	}
 	defer rows.Close()
 
-	Debug.Println("query->scan")
+	debug.Println("query->scan")
 
 	toks := []string(nil)
 
@@ -55,7 +55,7 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 		if err != nil {
 			err = fmt.Errorf("scan tok: %w", err)
 
-			Warn.Println(err)
+			warn.Println(err)
 
 			return nil, err
 		}
@@ -63,17 +63,17 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 		toks = append(toks, tok)
 	}
 
-	Debug.Println("scan->err")
+	debug.Println("scan->err")
 
 	if err := rows.Err(); err != nil {
 		err = fmt.Errorf("rows: %w", err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return nil, err
 	}
 
-	Debug.Println("err->done")
+	debug.Println("err->done")
 
 	return toks, nil
 }
@@ -99,7 +99,7 @@ func InsertTokens(ctx context.Context, d *db.DB, toks []string) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q (%#v): %w", e, vals, err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return
 	}

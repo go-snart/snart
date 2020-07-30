@@ -15,7 +15,7 @@ func StdinConfigs() ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("scanln confs: %w", err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return nil, err
 	}

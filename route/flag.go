@@ -28,7 +28,7 @@ func NewFlag(ctx *Ctx, name string, args []string) *Flag {
 	f.FlagSet.Usage = func() {
 		err := f.Usage().Send()
 		if err != nil {
-			Warn.Println(err)
+			warn.Println(err)
 		}
 	}
 	f.FlagSet.SetOutput(&strings.Builder{})
@@ -71,7 +71,7 @@ func (f *Flag) Parse() error {
 		}
 
 		err = fmt.Errorf("flag parse %#v: %w", f.args, err)
-		Warn.Println(err)
+		warn.Println(err)
 
 		return err
 	}

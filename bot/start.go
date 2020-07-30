@@ -24,7 +24,7 @@ func (b *Bot) Start(ctx context.Context) error {
 	go b.CycleGamers()
 
 	b.WaitReady()
-	Info.Println("ready")
+	info.Println("ready")
 
 	b.HandleInterrupts()
 
@@ -38,8 +38,8 @@ func (b *Bot) Logout() {
 	err := b.Session.Close()
 	if err != nil {
 		err = fmt.Errorf("session close: %w", err)
-		Warn.Println(err)
+		warn.Println(err)
 	}
 
-	Info.Println("logged out")
+	info.Println("logged out")
 }

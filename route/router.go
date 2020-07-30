@@ -46,7 +46,7 @@ func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m 
 
 			exp, err := re2.Compile(match, re2.IgnoreCase)
 			if err != nil {
-				Warn.Printf("re2 compile %#q: %s", match, err)
+				warn.Printf("re2 compile %#q: %s", match, err)
 				continue
 			}
 
@@ -92,25 +92,25 @@ func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m 
 // Handler returns a discordgo handler function for the router.
 func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 	return func(s *dg.Session, m *dg.MessageCreate) {
-		Debug.Println("handling")
+		debug.Println("handling")
 
 		if m.Message.Author.ID == s.State.User.ID {
-			Debug.Println("ignore self")
+			debug.Println("ignore self")
 			return
 		}
 
 		if m.Message.Author.Bot {
-			Debug.Println("ignore bot")
+			debug.Println("ignore bot")
 			return
 		}
 
 		lines := strings.Split(m.Message.Content, "\n")
-		Debug.Printf("lines %#v", lines)
+		debug.Printf("lines %#v", lines)
 
 		for _, line := range lines {
 			ctx := context.Background()
 
-			Debug.Printf("line %q", line)
+			debug.Printf("line %q", line)
 
 			pfx, err := prefix.FindPrefix(ctx, d, s, m.GuildID, line)
 			if err != nil {
@@ -119,7 +119,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 				}
 
 				err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
-				Warn.Println(err)
+				warn.Println(err)
 
 				continue
 			}
@@ -132,7 +132,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 			err = c.Run()
 			if err != nil {
 				err = fmt.Errorf("c run: %w", err)
-				Warn.Println(err)
+				warn.Println(err)
 
 				continue
 			}

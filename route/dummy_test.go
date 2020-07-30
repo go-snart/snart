@@ -20,7 +20,7 @@ func prefixDummy() (
 	string, string,
 	*prefix.Prefix,
 ) {
-	Debug.Println(".")
+	debug.Println(".")
 
 	const (
 		value = "./"
@@ -38,7 +38,7 @@ func messageDummy(content string) (
 	string, string, string, *dg.User,
 	*dg.Message,
 ) {
-	Debug.Println(".")
+	debug.Println(".")
 
 	const (
 		id        = "12345678900"
@@ -62,7 +62,7 @@ func messageCreateDummy(content string) (
 	*dg.Message,
 	*dg.MessageCreate,
 ) {
-	Debug.Println(".")
+	debug.Println(".")
 
 	_, _, _, _,
 		msg := messageDummy(content)
@@ -76,21 +76,21 @@ func sessionDummy() (
 	string,
 	*dg.Session,
 ) {
-	Debug.Println("enter->db")
+	debug.Println("enter->db")
 
 	d := db.New()
 
-	Debug("db->ses")
+	debug.Println("db->ses")
 
 	ses := token.Open(context.Background(), d)
 
-	Debug.Println("ses->exit")
+	debug.Println("ses->exit")
 
 	return ses.Identify.Token, ses
 }
 
 func sessionBadDummy() (string, *dg.Session) {
-	Debug.Println(".")
+	debug.Println(".")
 
 	const tok = "foo"
 
@@ -104,7 +104,7 @@ func ctxDummy(content string) (
 	*prefix.Prefix, *dg.Session, *dg.Message, *route.Flag, *route.Route,
 	*route.Ctx,
 ) {
-	Debug.Println(".")
+	debug.Println(".")
 
 	var (
 		flag = &route.Flag{}

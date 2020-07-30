@@ -20,7 +20,7 @@ func (b *Bot) CycleGamers() {
 			if err != nil {
 				err = fmt.Errorf("gamer: %w", err)
 
-				Warn.Println(err)
+				warn.Println(err)
 
 				continue
 			}
@@ -33,7 +33,7 @@ func (b *Bot) CycleGamers() {
 			if err != nil {
 				err = fmt.Errorf("update status: %w", err)
 
-				Warn.Println(err)
+				warn.Println(err)
 
 				continue
 			}

@@ -1,6 +1,14 @@
 package route_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/go-snart/snart/logs"
+)
+
+const _p = "route_test"
+
+var debug, _, _ = logs.Loggers(_p)
 
 func TestNewRoute(t *testing.T) {
 	name, match, cat, desc, okay, _func,

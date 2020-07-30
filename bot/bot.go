@@ -13,7 +13,7 @@ import (
 
 const _p = "bot"
 
-var Debug, Info, Warn = logs.Loggers(_p)
+var debug, info, warn = logs.Loggers(_p)
 
 // Bot holds all the internal workings of a Snart bot.
 type Bot struct {

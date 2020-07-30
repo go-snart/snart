@@ -12,7 +12,7 @@ import (
 
 const _p = "admin"
 
-var Debug, Info, Warn = logs.Loggers(_p)
+var _, _, warn = logs.Loggers(_p)
 
 // Table builds the table of admins.
 func Table(ctx context.Context, d *db.DB) {
@@ -26,7 +26,7 @@ func Table(ctx context.Context, d *db.DB) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q: %w", e, err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return
 	}
@@ -44,7 +44,7 @@ func IsAdmin(d *db.DB) route.Okay {
 		app, err := c.Session.Application("@me")
 		if err != nil {
 			err = fmt.Errorf("app @me: %w", err)
-			Warn.Println(err)
+			warn.Println(err)
 
 			return false
 		}
@@ -79,7 +79,7 @@ func List(ctx context.Context, d *db.DB) []string {
 	if err != nil {
 		err = fmt.Errorf("query %#q: %w", q, err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return nil
 	}
@@ -94,6 +94,8 @@ func List(ctx context.Context, d *db.DB) []string {
 		if err != nil {
 			err = fmt.Errorf("scan admin: %w", err)
 
+			warn.Println(err)
+
 			return nil
 		}
 
@@ -103,6 +105,8 @@ func List(ctx context.Context, d *db.DB) []string {
 	err = rows.Err()
 	if err != nil {
 		err = fmt.Errorf("rows err: %w", err)
+
+		warn.Println(err)
 
 		return nil
 	}

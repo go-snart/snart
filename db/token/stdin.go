@@ -15,7 +15,7 @@ func StdinTokens() ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("scanln toks: %w", err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return nil, err
 	}

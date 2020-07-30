@@ -52,7 +52,7 @@ var GuildAdmin Okay = func(c *Ctx) bool {
 	if err != nil {
 		err = fmt.Errorf("perm: %w", err)
 
-		Warn.Println(err)
+		warn.Println(err)
 
 		return false
 	}

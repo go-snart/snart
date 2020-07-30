@@ -12,7 +12,7 @@ import (
 
 const _p = "db"
 
-var Debug, Info, Warn = logs.Loggers(_p)
+var _, info, warn = logs.Loggers(_p)
 
 // DB wraps a PostgreSQL connection.
 type DB struct {
@@ -29,14 +29,14 @@ func New() *DB {
 		if err != nil {
 			err = fmt.Errorf("parse %q: %w", sconf, err)
 
-			Warn.Println(err)
+			warn.Println(err)
 		} else {
 			confs = append(confs, conf)
 		}
 	}
 
 	if len(confs) == 0 {
-		Info.Fatalln("no good configs found")
+		info.Fatalln("no good configs found")
 
 		return nil
 	}
@@ -60,7 +60,7 @@ func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
 		conn, err := pgx.ConnectConfig(*ctx, conf)
 		if err != nil {
 			err = fmt.Errorf("connect %q: %w", conf.ConnString(), err)
-			Warn.Println(err)
+			warn.Println(err)
 		} else {
 			*ctx = context.WithValue(*ctx, ConnKey{}, conn)
 
@@ -68,7 +68,7 @@ func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
 		}
 	}
 
-	Info.Fatalln("unable to open a connection")
+	info.Fatalln("unable to open a connection")
 
 	return nil
 }

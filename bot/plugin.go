@@ -9,12 +9,12 @@ type Plugin func(*Bot) error
 // Register adds a Plugin to the Plugins.
 func Register(name string, plug Plugin) {
 	if _, ok := Plugins[name]; ok {
-		Info.Fatalf("attempted to register plugin %q twice", name)
+		info.Fatalf("attempted to register plugin %q twice", name)
 	}
 
 	Plugins[name] = plug
 
-	Info.Printf("registered plugin %q", name)
+	info.Printf("registered plugin %q", name)
 }
 
 // GoPlugins spawns all of the Plugins on the Bot.
@@ -23,7 +23,7 @@ func (b *Bot) GoPlugins() {
 		go func(n string, p Plugin) {
 			err := p(b)
 			if err != nil {
-				Info.Printf("plugin %s: %s", n, err)
+				info.Printf("plugin %s: %s", n, err)
 				return
 			}
 		}(name, plug)

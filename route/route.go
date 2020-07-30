@@ -9,8 +9,7 @@ import (
 
 const _p = "route"
 
-// Log is the logger for the route package.
-var Debug, Info, Warn = logs.Loggers(_p)
+var debug, _, warn = logs.Loggers(_p)
 
 // Route is a command route.
 type Route struct {

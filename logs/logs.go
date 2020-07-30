@@ -1,3 +1,4 @@
+// Package logs provides utilities for getting sensible loggers.
 package logs
 
 import (
@@ -8,7 +9,7 @@ import (
 	"github.com/superloach/nilog"
 )
 
-func Debug(name string) *nilog.Logger {
+func debug(name string) *nilog.Logger {
 	const EnvName = "SNART_DEBUG"
 
 	env, ok := os.LookupEnv(EnvName)
@@ -29,20 +30,21 @@ func Debug(name string) *nilog.Logger {
 	return nil
 }
 
-func Info(name string) *nilog.Logger {
+func info(name string) *nilog.Logger {
 	return nilog.New(os.Stdout, name+": ", nilog.LstdFlags)
 }
 
-func Warn(name string) *nilog.Logger {
+func warn(name string) *nilog.Logger {
 	return nilog.New(os.Stderr, "(warn) "+name+": ", nilog.LstdFlags)
 }
 
+// Loggers returns sensible loggers for a package with the given name.
 func Loggers(name string) (
-	debug *nilog.Logger,
-	info *nilog.Logger,
-	warn *nilog.Logger,
+	*nilog.Logger,
+	*nilog.Logger,
+	*nilog.Logger,
 ) {
-	return Debug(name),
-		Info(name),
-		Warn(name)
+	return debug(name),
+		info(name),
+		warn(name)
 }

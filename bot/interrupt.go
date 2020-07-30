@@ -41,5 +41,5 @@ func (b *Bot) HandleInterrupts() {
 		err = fmt.Sprintf("interrupt: sig %s", interrupt.Sig)
 	}
 
-	Warn.Println(err)
+	warn.Println(err)
 }

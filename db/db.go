@@ -3,15 +3,11 @@ package db
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	pgx "github.com/jackc/pgx/v4"
 	"github.com/superloach/minori"
 )
-
-// ErrNoConfigs occurs when no good configs are found.
-var ErrNoConfigs = errors.New("no good configs found")
 
 // Log is the logger for the db package.
 var Log = minori.GetLogger("db")
@@ -22,7 +18,7 @@ type DB struct {
 }
 
 // New creates a database abstraction.
-func New() (*DB, error) {
+func New() *DB {
 	const _f = "New"
 
 	sconfs := Configs()
@@ -40,12 +36,14 @@ func New() (*DB, error) {
 	}
 
 	if len(confs) == 0 {
-		return nil, ErrNoConfigs
+		Log.Fatal(_f, "no good configs found")
+
+		return nil
 	}
 
 	return &DB{
 		Configs: confs,
-	}, nil
+	}
 }
 
 // ConnKey is the context key type used by (*DB).Conn.

@@ -89,20 +89,13 @@ func sessionDummy() (
 
 	Log.Debug(_f, "enter->db")
 
-	d, err := db.New()
-	if err != nil {
-		err = fmt.Errorf("new db: %w", err)
+	d := db.New()
 
-		Log.Fatal(_f, err)
-
-		return "", nil
-	}
-
-	Log.Debug(_f, "db->open")
+	Log.Debug(_f, "db->ses")
 
 	ses := token.Open(context.Background(), d)
 
-	Log.Debug(_f, "open->exit")
+	Log.Debug(_f, "ses->exit")
 
 	return ses.Identify.Token, ses
 }

@@ -18,27 +18,10 @@ func (b *Bot) Start(ctx context.Context) error {
 
 	b.GoPlugins()
 
+	b.Session = token.Open(ctx, b.DB)
+	b.Session.AddHandler(b.Router.Handler(b.DB))
+
 	b.Startup = time.Now()
-
-	toks := token.Tokens(ctx, b.DB)
-	ok := false
-
-	for _, tok := range toks {
-		b.Session.Identify.Token = tok
-
-		err := b.Session.Open()
-		if err != nil {
-			err = fmt.Errorf("tok %q: %w", tok, err)
-			Log.Warn(_f, err)
-		} else {
-			ok = true
-			break
-		}
-	}
-
-	if !ok {
-		return ErrAllToksFailed
-	}
 
 	go b.CycleGamers()
 

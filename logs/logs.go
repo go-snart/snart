@@ -2,40 +2,29 @@
 package logs
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"strconv"
 
+	"github.com/logrusorgru/aurora"
+	"github.com/mattn/go-colorable"
 	"github.com/superloach/nilog"
 )
 
-func debug(name string) *nilog.Logger {
-	const EnvName = "SNART_DEBUG"
-
-	env, ok := os.LookupEnv(EnvName)
-	if !ok {
-		return nil
-	}
-
-	debug, err := strconv.ParseBool(env)
-	if err != nil {
-		err = fmt.Errorf("parse $%s: %w", EnvName, err)
-		panic(err)
-	}
-
-	if debug {
-		return nilog.New(os.Stderr, "(debug) "+name+": ", log.LstdFlags)
-	}
-
-	return nil
-}
-
 func info(name string) *nilog.Logger {
-	return nilog.New(os.Stdout, name+": ", log.LstdFlags)
+	return nilog.New(
+		colorable.NewColorableStdout(),
+		aurora.Green("[info ] "+name+": ").String(),
+		log.LstdFlags,
+	)
 }
 
 func warn(name string) *nilog.Logger {
+	return nilog.New(
+		colorable.NewColorableStderr(),
+		aurora.Red("[warn ] "+name+": ").String(),
+		log.LstdFlags,
+	)
+
 	return nilog.New(os.Stderr, "(warn) "+name+": ", log.LstdFlags)
 }
 

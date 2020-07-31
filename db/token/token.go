@@ -3,6 +3,7 @@ package token
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/go-snart/snart/db"
@@ -21,7 +22,7 @@ func Tokens(ctx context.Context, d *db.DB) []string {
 	allToks := []string(nil)
 
 	toks, err := EnvTokens()
-	if err != nil {
+	if err != nil && !errors.Is(err, ErrEnvUnset) {
 		err = fmt.Errorf("env tok: %w", err)
 		warn.Println(err)
 	} else {

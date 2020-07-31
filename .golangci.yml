@@ -1,0 +1,23 @@
+run:
+  concurrency: 1
+
+linters:
+  enable-all: true
+  disable:
+    - gochecknoglobals
+    - gochecknoinits
+    - gomnd
+    - goconst
+  fast: true
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - deadcode
+        - dogsled
+        - unparam
+        - unused
+
+  include:
+    - EXC0002 # disable excluding of issues about comments from golint

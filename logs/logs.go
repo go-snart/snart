@@ -3,6 +3,7 @@ package logs
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -24,18 +25,18 @@ func debug(name string) *nilog.Logger {
 	}
 
 	if debug {
-		return nilog.New(os.Stderr, "(debug) "+name+": ", nilog.LstdFlags)
+		return nilog.New(os.Stderr, "(debug) "+name+": ", log.LstdFlags)
 	}
 
 	return nil
 }
 
 func info(name string) *nilog.Logger {
-	return nilog.New(os.Stdout, name+": ", nilog.LstdFlags)
+	return nilog.New(os.Stdout, name+": ", log.LstdFlags)
 }
 
 func warn(name string) *nilog.Logger {
-	return nilog.New(os.Stderr, "(warn) "+name+": ", nilog.LstdFlags)
+	return nilog.New(os.Stderr, "(warn) "+name+": ", log.LstdFlags)
 }
 
 // Loggers returns sensible loggers for a package with the given name.

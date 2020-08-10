@@ -10,7 +10,7 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
-const _p = "admin"
+const _p = "db/admin"
 
 var _, _, warn = logs.Loggers(_p)
 

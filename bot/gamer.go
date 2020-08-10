@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -25,17 +26,25 @@ func (b *Bot) CycleGamers() {
 				continue
 			}
 
-			err = b.Session.UpdateStatusComplex(
-				dg.UpdateStatusData{
-					Game: game,
-				},
-			)
-			if err != nil {
-				err = fmt.Errorf("update status: %w", err)
+			for {
+				err = b.Session.UpdateStatusComplex(
+					dg.UpdateStatusData{
+						Game: game,
+					},
+				)
+				if err == nil {
+					break
+				}
 
-				warn.Println(err)
+				if !errors.Is(err, dg.ErrWSNotFound) {
+					err = fmt.Errorf("update status: %w", err)
 
-				continue
+					warn.Println(err)
+
+					break
+				}
+
+				time.Sleep(time.Second / 10)
 			}
 
 			time.Sleep(time.Second * 12)

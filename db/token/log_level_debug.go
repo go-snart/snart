@@ -1,7 +1,7 @@
 // +build dg_debug
 
-package logs
+package token
 
 import dg "github.com/bwmarrin/discordgo"
 
-const DGLevel = dg.LogDebug
+const logLevel = dg.LogDebug

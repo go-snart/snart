@@ -30,7 +30,7 @@ func Open(ctx context.Context, d *db.DB, ready *bool) *dg.Session {
 			continue
 		}
 
-		session.LogLevel = logs.DGLevel
+		session.LogLevel = logLevel
 
 		if ready != nil {
 			session.AddHandler(func(_ *dg.Session, _ *dg.Ready) {

@@ -13,7 +13,7 @@ import (
 	"github.com/go-snart/snart/logs"
 )
 
-const _p = "prefix"
+const _p = "db/prefix"
 
 var debug, _, warn = logs.Loggers(_p)
 
@@ -121,9 +121,11 @@ func userPrefix(ses *dg.Session, cont string, gpfx, dpfx *Prefix) *Prefix {
 }
 
 func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Prefix, error) {
-	mme, err := ses.GuildMember(guild, ses.State.User.ID)
+	me := ses.State.User.ID
+
+	mme, err := ses.GuildMember(guild, me)
 	if err != nil {
-		err = fmt.Errorf("member %q @me: %w", guild, err)
+		err = fmt.Errorf("member %q %q (@me): %w", guild, me, err)
 
 		warn.Println(err)
 

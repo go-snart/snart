@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-snart/snart/db/token"
+	"github.com/go-snart/snart/logs"
 )
 
 // Start performs the Bot's startup functions, and then waits until an interrupt.
@@ -14,6 +15,7 @@ func (b *Bot) Start(ctx context.Context) {
 
 	b.Session = token.Open(ctx, b.DB)
 	b.Session.AddHandler(b.Router.Handler(b.DB))
+	b.Session.LogLevel = logs.DGLevel
 
 	b.Startup = time.Now()
 

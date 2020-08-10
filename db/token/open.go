@@ -9,14 +9,8 @@ import (
 	"github.com/go-snart/snart/db"
 )
 
-var opened = (*dg.Session)(nil)
-
 // Open opens a *dg.Session for you, pulling tokens from various sources.
 func Open(ctx context.Context, d *db.DB) *dg.Session {
-	if opened != nil {
-		return opened
-	}
-
 	debug.Println("enter->toks")
 
 	toks := Tokens(ctx, d)
@@ -26,22 +20,29 @@ func Open(ctx context.Context, d *db.DB) *dg.Session {
 	for _, tok := range toks {
 		debug.Println("tries->new")
 
-		session, _ := dg.New()
-		session.Identify.Token = tok
+		session, err := dg.New(tok)
+		if err != nil {
+			err = fmt.Errorf("new session %q: %w", tok, err)
+			warn.Println(err)
+			debug.Println("new->tries")
+
+			continue
+		}
 
 		debug.Println("new->open")
 
-		err := session.Open()
+		err = session.Open()
 		if err != nil {
 			err = fmt.Errorf("open %q: %w", tok, err)
 			warn.Println(err)
-		} else {
-			debug.Println("open->exit")
-			opened = session
-			return session
+			debug.Println("open->tries")
+
+			continue
 		}
 
-		debug.Println("open->tries")
+		debug.Printf("open %q->success", tok)
+
+		return session
 	}
 
 	debug.Println("tries->exit")

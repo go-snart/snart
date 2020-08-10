@@ -10,7 +10,7 @@ import (
 	"github.com/go-snart/snart/logs"
 )
 
-const _p = "token"
+const _p = "db/token"
 
 // Log is the logger for token.
 var debug, info, warn = logs.Loggers(_p)

@@ -3,29 +3,28 @@ package logs
 
 import (
 	"log"
-	"os"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mattn/go-colorable"
 	"github.com/superloach/nilog"
 )
 
+const flags = log.Lshortfile
+
 func info(name string) *nilog.Logger {
 	return nilog.New(
 		colorable.NewColorableStdout(),
-		aurora.Green("[info ] "+name+": ").String(),
-		log.LstdFlags,
+		aurora.Green("[info ] ").String()+name+":",
+		flags,
 	)
 }
 
 func warn(name string) *nilog.Logger {
 	return nilog.New(
 		colorable.NewColorableStderr(),
-		aurora.Red("[warn ] "+name+": ").String(),
-		log.LstdFlags,
+		aurora.Red("[warn ] ").String()+name+":",
+		flags,
 	)
-
-	return nilog.New(os.Stderr, "(warn) "+name+": ", log.LstdFlags)
 }
 
 // Loggers returns sensible loggers for a package with the given name.

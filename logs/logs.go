@@ -7,12 +7,14 @@ import (
 	"github.com/superloach/nilog"
 )
 
+// Info is a *nilog.Logger for healthy, informational logs.
 var Info = nilog.New(
 	colorable.NewColorableStdout(),
 	aurora.Green("[info ] ").String(),
 	flags,
 )
 
+// Warn is a *nilog.Logger for unhealthy, warning logs.
 var Warn = nilog.New(
 	colorable.NewColorableStderr(),
 	aurora.Red("[warn ] ").String(),

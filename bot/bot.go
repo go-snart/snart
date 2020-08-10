@@ -10,8 +10,6 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
-const _p = "snart/bot"
-
 // Bot holds all the internal workings of a Snart bot.
 type Bot struct {
 	DB      *db.DB

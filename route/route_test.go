@@ -4,8 +4,6 @@ import (
 	"testing"
 )
 
-const _p = "snart/route_test"
-
 func TestNewRoute(t *testing.T) {
 	name, match, cat, desc, okay, _func,
 		route := routeDummy()

@@ -10,4 +10,5 @@ import (
 
 const flags = log.Lshortfile
 
+// Debug is a *nilog.Logger for debugging purposes, and is nil unless the snart_debug tag is enabled.
 var Debug = (*nilog.Logger)(nil)

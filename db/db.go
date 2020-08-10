@@ -10,8 +10,6 @@ import (
 	"github.com/go-snart/snart/logs"
 )
 
-const _p = "snart/db"
-
 // DB wraps a PostgreSQL connection.
 type DB struct {
 	Configs []*pgx.ConnConfig

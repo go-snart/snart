@@ -12,6 +12,7 @@ import (
 
 const flags = log.Llongfile
 
+// Debug is a *nilog.Logger for debugging purposes, and is nil unless the snart_debug tag is enabled.
 var Debug = nilog.New(
 	colorable.NewColorableStderr(),
 	aurora.Yellow("[debug] ").String(),

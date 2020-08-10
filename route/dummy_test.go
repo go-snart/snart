@@ -73,37 +73,14 @@ func messageCreateDummy(content string) (
 	}
 }
 
-var tokenDummy, sessionDummy, readyDummy = func() (
-	string,
-	*dg.Session,
-	*bool,
-) {
-	logs.Debug.Println("enter->db")
+var sessionDummy = token.Open(context.Background(), db.New(), nil)
 
-	d := db.New()
-
-	logs.Debug.Println("db->ses")
-
-	ready := false
-
-	ses := token.Open(context.Background(), d, &ready)
-
-	logs.Debug.Println("ses->exit")
-
-	return ses.Token, ses, &ready
-}()
-
-var tokenBadDummy, sessionBadDummy = func() (
-	string,
-	*dg.Session,
-) {
+var sessionBadDummy = func() *dg.Session {
 	logs.Debug.Println(".")
 
-	const tok = "foo"
+	session, _ := dg.New("foo")
 
-	session, _ := dg.New(tok)
-
-	return tok, session
+	return session
 }()
 
 func ctxDummy(content string) (

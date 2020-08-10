@@ -15,6 +15,7 @@ type Interrupt struct {
 	Err error
 }
 
+// Error returns a string version of the Interrupt's error message, or "unknown" if it's indeterminable.
 func (i Interrupt) Error() string {
 	switch {
 	case i.Sig != nil:
@@ -22,10 +23,11 @@ func (i Interrupt) Error() string {
 	case i.Err != nil:
 		return fmt.Sprintf("err: %s", i.Err)
 	default:
-		return fmt.Sprintf("unknown")
+		return "unknown"
 	}
 }
 
+// Unwrap returns the underlying error, if there is one.
 func (i Interrupt) Unwrap() error {
 	if i.Err != nil {
 		return i.Err

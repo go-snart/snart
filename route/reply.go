@@ -1,6 +1,9 @@
 package route
 
-import dg "github.com/bwmarrin/discordgo"
+import (
+	dg "github.com/bwmarrin/discordgo"
+	"github.com/go-snart/snart/logs"
+)
 
 // Reply wraps a message to be sent to a given ChannelID using a given Session.
 type Reply struct {
@@ -28,7 +31,7 @@ func (r *Reply) SendMsg() (*dg.Message, error) {
 func (r *Reply) Send() error {
 	_, err := r.SendMsg()
 	if err != nil {
-		warn.Println(err)
+		logs.Warn.Println(err)
 	}
 
 	return err

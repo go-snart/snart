@@ -1,29 +1,44 @@
 package bot
 
-// Plugins holds the plugins to be loaded into a Bot on startup.
-var Plugins = make(map[string]Plugin)
+import (
+	"sync"
+
+	"github.com/go-snart/snart/logs"
+)
 
 // Plugin is a function which registers a plugin onto a Bot.
 type Plugin func(*Bot) error
 
-// Register adds a Plugin to the Plugins.
-func Register(name string, plug Plugin) {
-	if _, ok := Plugins[name]; ok {
-		info.Fatalf("attempted to register plugin %q twice", name)
-	}
-
-	Plugins[name] = plug
-
-	info.Printf("registered plugin %q", name)
+var plugins = struct {
+	sync.Mutex
+	m map[string]Plugin
+}{
+	m: map[string]Plugin{},
 }
 
-// GoPlugins spawns all of the Plugins on the Bot.
-func (b *Bot) GoPlugins() {
-	for name, plug := range Plugins {
+// RegisterPlugin adds a Plugin to a list of plugins to be loaded at startup.
+func RegisterPlugin(name string, plug Plugin) {
+	plugins.Lock()
+	defer plugins.Unlock()
+
+	if _, ok := plugins.m[name]; ok {
+		logs.Warn.Fatalf("attempted to register plugin %q twice", name)
+	}
+
+	plugins.m[name] = plug
+
+	logs.Info.Printf("registered plugin %q", name)
+}
+
+func (b *Bot) goPlugins() {
+	plugins.Lock()
+	defer plugins.Unlock()
+
+	for name, plug := range plugins.m {
 		go func(n string, p Plugin) {
 			err := p(b)
 			if err != nil {
-				info.Printf("plugin %s: %s", n, err)
+				logs.Info.Printf("plugin %s: %s", n, err)
 				return
 			}
 		}(name, plug)

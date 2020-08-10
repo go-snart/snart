@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/db/prefix"
+	"github.com/go-snart/snart/logs"
 )
 
 // Router is a slice of Routes.
@@ -46,7 +47,7 @@ func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m 
 
 			exp, err := re2.Compile(match, re2.IgnoreCase)
 			if err != nil {
-				warn.Printf("re2 compile %#q: %s", match, err)
+				logs.Warn.Printf("re2 compile %#q: %s", match, err)
 				continue
 			}
 
@@ -92,25 +93,25 @@ func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m 
 // Handler returns a discordgo handler function for the router.
 func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 	return func(s *dg.Session, m *dg.MessageCreate) {
-		debug.Println("handling")
+		logs.Debug.Println("handling")
 
 		if m.Message.Author.ID == s.State.User.ID {
-			debug.Println("ignore self")
+			logs.Debug.Println("ignore self")
 			return
 		}
 
 		if m.Message.Author.Bot {
-			debug.Println("ignore bot")
+			logs.Debug.Println("ignore bot")
 			return
 		}
 
 		lines := strings.Split(m.Message.Content, "\n")
-		debug.Printf("lines %#v", lines)
+		logs.Debug.Printf("lines %#v", lines)
 
 		for _, line := range lines {
 			ctx := context.Background()
 
-			debug.Printf("line %q", line)
+			logs.Debug.Printf("line %q", line)
 
 			pfx, err := prefix.FindPrefix(ctx, d, s, m.GuildID, line)
 			if err != nil {
@@ -119,7 +120,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 				}
 
 				err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
-				warn.Println(err)
+				logs.Warn.Println(err)
 
 				continue
 			}
@@ -132,7 +133,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 			err = c.Run()
 			if err != nil {
 				err = fmt.Errorf("c run: %w", err)
-				warn.Println(err)
+				logs.Warn.Println(err)
 
 				continue
 			}

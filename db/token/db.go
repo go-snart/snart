@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-snart/snart/db"
+	"github.com/go-snart/snart/logs"
 )
 
 func table(ctx context.Context, d *db.DB) {
@@ -18,7 +19,7 @@ func table(ctx context.Context, d *db.DB) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q: %w", e, err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return
 	}
@@ -26,11 +27,11 @@ func table(ctx context.Context, d *db.DB) {
 
 // SelectTokens retrieves bot tokens from a DB.
 func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
-	debug.Println("enter->table")
+	logs.Debug.Println("enter->table")
 
 	table(ctx, d)
 
-	debug.Println("table->query")
+	logs.Debug.Println("table->query")
 
 	const q = `SELECT value FROM token`
 
@@ -38,13 +39,13 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("query %#q: %w", q, err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return nil, err
 	}
 	defer rows.Close()
 
-	debug.Println("query->scan")
+	logs.Debug.Println("query->scan")
 
 	toks := []string(nil)
 
@@ -55,7 +56,7 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 		if err != nil {
 			err = fmt.Errorf("scan tok: %w", err)
 
-			warn.Println(err)
+			logs.Warn.Println(err)
 
 			return nil, err
 		}
@@ -63,17 +64,17 @@ func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
 		toks = append(toks, tok)
 	}
 
-	debug.Println("scan->err")
+	logs.Debug.Println("scan->err")
 
 	if err := rows.Err(); err != nil {
 		err = fmt.Errorf("rows: %w", err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return nil, err
 	}
 
-	debug.Println("err->done")
+	logs.Debug.Println("err->done")
 
 	return toks, nil
 }
@@ -99,7 +100,7 @@ func InsertTokens(ctx context.Context, d *db.DB, toks []string) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q (%#v): %w", e, vals, err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return
 	}

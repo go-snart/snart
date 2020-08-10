@@ -1,6 +1,10 @@
 package db
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/go-snart/snart/logs"
+)
 
 // Configs returns a list of useable db config strings.
 func Configs() []string {
@@ -10,7 +14,7 @@ func Configs() []string {
 	if err != nil {
 		err = fmt.Errorf("env confs: %w", err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 	} else {
 		allConfs = append(allConfs, confs...)
 	}
@@ -20,7 +24,7 @@ func Configs() []string {
 		if err != nil {
 			err = fmt.Errorf("stdin confs: %w", err)
 
-			warn.Println(err)
+			logs.Warn.Println(err)
 		} else {
 			allConfs = append(allConfs, confs...)
 		}

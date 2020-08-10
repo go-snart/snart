@@ -3,6 +3,8 @@ package db
 import (
 	"fmt"
 	"strings"
+
+	"github.com/go-snart/snart/logs"
 )
 
 // StdinConfigs gets a config from input on the command line.
@@ -15,7 +17,7 @@ func StdinConfigs() ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("scanln confs: %w", err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return nil, err
 	}

@@ -6,13 +6,13 @@ import (
 	"time"
 
 	dg "github.com/bwmarrin/discordgo"
+	"github.com/go-snart/snart/logs"
 )
 
 // Gamer provides a Discord Game status for a given Bot state.
 type Gamer func(*Bot) (*dg.Game, error)
 
-// CycleGamers cycles through displaying the Gamers registered on the Bot.
-func (b *Bot) CycleGamers() {
+func (b *Bot) cycleGamers() {
 	b.WaitReady()
 
 	for {
@@ -21,7 +21,7 @@ func (b *Bot) CycleGamers() {
 			if err != nil {
 				err = fmt.Errorf("gamer: %w", err)
 
-				warn.Println(err)
+				logs.Warn.Println(err)
 
 				continue
 			}
@@ -39,7 +39,7 @@ func (b *Bot) CycleGamers() {
 				if !errors.Is(err, dg.ErrWSNotFound) {
 					err = fmt.Errorf("update status: %w", err)
 
-					warn.Println(err)
+					logs.Warn.Println(err)
 
 					break
 				}

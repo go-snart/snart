@@ -10,9 +10,7 @@ import (
 	"github.com/go-snart/snart/logs"
 )
 
-const _p = "db"
-
-var _, info, warn = logs.Loggers(_p)
+const _p = "snart/db"
 
 // DB wraps a PostgreSQL connection.
 type DB struct {
@@ -29,14 +27,14 @@ func New() *DB {
 		if err != nil {
 			err = fmt.Errorf("parse %q: %w", sconf, err)
 
-			warn.Println(err)
+			logs.Warn.Println(err)
 		} else {
 			confs = append(confs, conf)
 		}
 	}
 
 	if len(confs) == 0 {
-		info.Fatalln("no good configs found")
+		logs.Info.Fatalln("no good configs found")
 
 		return nil
 	}
@@ -60,7 +58,7 @@ func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
 		conn, err := pgx.ConnectConfig(*ctx, conf)
 		if err != nil {
 			err = fmt.Errorf("connect %q: %w", conf.ConnString(), err)
-			warn.Println(err)
+			logs.Warn.Println(err)
 		} else {
 			*ctx = context.WithValue(*ctx, ConnKey{}, conn)
 
@@ -68,7 +66,7 @@ func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
 		}
 	}
 
-	info.Fatalln("unable to open a connection")
+	logs.Info.Fatalln("unable to open a connection")
 
 	return nil
 }

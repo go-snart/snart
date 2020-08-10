@@ -3,6 +3,8 @@ package token
 import (
 	"fmt"
 	"strings"
+
+	"github.com/go-snart/snart/logs"
 )
 
 // StdinTokens gets a token from input on the command line.
@@ -15,7 +17,7 @@ func StdinTokens() ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("scanln toks: %w", err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return nil, err
 	}

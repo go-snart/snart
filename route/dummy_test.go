@@ -9,6 +9,7 @@ import (
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/db/prefix"
 	"github.com/go-snart/snart/db/token"
+	"github.com/go-snart/snart/logs"
 	"github.com/go-snart/snart/route"
 )
 
@@ -20,7 +21,7 @@ func prefixDummy() (
 	string, string,
 	*prefix.Prefix,
 ) {
-	debug.Println(".")
+	logs.Debug.Println(".")
 
 	const (
 		value = "./"
@@ -38,7 +39,7 @@ func messageDummy(content string) (
 	string, string, string, *dg.User,
 	*dg.Message,
 ) {
-	debug.Println(".")
+	logs.Debug.Println(".")
 
 	const (
 		id        = "12345678900"
@@ -62,7 +63,7 @@ func messageCreateDummy(content string) (
 	*dg.Message,
 	*dg.MessageCreate,
 ) {
-	debug.Println(".")
+	logs.Debug.Println(".")
 
 	_, _, _, _,
 		msg := messageDummy(content)
@@ -76,21 +77,21 @@ func sessionDummy() (
 	string,
 	*dg.Session,
 ) {
-	debug.Println("enter->db")
+	logs.Debug.Println("enter->db")
 
 	d := db.New()
 
-	debug.Println("db->ses")
+	logs.Debug.Println("db->ses")
 
 	ses := token.Open(context.Background(), d)
 
-	debug.Println("ses->exit")
+	logs.Debug.Println("ses->exit")
 
 	return ses.Identify.Token, ses
 }
 
 func sessionBadDummy() (string, *dg.Session) {
-	debug.Println(".")
+	logs.Debug.Println(".")
 
 	const tok = "foo"
 
@@ -104,7 +105,7 @@ func ctxDummy(content string) (
 	*prefix.Prefix, *dg.Session, *dg.Message, *route.Flag, *route.Route,
 	*route.Ctx,
 ) {
-	debug.Println(".")
+	logs.Debug.Println(".")
 
 	var (
 		flag = &route.Flag{}

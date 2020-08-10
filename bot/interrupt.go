@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/go-snart/snart/logs"
 )
 
 // Interrupt wraps an os.Signal or error which causes a Bot to exit.
@@ -13,8 +15,26 @@ type Interrupt struct {
 	Err error
 }
 
-// NotifyInterrupt uses signal.Notify and a pipe goroutine to send OS-level interrupts on the Bot's Interrupt.
-func (b *Bot) NotifyInterrupt(sigs ...os.Signal) {
+func (i Interrupt) Error() string {
+	switch {
+	case i.Sig != nil:
+		return fmt.Sprintf("sig: %s", i.Sig)
+	case i.Err != nil:
+		return fmt.Sprintf("err: %s", i.Err)
+	default:
+		return fmt.Sprintf("unknown")
+	}
+}
+
+func (i Interrupt) Unwrap() error {
+	if i.Err != nil {
+		return i.Err
+	}
+
+	return nil
+}
+
+func (b *Bot) handleInterrupts() {
 	sig := make(chan os.Signal, 1)
 
 	go func(sig chan os.Signal, interrupt chan Interrupt) {
@@ -25,21 +45,7 @@ func (b *Bot) NotifyInterrupt(sigs ...os.Signal) {
 
 	signal.Notify(sig, os.Interrupt)
 	signal.Notify(sig, syscall.SIGTERM)
-}
 
-// HandleInterrupts sets up and handles Interrupts for the Bot.
-func (b *Bot) HandleInterrupts() {
-	b.NotifyInterrupt()
-
-	interrupt := <-b.Interrupt
-	err := "interrupt: unknown"
-
-	switch {
-	case interrupt.Err != nil:
-		err = fmt.Sprintf("interrupt: err %s", interrupt.Err)
-	case interrupt.Sig != nil:
-		err = fmt.Sprintf("interrupt: sig %s", interrupt.Sig)
-	}
-
-	warn.Println(err)
+	err := fmt.Errorf("interrupt: %w", <-b.Interrupt)
+	logs.Warn.Println(err)
 }

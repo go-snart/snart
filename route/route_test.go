@@ -6,7 +6,7 @@ import (
 	"github.com/go-snart/snart/logs"
 )
 
-const _p = "route_test"
+const _p = "snart/route_test"
 
 var debug, _, _ = logs.Loggers(_p)
 

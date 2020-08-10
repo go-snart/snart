@@ -10,10 +10,6 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
-const _p = "db/admin"
-
-var _, _, warn = logs.Loggers(_p)
-
 // Table builds the table of admins.
 func Table(ctx context.Context, d *db.DB) {
 	const (
@@ -26,7 +22,7 @@ func Table(ctx context.Context, d *db.DB) {
 	if err != nil {
 		err = fmt.Errorf("exec %#q: %w", e, err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return
 	}
@@ -44,7 +40,7 @@ func IsAdmin(d *db.DB) route.Okay {
 		app, err := c.Session.Application("@me")
 		if err != nil {
 			err = fmt.Errorf("app @me: %w", err)
-			warn.Println(err)
+			logs.Warn.Println(err)
 
 			return false
 		}
@@ -79,7 +75,7 @@ func List(ctx context.Context, d *db.DB) []string {
 	if err != nil {
 		err = fmt.Errorf("query %#q: %w", q, err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return nil
 	}
@@ -94,7 +90,7 @@ func List(ctx context.Context, d *db.DB) []string {
 		if err != nil {
 			err = fmt.Errorf("scan admin: %w", err)
 
-			warn.Println(err)
+			logs.Warn.Println(err)
 
 			return nil
 		}
@@ -106,7 +102,7 @@ func List(ctx context.Context, d *db.DB) []string {
 	if err != nil {
 		err = fmt.Errorf("rows err: %w", err)
 
-		warn.Println(err)
+		logs.Warn.Println(err)
 
 		return nil
 	}

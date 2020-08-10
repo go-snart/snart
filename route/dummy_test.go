@@ -73,9 +73,10 @@ func messageCreateDummy(content string) (
 	}
 }
 
-func sessionDummy() (
+var tokenDummy, sessionDummy, readyDummy = func() (
 	string,
 	*dg.Session,
+	*bool,
 ) {
 	logs.Debug.Println("enter->db")
 
@@ -83,23 +84,27 @@ func sessionDummy() (
 
 	logs.Debug.Println("db->ses")
 
-	ses := token.Open(context.Background(), d)
+	ready := false
+
+	ses := token.Open(context.Background(), d, &ready)
 
 	logs.Debug.Println("ses->exit")
 
-	return ses.Identify.Token, ses
-}
+	return ses.Token, ses, &ready
+}()
 
-func sessionBadDummy() (string, *dg.Session) {
+var tokenBadDummy, sessionBadDummy = func() (
+	string,
+	*dg.Session,
+) {
 	logs.Debug.Println(".")
 
 	const tok = "foo"
 
-	session, _ := dg.New()
-	session.Identify.Token = tok
+	session, _ := dg.New(tok)
 
 	return tok, session
-}
+}()
 
 func ctxDummy(content string) (
 	*prefix.Prefix, *dg.Session, *dg.Message, *route.Flag, *route.Route,
@@ -107,18 +112,14 @@ func ctxDummy(content string) (
 ) {
 	logs.Debug.Println(".")
 
-	var (
-		flag = &route.Flag{}
-	)
+	flag := &route.Flag{}
+	session := sessionDummy
 
 	_, _,
 		pfx := prefixDummy()
 
 	_, _, _, _,
 		message := messageDummy(content)
-
-	_,
-		session := sessionDummy()
 
 	_, _, _, _, _, _,
 		r := routeDummy()
@@ -137,8 +138,7 @@ func ctxBadDummy() *route.Ctx {
 	_, _, _, _, _,
 		c := ctxDummy("")
 
-	_,
-		ses := sessionBadDummy()
+	ses := sessionBadDummy
 
 	c.Session = ses
 

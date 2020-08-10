@@ -31,8 +31,7 @@ func TestRouterCtx(t *testing.T) {
 	_, _,
 		pfx := prefixDummy()
 
-	_,
-		ses := sessionDummy()
+	ses := sessionDummy
 
 	_, _, _, _,
 		msg := messageDummy("./yeet bar")
@@ -53,8 +52,7 @@ func TestRouterCtxBadMatch(t *testing.T) {
 	_, _,
 		pfx := prefixDummy()
 
-	_,
-		ses := sessionDummy()
+	ses := sessionDummy
 
 	_, _, _, _,
 		msg := messageDummy("owo")
@@ -75,8 +73,7 @@ func TestRouterCtxNilOkay(t *testing.T) {
 	_, _,
 		pfx := prefixDummy()
 
-	_,
-		ses := sessionDummy()
+	ses := sessionDummy
 
 	_, _, _, _,
 		msg := messageDummy("yeet")
@@ -100,8 +97,7 @@ func TestRouterCtxNoArgs(t *testing.T) {
 	_, _,
 		pfx := prefixDummy()
 
-	_,
-		ses := sessionDummy()
+	ses := sessionDummy
 
 	_, _, _, _,
 		msg := messageDummy("")
@@ -121,8 +117,7 @@ func TestRouterCtxIndex1(t *testing.T) {
 	_, _,
 		pfx := prefixDummy()
 
-	_,
-		ses := sessionDummy()
+	ses := sessionDummy
 
 	_, _, _, _,
 		msg := messageDummy("ayeet")

@@ -1,7 +1,6 @@
 package route
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -97,13 +96,14 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 
 			pfx, err := prefix.FindPrefix(d, s, m.GuildID, line)
 			if err != nil {
-				if errors.Is(err, prefix.ErrPrefixFail) {
-					continue
-				}
-
 				err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
 				logs.Warn.Println(err)
 
+				continue
+			}
+
+			if pfx == nil {
+				logs.Warn.Println("nil pfx")
 				continue
 			}
 
@@ -116,7 +116,6 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 			if err != nil {
 				err = fmt.Errorf("c run: %w", err)
 				logs.Warn.Println(err)
-
 				continue
 			}
 		}

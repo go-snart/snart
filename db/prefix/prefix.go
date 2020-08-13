@@ -2,7 +2,6 @@
 package prefix
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -11,9 +10,6 @@ import (
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/logs"
 )
-
-// ErrPrefixFail is an error which indicates that a function failed to get a prefix.
-var ErrPrefixFail = errors.New("failed to get a prefix")
 
 // Prefix represents a command prefix Value for a given Guild, as well as a human-readable Clean prefix.
 type Prefix struct {
@@ -25,7 +21,11 @@ type Prefix struct {
 func GuildPrefix(d *db.DB, id string) (*Prefix, error) {
 	pfx, err := d.HGet(id, "prefix").Result()
 	if err != nil {
-		err = fmt.Errorf("hget %q prefix: %w", id, err)
+		if err.Error() == "redis: nil" {
+			return nil, nil
+		}
+
+		err = fmt.Errorf("hget %q prefix: %w %T", id, err, err)
 		logs.Warn.Println(err)
 		return nil, err
 	}
@@ -78,9 +78,7 @@ func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Pre
 	mme, err := ses.GuildMember(guild, me)
 	if err != nil {
 		err = fmt.Errorf("member %q %q (@me): %w", guild, me, err)
-
 		logs.Warn.Println(err)
-
 		return nil, err
 	}
 
@@ -112,11 +110,9 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 	logs.Debug.Printf("prefix %s", guild)
 
 	gpfx, err := GuildPrefix(d, guild)
-	if err != nil && !errors.Is(err, ErrPrefixFail) {
+	if err != nil {
 		err = fmt.Errorf("guild prefix %q: %w", guild, err)
-
 		logs.Warn.Println(err)
-
 		return nil, err
 	}
 
@@ -127,11 +123,9 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 	}
 
 	dpfx, err := DefaultPrefix(d)
-	if err != nil && !errors.Is(err, ErrPrefixFail) {
+	if err != nil {
 		err = fmt.Errorf("default prefix: %w", err)
-
 		logs.Warn.Println(err)
-
 		return nil, err
 	}
 
@@ -147,11 +141,9 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 	}
 
 	mpfx, err := memberPrefix(ses, guild, cont, gpfx, dpfx)
-	if err != nil && !errors.Is(err, ErrPrefixFail) {
+	if err != nil {
 		err = fmt.Errorf("member prefix: %w", err)
-
 		logs.Warn.Println(err)
-
 		return nil, err
 	}
 
@@ -159,5 +151,5 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 		return mpfx, nil
 	}
 
-	return nil, ErrPrefixFail
+	return nil, nil
 }

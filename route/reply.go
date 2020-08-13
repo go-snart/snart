@@ -1,6 +1,8 @@
 package route
 
 import (
+	"fmt"
+
 	dg "github.com/bwmarrin/discordgo"
 	"github.com/go-snart/snart/logs"
 )
@@ -31,8 +33,10 @@ func (r *Reply) SendMsg() (*dg.Message, error) {
 func (r *Reply) Send() error {
 	_, err := r.SendMsg()
 	if err != nil {
+		err = fmt.Errorf("send msg: %w", err)
 		logs.Warn.Println(err)
+		return err
 	}
 
-	return err
+	return nil
 }

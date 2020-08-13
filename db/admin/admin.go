@@ -30,7 +30,6 @@ func IsAdmin(d *db.DB) route.Okay {
 		if err != nil {
 			err = fmt.Errorf("app @me: %w", err)
 			logs.Warn.Println(err)
-
 			return false
 		}
 

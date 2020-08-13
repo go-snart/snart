@@ -2,25 +2,37 @@ package db
 
 import (
 	"fmt"
-	"strings"
+	"sync"
 
 	"github.com/go-snart/snart/logs"
 )
 
-// StdinConfigs gets a config from input on the command line.
-func StdinConfigs() ([]string, error) {
-	fmt.Print("enter your postgres config(s): ")
+var StdinMu = &sync.Mutex{}
 
-	confs := ""
+// StdinConnStrings gets conn strings from input on the command line.
+func StdinConnStrings(name string) []string {
+	StdinMu.Lock()
+	defer StdinMu.Unlock()
 
-	_, err := fmt.Scanln(&confs)
-	if err != nil {
-		err = fmt.Errorf("scanln confs: %w", err)
+	connStrings := []string(nil)
+	connString := ""
 
-		logs.Warn.Println(err)
+	logs.Info.Printf("getting %q conn strings from stdin\n", name)
 
-		return nil, err
+	for {
+		logs.Info.Println("enter a new conn string, or nothing to finish")
+		fmt.Print(" > ")
+
+		_, err := fmt.Scanln(&connString)
+		if err != nil {
+			err = fmt.Errorf("scanln connString: %w", err)
+			logs.Warn.Fatalln(err)
+		}
+
+		if connString == "" {
+			return connStrings
+		}
+
+		connStrings = append(connStrings, connString)
 	}
-
-	return strings.Split(confs, ":"), nil
 }

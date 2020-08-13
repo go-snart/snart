@@ -12,6 +12,8 @@ import (
 
 // Bot holds all the internal workings of a Snart bot.
 type Bot struct {
+	Name string
+
 	DB      *db.DB
 	Session *dg.Session
 
@@ -26,8 +28,13 @@ type Bot struct {
 
 // New creates a Bot.
 func New() *Bot {
+	return NewFromDB(db.New("bot"))
+}
+
+// NewFromDB creates a Bot from the given *db.DB.
+func NewFromDB(d *db.DB) *Bot {
 	return &Bot{
-		DB:      db.New(),
+		DB:      d,
 		Session: nil,
 
 		Router: route.NewRouter(),
@@ -35,5 +42,7 @@ func New() *Bot {
 
 		Interrupt: make(chan Interrupt),
 		Startup:   time.Now(),
+
+		Ready: false,
 	}
 }

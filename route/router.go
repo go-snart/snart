@@ -1,13 +1,11 @@
 package route
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"strings"
 
 	dg "github.com/bwmarrin/discordgo"
-	re2 "github.com/dlclark/regexp2"
 
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/db/prefix"
@@ -29,33 +27,19 @@ func (rr *Router) Add(rs ...*Route) {
 }
 
 // Ctx gets a Ctx by finding an appropriate Route for a given prefix, session, message, etc.
-func (rr *Router) Ctx(ctx context.Context, pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line string) *Ctx {
+func (rr *Router) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line string) *Ctx {
 	c := &Ctx{
 		Prefix:  pfx,
 		Session: s,
 		Message: m,
 		Flag:    nil,
 		Route:   nil,
-		ctx:     ctx,
 	}
 
 	line = strings.TrimSpace(strings.TrimPrefix(line, pfx.Value))
 
 	for _, r := range *rr {
-		if r.match == nil {
-			match := `(` + r.Match + `)\b`
-
-			exp, err := re2.Compile(match, re2.IgnoreCase)
-			if err != nil {
-				logs.Warn.Printf("re2 compile %#q: %s", match, err)
-				continue
-			}
-
-			r.match = exp
-		}
-
-		// can't error - already compiled
-		m, _ := r.match.FindStringMatch(line)
+		m, _ := r.Match.FindStringMatch(line)
 		if m == nil || m.Index > 0 {
 			continue
 		}
@@ -109,11 +93,9 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 		logs.Debug.Printf("lines %#v", lines)
 
 		for _, line := range lines {
-			ctx := context.Background()
-
 			logs.Debug.Printf("line %q", line)
 
-			pfx, err := prefix.FindPrefix(ctx, d, s, m.GuildID, line)
+			pfx, err := prefix.FindPrefix(d, s, m.GuildID, line)
 			if err != nil {
 				if errors.Is(err, prefix.ErrPrefixFail) {
 					continue
@@ -125,7 +107,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 				continue
 			}
 
-			c := rr.Ctx(ctx, pfx, s, m.Message, line)
+			c := rr.Ctx(pfx, s, m.Message, line)
 			if c == nil {
 				continue
 			}

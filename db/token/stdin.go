@@ -1,26 +1,46 @@
 package token
 
 import (
+	"bufio"
 	"fmt"
-	"strings"
+	"os"
 
+	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/logs"
 )
 
-// StdinTokens gets a token from input on the command line.
-func StdinTokens() ([]string, error) {
-	fmt.Print("enter your discord token(s): ")
+// StdinTokens gets discord tokens from input on the command line.
+func StdinTokens() []string {
+	db.StdinMu.Lock()
+	defer db.StdinMu.Unlock()
 
-	toks := ""
+	tokens := []string(nil)
+	scanner := bufio.NewScanner(os.Stdin)
 
-	_, err := fmt.Scanln(&toks)
-	if err != nil {
-		err = fmt.Errorf("scanln toks: %w", err)
+	logs.Info.Println("getting discord tokens from stdin")
 
-		logs.Warn.Println(err)
+	for {
+		logs.Info.Println("enter a new discord token, or nothing to finish")
+		fmt.Print(" > ")
 
-		return nil, err
+		if !scanner.Scan() {
+			break
+		}
+
+		token := scanner.Text()
+		if token == "" {
+			return tokens
+		}
+
+		tokens = append(tokens, token)
 	}
 
-	return strings.Split(toks, ":"), nil
+	err := scanner.Err()
+	if err != nil {
+		err = fmt.Errorf("scanner err: %w", err)
+		logs.Warn.Println(err)
+		return nil
+	}
+
+	return tokens
 }

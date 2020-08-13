@@ -1,23 +1,34 @@
 package db
 
 import (
-	"errors"
 	"os"
+	"strconv"
 	"strings"
 )
 
-// EnvName is the name of the environment variable used to load configs.
-const EnvName = "SNART_CONFIGS"
+// EnvName returns the name of the environment variable used to load a conn string.
+func EnvName(name string, idx int) string {
+	s := strings.ToUpper(name) + "_DB"
 
-// ErrEnvUnset occurs when the EnvName environment variable is not set.
-var ErrEnvUnset = errors.New(EnvName + " is not set")
-
-// EnvConfigs returns the configs listed in the EnvName environment variable.
-func EnvConfigs() ([]string, error) {
-	toks, ok := os.LookupEnv(EnvName)
-	if !ok {
-		return nil, ErrEnvUnset
+	if idx >= 0 {
+		s += "_" + strconv.Itoa(idx)
 	}
 
-	return strings.Split(toks, ":"), nil
+	return s
+}
+
+// EnvConnStrings returns the conn strings listed in the EnvName environment variable.
+func EnvConnStrings(name string) []string {
+	connStrings := []string(nil)
+
+	for i := -1; ; i++ {
+		iName := EnvName(name, i)
+
+		connString, ok := os.LookupEnv(iName)
+		if !ok {
+			return connStrings
+		}
+
+		connStrings = append(connStrings, connString)
+	}
 }

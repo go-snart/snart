@@ -1,23 +1,33 @@
 package token
 
 import (
-	"errors"
 	"os"
-	"strings"
+	"strconv"
 )
 
-// EnvName is the name of the environment variable used to load tokens.
-const EnvName = "SNART_TOKENS"
+// EnvName returns the name of the environment variable used to load a token.
+func EnvName(idx int) string {
+	s := "SNART_TOKEN"
 
-// ErrEnvUnset occurs when the EnvName environment variable is not set.
-var ErrEnvUnset = errors.New(EnvName + " is not set")
-
-// EnvTokens returns the tokens listed in the EnvName environment variable.
-func EnvTokens() ([]string, error) {
-	toks, ok := os.LookupEnv(EnvName)
-	if !ok {
-		return nil, ErrEnvUnset
+	if idx >= 0 {
+		s += "_" + strconv.Itoa(idx)
 	}
 
-	return strings.Split(toks, ":"), nil
+	return s
+}
+
+// EnvTokens returns the tokens listed in the EnvName environment variable.
+func EnvTokens() []string {
+	tokens := []string(nil)
+
+	for i := -1; ; i++ {
+		iName := EnvName(i)
+
+		token, ok := os.LookupEnv(iName)
+		if !ok {
+			return tokens
+		}
+
+		tokens = append(tokens, token)
+	}
 }

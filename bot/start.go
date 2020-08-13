@@ -1,17 +1,17 @@
 package bot
 
 import (
-	"context"
 	"time"
 
 	"github.com/go-snart/snart/db/token"
+	"github.com/go-snart/snart/logs"
 )
 
 // Start performs the Bot's startup functions, and waits until an interrupt.
-func (b *Bot) Start(ctx context.Context) {
+func (b *Bot) Start() {
 	b.goPlugins()
 
-	b.Session = token.Open(ctx, b.DB, &b.Ready)
+	b.Session = token.Open(b.DB, &b.Ready)
 	defer b.Session.Close()
 
 	b.Session.AddHandler(b.Router.Handler(b.DB))
@@ -21,4 +21,6 @@ func (b *Bot) Start(ctx context.Context) {
 	go b.cycleGamers()
 
 	b.handleInterrupts()
+
+	logs.Info.Println("bye :)")
 }

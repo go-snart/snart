@@ -1,7 +1,6 @@
 package token
 
 import (
-	"context"
 	"fmt"
 
 	dg "github.com/bwmarrin/discordgo"
@@ -11,10 +10,10 @@ import (
 )
 
 // Open opens a *dg.Session for you, pulling tokens from various sources.
-func Open(ctx context.Context, d *db.DB, ready *bool) *dg.Session {
+func Open(d *db.DB, ready *bool) *dg.Session {
 	logs.Debug.Println("enter->toks")
 
-	toks := Tokens(ctx, d)
+	toks := Tokens(d)
 
 	logs.Debug.Println("toks->tries")
 

@@ -41,6 +41,7 @@ func (b *Bot) handleInterrupts() {
 
 	go func(sig chan os.Signal, interrupt chan Interrupt) {
 		for s := range sig {
+			fmt.Println()
 			interrupt <- Interrupt{Sig: s}
 		}
 	}(sig, b.Interrupt)

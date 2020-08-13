@@ -1,11 +1,6 @@
 package route_test
 
-import (
-	"testing"
-
-	"github.com/go-snart/snart/route"
-)
-
+/*
 func TestSplitNormal(t *testing.T) {
 	args := route.Split("hello world")
 
@@ -71,3 +66,4 @@ func TestSplitDoubleQuote(t *testing.T) {
 		}
 	}
 }
+*/

@@ -2,69 +2,48 @@
 package db
 
 import (
-	"context"
 	"fmt"
 
-	pgx "github.com/jackc/pgx/v4"
+	redis "gopkg.in/redis.v5"
 
 	"github.com/go-snart/snart/logs"
 )
 
-// DB wraps a PostgreSQL connection.
+// DB wraps a redis.Cmdable, along with a Name and Opts used in creation.
 type DB struct {
-	Configs []*pgx.ConnConfig
+	redis.Cmdable
+
+	Name string
+	Opts *redis.Options
 }
 
-// New creates a database abstraction.
-func New() *DB {
-	sconfs := Configs()
-	confs := []*pgx.ConnConfig(nil)
+// New creates a DB using redis.NewClient.
+func New(name string) *DB {
+	for _, opts := range Options(name) {
+		c := redis.NewClient(opts)
 
-	for _, sconf := range sconfs {
-		conf, err := pgx.ParseConfig(sconf)
+		err := c.Ping().Err()
 		if err != nil {
-			err = fmt.Errorf("parse %q: %w", sconf, err)
+			err = fmt.Errorf("ping %v: %w", opts, err)
 
 			logs.Warn.Println(err)
-		} else {
-			confs = append(confs, conf)
+
+			continue
 		}
+
+		return NewFromCmdable(c, name, opts)
 	}
 
-	if len(confs) == 0 {
-		logs.Info.Fatalln("no good configs found")
-
-		return nil
-	}
-
-	return &DB{
-		Configs: confs,
-	}
-}
-
-// ConnKey is the context key type used by (*DB).Conn.
-type ConnKey struct{}
-
-// Conn retrieves a PostgreSQL connection for a given context, inserting the new value if necessary.
-func (d *DB) Conn(ctx *context.Context) *pgx.Conn {
-	val, ok := (*ctx).Value(ConnKey{}).(*pgx.Conn)
-	if ok && val != nil {
-		return val
-	}
-
-	for _, conf := range d.Configs {
-		conn, err := pgx.ConnectConfig(*ctx, conf)
-		if err != nil {
-			err = fmt.Errorf("connect %q: %w", conf.ConnString(), err)
-			logs.Warn.Println(err)
-		} else {
-			*ctx = context.WithValue(*ctx, ConnKey{}, conn)
-
-			return conn
-		}
-	}
-
-	logs.Info.Fatalln("unable to open a connection")
+	logs.Warn.Fatalln("no good options found")
 
 	return nil
+}
+
+// NewFromCmdable creates a DB using redis.NewClient.
+func NewFromCmdable(c redis.Cmdable, name string, opts *redis.Options) *DB {
+	return &DB{
+		Cmdable: c,
+		Name:    name,
+		Opts:    opts,
+	}
 }

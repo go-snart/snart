@@ -1,107 +1,44 @@
 package token
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/logs"
 )
 
-func table(ctx context.Context, d *db.DB) {
-	const (
-		e = `CREATE TABLE IF NOT EXISTS token(
-			value TEXT
-		)`
-	)
-
-	_, err := d.Conn(&ctx).Exec(ctx, e)
+// GetTokens retrieves bot tokens from a DB.
+func GetTokens(d *db.DB) ([]string, error) {
+	count, err := d.LLen("tokens").Result()
 	if err != nil {
-		err = fmt.Errorf("exec %#q: %w", e, err)
-
+		err = fmt.Errorf("len tokens: %w", err)
 		logs.Warn.Println(err)
-
-		return
-	}
-}
-
-// SelectTokens retrieves bot tokens from a DB.
-func SelectTokens(ctx context.Context, d *db.DB) ([]string, error) {
-	logs.Debug.Println("enter->table")
-
-	table(ctx, d)
-
-	logs.Debug.Println("table->query")
-
-	const q = `SELECT value FROM token`
-
-	rows, err := d.Conn(&ctx).Query(ctx, q)
-	if err != nil {
-		err = fmt.Errorf("query %#q: %w", q, err)
-
-		logs.Warn.Println(err)
-
-		return nil, err
-	}
-	defer rows.Close()
-
-	logs.Debug.Println("query->scan")
-
-	toks := []string(nil)
-
-	for rows.Next() {
-		tok := ""
-
-		err = rows.Scan(&tok)
-		if err != nil {
-			err = fmt.Errorf("scan tok: %w", err)
-
-			logs.Warn.Println(err)
-
-			return nil, err
-		}
-
-		toks = append(toks, tok)
-	}
-
-	logs.Debug.Println("scan->err")
-
-	if err := rows.Err(); err != nil {
-		err = fmt.Errorf("rows: %w", err)
-
-		logs.Warn.Println(err)
-
 		return nil, err
 	}
 
-	logs.Debug.Println("err->done")
+	tokens, err := d.LRange("tokens", 0, count).Result()
+	if err != nil {
+		err = fmt.Errorf("range tokens %d %d: %w", 0, count, err)
+		logs.Warn.Println(err)
+		return nil, err
+	}
 
-	return toks, nil
+	return tokens, nil
 }
 
-// InsertTokens adds tokens to the database so that they're persistent.
-func InsertTokens(ctx context.Context, d *db.DB, toks []string) {
-	table(ctx, d)
-
-	e := `INSERT INTO token(value) VALUES`
-	vals := []interface{}(nil)
-
-	for n, tok := range toks {
-		e += fmt.Sprintf(`($%d)`, n)
-
-		if n < len(toks)-1 {
-			e += `,`
-		}
-
-		vals = append(vals, tok)
+// StoreTokens adds tokens to the database so that they're persistent.
+func StoreTokens(d *db.DB, tokens []string) error {
+	itokens := []interface{}(nil)
+	for _, token := range tokens {
+		itokens = append(itokens, token)
 	}
 
-	_, err := d.Conn(&ctx).Exec(ctx, e, vals...)
+	_, err := d.LPush("tokens", itokens...).Result()
 	if err != nil {
-		err = fmt.Errorf("exec %#q (%#v): %w", e, vals, err)
-
+		err = fmt.Errorf("push tokens %v: %w", itokens, err)
 		logs.Warn.Println(err)
-
-		return
+		return err
 	}
+
+	return nil
 }

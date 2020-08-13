@@ -7,6 +7,10 @@ import (
 	"github.com/superloach/nilog"
 )
 
+func init() {
+	Debug.Println("debugging :)")
+}
+
 // Info is a *nilog.Logger for healthy, informational logs.
 var Info = nilog.New(
 	colorable.NewColorableStdout(),

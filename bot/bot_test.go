@@ -3,12 +3,12 @@ package bot_test
 import (
 	"testing"
 
-	"github.com/go-snart/snart/bot"
+	"github.com/go-snart/snart/test"
 )
 
-func TestNewBot(t *testing.T) {
-	b := bot.New()
-	if b == nil {
-		t.Fatal("nil bot")
+func TestBot(t *testing.T) {
+	bot := test.Bot()
+	if bot == nil {
+		t.Error("bot == nil")
 	}
 }

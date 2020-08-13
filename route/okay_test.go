@@ -1,11 +1,6 @@
 package route_test
 
-import (
-	"testing"
-
-	"github.com/go-snart/snart/route"
-)
-
+/*
 func TestOkayAnyTrue(t *testing.T) {
 	_, _, _, _, _,
 		c := ctxDummy("owo")
@@ -89,3 +84,4 @@ func TestOkayGuildAdminBad(t *testing.T) {
 		t.Fatal("shouldn't be ok")
 	}
 }
+*/

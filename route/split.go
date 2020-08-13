@@ -1,20 +1,17 @@
 package route
 
-import (
-	re2 "github.com/dlclark/regexp2"
+import "github.com/go-snart/snart/logs"
 
-	"github.com/go-snart/snart/logs"
-)
-
-var splitter = re2.MustCompile(`((\x60+)(.*)\2)|(\S+)`, 0)
+// Splitter is the *re2.Regexp used in Split.
+var Splitter = MustMatch(`((\x60{1,3})(.*)\2)|(\S+)`)
 
 // Split splits a string using a backtick quoting method.
 func Split(s string) []string {
 	subj := []rune(s)
-	args := []string{}
+	args := []string(nil)
 
 	for {
-		m, err := splitter.FindRunesMatch(subj)
+		m, err := Splitter.FindRunesMatch(subj)
 		if err != nil {
 			logs.Warn.Println(err)
 			break

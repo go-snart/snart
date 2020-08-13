@@ -1,57 +1,23 @@
 package route_test
 
-import "testing"
+import (
+	"testing"
 
-func TestNewCtx(t *testing.T) {
-	pfx, session, message, flag, route,
-		c := ctxDummy("owo")
+	"github.com/go-snart/snart/test"
+)
 
-	if c.Prefix.Value != pfx.Value {
-		t.Fatalf(
-			"c.Prefix.Value == %q != pfx.Value == %q",
-			c.Prefix.Value, pfx.Value,
-		)
-	}
+const content = "./route a b c"
 
-	if c.Prefix.Clean != pfx.Clean {
-		t.Fatalf(
-			"c.Prefix.Clean == %q != pfx.Clean == %q",
-			c.Prefix.Clean, pfx.Clean,
-		)
-	}
+func TestCtx(t *testing.T) {
+	c := test.Ctx(content)
 
-	if c.Session != session {
-		t.Fatalf(
-			"c.Session == %#v != session == %#v",
-			c.Session, session,
-		)
-	}
-
-	if c.Message != message {
-		t.Fatalf(
-			"c.Message == %#v != message == %#v",
-			c.Message, message,
-		)
-	}
-
-	if c.Flag != flag {
-		t.Fatalf(
-			"c.Flag == %#v != flag == %#v",
-			c.Flag, flag,
-		)
-	}
-
-	if c.Route != route {
-		t.Fatalf(
-			"c.Route == %#v != route == %#v",
-			c.Route, route,
-		)
+	if c == nil {
+		t.Error("c == nil")
 	}
 }
 
 func TestCtxRun(t *testing.T) {
-	_, _, _, _, _,
-		c := ctxDummy("uwu")
+	c := test.Ctx(content)
 
 	err := c.Run()
 	if err != nil {

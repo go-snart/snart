@@ -24,7 +24,18 @@ type Prefix struct {
 
 // GuildPrefix gets the prefix for a given Guild.
 func GuildPrefix(d *db.DB, id string) (*Prefix, error) {
-	return nil, fmt.Errorf("stub")
+	pfx, err := d.HGet(id, "prefix").Result()
+	if err != nil {
+		err = fmt.Errorf("hget %q prefix: %w", id, err)
+		logs.Warn.Println(err)
+		return nil, err
+	}
+
+	return &Prefix{
+		Guild: id,
+		Value: pfx,
+		Clean: pfx,
+	}
 }
 
 // DefaultPrefix gets the default prefix (aka the Guild "").
@@ -32,9 +43,7 @@ func DefaultPrefix(d *db.DB) (*Prefix, error) {
 	pfx, err := GuildPrefix(d, "")
 	if err != nil {
 		err = fmt.Errorf("guild prefix %q: %w", "", err)
-
 		logs.Warn.Println(err)
-
 		return nil, err
 	}
 

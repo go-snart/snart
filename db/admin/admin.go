@@ -56,5 +56,19 @@ func IsAdmin(d *db.DB) route.Okay {
 
 // List returns a list of known admin IDs from the database.
 func List(d *db.DB) ([]string, error) {
-	return nil, fmt.Errorf("stub")
+	count, err := d.LLen("admins").Result()
+	if err != nil {
+		err = fmt.Errorf("len admins: %w", err)
+		logs.Warn.Println(err)
+		return nil, err
+	}
+
+	admins, err := d.LRange("admins", 0, count).Result()
+	if err != nil {
+		err = fmt.Errorf("range admins %d %d: %w", 0, count, err)
+		logs.Warn.Println(err)
+		return nil, err
+	}
+
+	return admins, nil
 }

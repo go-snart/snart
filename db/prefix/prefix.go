@@ -17,7 +17,6 @@ var ErrPrefixFail = errors.New("failed to get a prefix")
 
 // Prefix represents a command prefix Value for a given Guild, as well as a human-readable Clean prefix.
 type Prefix struct {
-	Guild string
 	Value string
 	Clean string
 }
@@ -32,10 +31,9 @@ func GuildPrefix(d *db.DB, id string) (*Prefix, error) {
 	}
 
 	return &Prefix{
-		Guild: id,
 		Value: pfx,
 		Clean: pfx,
-	}
+	}, nil
 }
 
 // DefaultPrefix gets the default prefix (aka the Guild "").
@@ -56,7 +54,6 @@ func userPrefix(ses *dg.Session, cont string, gpfx, dpfx *Prefix) *Prefix {
 
 	if strings.HasPrefix(cont, ument) {
 		pfx := &Prefix{
-			Guild: "",
 			Value: ument,
 		}
 
@@ -90,7 +87,6 @@ func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Pre
 	mment := mme.Mention()
 	if strings.HasPrefix(cont, mment) {
 		pfx := &Prefix{
-			Guild: "",
 			Value: mment,
 		}
 

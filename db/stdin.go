@@ -1,7 +1,9 @@
 package db
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"sync"
 
 	"github.com/go-snart/snart/logs"
@@ -15,24 +17,32 @@ func StdinConnStrings(name string) []string {
 	defer StdinMu.Unlock()
 
 	connStrings := []string(nil)
-	connString := ""
+	scanner := bufio.NewScanner(os.Stdin)
 
 	logs.Info.Printf("getting %q conn strings from stdin\n", name)
 
 	for {
-		logs.Info.Println("enter a new conn string, or nothing to finish")
+		logs.Info.Printf("enter a new %q conn string, or nothing to finish\n", name)
 		fmt.Print(" > ")
 
-		_, err := fmt.Scanln(&connString)
-		if err != nil {
-			err = fmt.Errorf("scanln connString: %w", err)
-			logs.Warn.Fatalln(err)
+		if !scanner.Scan() {
+			break
 		}
 
+		connString := scanner.Text()
 		if connString == "" {
 			return connStrings
 		}
 
 		connStrings = append(connStrings, connString)
 	}
+
+	err := scanner.Err()
+	if err != nil {
+		err = fmt.Errorf("scanner err: %w", err)
+		logs.Warn.Println(err)
+		return nil
+	}
+
+	return connStrings
 }

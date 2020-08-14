@@ -1,15 +1,11 @@
 package test
 
-import (
-	"github.com/go-snart/snart/bot"
-	"github.com/go-snart/snart/logs"
-)
+import "github.com/go-snart/snart/bot"
 
+// BotDB is a cached *db.DB for Bot.
 var BotDB = DB()
 
+// Bot gets a test *bot.Bot.
 func Bot() *bot.Bot {
-	logs.Info.Println("enter")
-	defer logs.Info.Println("exit")
-
 	return bot.NewFromDB(BotDB)
 }

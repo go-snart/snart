@@ -19,11 +19,13 @@ type Route struct {
 	Func  func(*Ctx) error
 }
 
+// MustMatch compiles a *re2.Regexp with sensible options for a Route.
 func MustMatch(match string) *re2.Regexp {
 	r, err := re2.Compile(match, re2.IgnoreCase)
 	if err != nil {
 		err = fmt.Errorf("re2 compile %q: %w", match, err)
 		logs.Warn.Fatalln(err)
+
 		return nil
 	}
 

@@ -1,15 +1,11 @@
 package test
 
-import (
-	"github.com/go-snart/snart/db"
-	"github.com/go-snart/snart/logs"
-)
+import "github.com/go-snart/snart/db"
 
+// DBName is the name to use for loading DB configs.
 const DBName = "test"
 
+// DB gets a test *db.DB.
 func DB() *db.DB {
-	logs.Info.Println("enter")
-	defer logs.Info.Println("exit")
-
 	return db.New(DBName)
 }

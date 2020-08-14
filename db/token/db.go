@@ -8,26 +8,32 @@ import (
 )
 
 // GetTokens retrieves bot tokens from a DB.
-func GetTokens(d *db.DB) ([]string, error) {
+func GetTokens(d *db.DB) []string {
 	count, err := d.LLen("tokens").Result()
 	if err != nil {
 		err = fmt.Errorf("len tokens: %w", err)
 		logs.Warn.Println(err)
-		return nil, err
+
+		return nil
 	}
 
 	tokens, err := d.LRange("tokens", 0, count).Result()
 	if err != nil {
 		err = fmt.Errorf("range tokens %d %d: %w", 0, count, err)
 		logs.Warn.Println(err)
-		return nil, err
+
+		return nil
 	}
 
-	return tokens, nil
+	return tokens
 }
 
 // StoreTokens adds tokens to the database so that they're persistent.
-func StoreTokens(d *db.DB, tokens []string) error {
+func StoreTokens(d *db.DB, tokens []string) {
+	if len(tokens) == 0 {
+		return
+	}
+
 	itokens := []interface{}(nil)
 	for _, token := range tokens {
 		itokens = append(itokens, token)
@@ -37,8 +43,5 @@ func StoreTokens(d *db.DB, tokens []string) error {
 	if err != nil {
 		err = fmt.Errorf("push tokens %v: %w", itokens, err)
 		logs.Warn.Println(err)
-		return err
 	}
-
-	return nil
 }

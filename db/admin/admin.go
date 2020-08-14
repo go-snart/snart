@@ -30,6 +30,7 @@ func IsAdmin(d *db.DB) route.Okay {
 		if err != nil {
 			err = fmt.Errorf("app @me: %w", err)
 			logs.Warn.Println(err)
+
 			return false
 		}
 
@@ -59,6 +60,7 @@ func List(d *db.DB) ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("len admins: %w", err)
 		logs.Warn.Println(err)
+
 		return nil, err
 	}
 
@@ -66,6 +68,7 @@ func List(d *db.DB) ([]string, error) {
 	if err != nil {
 		err = fmt.Errorf("range admins %d %d: %w", 0, count, err)
 		logs.Warn.Println(err)
+
 		return nil, err
 	}
 

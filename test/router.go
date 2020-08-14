@@ -1,16 +1,12 @@
 package test
 
-import (
-	"github.com/go-snart/snart/logs"
-	"github.com/go-snart/snart/route"
-)
+import "github.com/go-snart/snart/route"
 
+// RouterRoute is a cached *route.Route for Router.
 var RouterRoute = Route()
 
+// Router gets a test *route.Router.
 func Router() *route.Router {
-	logs.Info.Println("enter")
-	defer logs.Info.Println("exit")
-
 	router := route.NewRouter()
 
 	router.Add(RouterRoute)

@@ -4,14 +4,12 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/db/token"
-	"github.com/go-snart/snart/logs"
 )
 
+// SessionDB is a cache *db.DB for Session.
 var SessionDB = DB()
 
+// Session gets a test *dg.Session.
 func Session() *dg.Session {
-	logs.Info.Println("enter")
-	defer logs.Info.Println("exit")
-
 	return token.Open(SessionDB, nil)
 }

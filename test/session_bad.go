@@ -1,16 +1,12 @@
 package test
 
-import (
-	dg "github.com/bwmarrin/discordgo"
-	"github.com/go-snart/snart/logs"
-)
+import dg "github.com/bwmarrin/discordgo"
 
+// SessionBadToken is a discord token to use for SessionBad.
 const SessionBadToken = "session bad token"
 
+// SessionBad gets a bad test *dg.Session.
 func SessionBad() *dg.Session {
-	logs.Info.Println("enter")
-	defer logs.Info.Println("exit")
-
 	session, _ := dg.New(SessionBadToken)
 	return session
 }

@@ -19,15 +19,18 @@ type DB struct {
 
 // New creates a DB using redis.NewClient.
 func New(name string) *DB {
-	for _, opts := range Options(name) {
-		c := redis.NewClient(opts)
-
-		err := c.Ping().Err()
+	for _, connString := range ConnStrings(name) {
+		opts, err := redis.ParseURL(connString)
 		if err != nil {
-			err = fmt.Errorf("ping %v: %w", opts, err)
-
+			err = fmt.Errorf("parse url %q: %w", connString, err)
 			logs.Warn.Println(err)
 
+			continue
+		}
+
+		c := redis.NewClient(opts)
+
+		if c.Ping().Err() != nil {
 			continue
 		}
 

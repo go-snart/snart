@@ -116,6 +116,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 			if err != nil {
 				err = fmt.Errorf("c run: %w", err)
 				logs.Warn.Println(err)
+
 				continue
 			}
 		}

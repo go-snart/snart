@@ -1,4 +1,4 @@
-// +build snart_debug
+// +build debug
 
 package logs
 

@@ -35,6 +35,7 @@ func (r *Reply) Send() error {
 	if err != nil {
 		err = fmt.Errorf("send msg: %w", err)
 		logs.Warn.Println(err)
+
 		return err
 	}
 

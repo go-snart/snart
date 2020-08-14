@@ -9,40 +9,57 @@ import (
 	"github.com/go-snart/snart/logs"
 )
 
-var StdinMu = &sync.Mutex{}
+var stdinMu = &sync.Mutex{}
 
-// StdinConnStrings gets conn strings from input on the command line.
-func StdinConnStrings(name string) []string {
-	StdinMu.Lock()
-	defer StdinMu.Unlock()
+func stdinPiped() bool {
+	fi, err := os.Stdin.Stat()
+	if err != nil {
+		err = fmt.Errorf("stat stdin: %w", err)
+		logs.Warn.Fatalln(err)
 
-	connStrings := []string(nil)
+		return false
+	}
+
+	return fi.Mode()&os.ModeCharDevice == 0
+}
+
+// StdinStrings gets strings from input on the command line.
+func StdinStrings(name string) []string {
+	if stdinPiped() {
+		return nil
+	}
+
+	stdinMu.Lock()
+	defer stdinMu.Unlock()
+
+	strs := []string(nil)
 	scanner := bufio.NewScanner(os.Stdin)
 
-	logs.Info.Printf("getting %q conn strings from stdin\n", name)
+	logs.Info.Printf("getting %q strings from stdin\n", name)
 
 	for {
-		logs.Info.Printf("enter a new %q conn string, or nothing to finish\n", name)
+		logs.Info.Printf("enter a new %q string, or nothing to finish\n", name)
 		fmt.Print(" > ")
 
 		if !scanner.Scan() {
 			break
 		}
 
-		connString := scanner.Text()
-		if connString == "" {
-			return connStrings
+		str := scanner.Text()
+		if str == "" {
+			return strs
 		}
 
-		connStrings = append(connStrings, connString)
+		strs = append(strs, str)
 	}
 
 	err := scanner.Err()
 	if err != nil {
 		err = fmt.Errorf("scanner err: %w", err)
 		logs.Warn.Println(err)
+
 		return nil
 	}
 
-	return connStrings
+	return strs
 }

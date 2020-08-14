@@ -27,6 +27,7 @@ func GuildPrefix(d *db.DB, id string) (*Prefix, error) {
 
 		err = fmt.Errorf("hget %q prefix: %w %T", id, err, err)
 		logs.Warn.Println(err)
+
 		return nil, err
 	}
 
@@ -42,6 +43,7 @@ func DefaultPrefix(d *db.DB) (*Prefix, error) {
 	if err != nil {
 		err = fmt.Errorf("guild prefix %q: %w", "", err)
 		logs.Warn.Println(err)
+
 		return nil, err
 	}
 
@@ -79,6 +81,7 @@ func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Pre
 	if err != nil {
 		err = fmt.Errorf("member %q %q (@me): %w", guild, me, err)
 		logs.Warn.Println(err)
+
 		return nil, err
 	}
 
@@ -113,6 +116,7 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 	if err != nil {
 		err = fmt.Errorf("guild prefix %q: %w", guild, err)
 		logs.Warn.Println(err)
+
 		return nil, err
 	}
 
@@ -126,6 +130,7 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 	if err != nil {
 		err = fmt.Errorf("default prefix: %w", err)
 		logs.Warn.Println(err)
+
 		return nil, err
 	}
 
@@ -144,6 +149,7 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 	if err != nil {
 		err = fmt.Errorf("member prefix: %w", err)
 		logs.Warn.Println(err)
+
 		return nil, err
 	}
 

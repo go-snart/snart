@@ -1,10 +1,7 @@
 package route
 
 import (
-	"errors"
 	"flag"
-	"fmt"
-	"strings"
 
 	dg "github.com/bwmarrin/discordgo"
 	"github.com/go-snart/snart/logs"
@@ -20,19 +17,18 @@ type Flag struct {
 
 // NewFlag creates a Flag.
 func NewFlag(ctx *Ctx, name string, args []string) *Flag {
-	f := &Flag{}
+	f := &Flag{
+		FlagSet: flag.NewFlagSet(name, flag.ContinueOnError),
+		ctx:     ctx,
+		args:    args,
+	}
 
-	f.ctx = ctx
-	f.args = args
-
-	f.FlagSet = flag.NewFlagSet(name, flag.ContinueOnError)
 	f.FlagSet.Usage = func() {
 		err := f.Usage().Send()
 		if err != nil {
 			logs.Warn.Println(err)
 		}
 	}
-	f.FlagSet.SetOutput(&strings.Builder{})
 
 	return f
 }
@@ -63,28 +59,5 @@ func (f *Flag) Usage() *Reply {
 
 // Parse parses the arguments given to the Flag.
 func (f *Flag) Parse() error {
-	err := f.FlagSet.Parse(f.args)
-	if err != nil {
-		f.err = err
-
-		if errors.Is(err, flag.ErrHelp) {
-			return err
-		}
-
-		err = fmt.Errorf("flag parse %#v: %w", f.args, err)
-		logs.Warn.Println(err)
-
-		return err
-	}
-
-	return nil
-}
-
-// Output retrieves the Flag's FlagSet's Output as a string.
-func (f *Flag) Output() string {
-	if b, ok := f.FlagSet.Output().(fmt.Stringer); ok {
-		return b.String()
-	}
-
-	return ""
+	return f.FlagSet.Parse(f.args)
 }

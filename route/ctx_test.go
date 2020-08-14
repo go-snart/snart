@@ -6,25 +6,23 @@ import (
 	"github.com/go-snart/snart/test"
 )
 
-const content = "./route a b c"
-
 func TestCtx(t *testing.T) {
-	c := test.Ctx(content)
+	c := test.Ctx("./route a b c")
 
-	if c == nil {
-		t.Error("c == nil")
-	}
-}
+	t.Run("nil", func(t *testing.T) {
+		if c == nil {
+			t.Error("c == nil")
+		}
+	})
 
-func TestCtxRun(t *testing.T) {
-	c := test.Ctx(content)
+	t.Run("run", func(t *testing.T) {
+		err := c.Run()
+		if err != nil {
+			t.Errorf("run c: %w", err)
+		}
 
-	err := c.Run()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if c.Route.Desc != "run" {
-		t.Fatalf("c.Route.Desc != run")
-	}
+		if c.Route.Desc != test.RouteDescNew {
+			t.Errorf("c.Route.Desc == %q != test.RouteDescNew == %q", c.Route.Desc, test.RouteDescNew)
+		}
+	})
 }

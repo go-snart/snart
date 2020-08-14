@@ -11,22 +11,16 @@ import (
 	"github.com/go-snart/snart/logs"
 )
 
-// Router is a slice of Routes.
-type Router []*Route
+// Handler is a slice of Routes.
+type Handler []*Route
 
-// NewRouter creates a Router.
-func NewRouter() *Router {
-	rr := make(Router, 0)
-	return &rr
-}
-
-// Add adds a Route to the Router.
-func (rr *Router) Add(rs ...*Route) {
-	*rr = append(*rr, rs...)
+// Add adds a Route to the Handler.
+func (h *Handler) Add(rs ...*Route) {
+	*h = append(*h, rs...)
 }
 
 // Ctx gets a Ctx by finding an appropriate Route for a given prefix, session, message, etc.
-func (rr *Router) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line string) *Ctx {
+func (h *Handler) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line string) *Ctx {
 	c := &Ctx{
 		Prefix:  pfx,
 		Session: s,
@@ -35,10 +29,30 @@ func (rr *Router) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line str
 		Route:   nil,
 	}
 
+	logs.Debug.Println("line", line)
+
 	line = strings.TrimSpace(strings.TrimPrefix(line, pfx.Value))
 
-	for _, r := range *rr {
-		m, _ := r.Match.FindStringMatch(line)
+	logs.Debug.Println("line", line)
+
+	args := Split(line)
+
+	logs.Debug.Println("args", args)
+
+	if len(args) == 0 {
+		logs.Debug.Println("0 args")
+		return nil
+	}
+
+	cmd := args[0]
+	logs.Debug.Println("cmd", cmd)
+
+	args = args[1:]
+	logs.Debug.Println("args", args)
+
+	for _, r := range *h {
+		m, _ := r.Match.FindStringMatch(cmd)
+		logs.Debug.Println("m", m)
 		if m == nil || m.Index > 0 {
 			continue
 		}
@@ -49,32 +63,25 @@ func (rr *Router) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line str
 
 		if r.Okay(c) {
 			c.Route = r
-			line = line[m.Index:]
 
 			break
 		}
 	}
 
-	cont := strings.TrimSpace(strings.TrimPrefix(line, pfx.Value))
-	args := Split(cont)
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	cmd := args[0]
-	args = args[1:]
-	c.Flag = NewFlag(c, cmd, args)
+	logs.Debug.Println("route", c.Route)
 
 	if c.Route == nil {
 		return nil
 	}
 
+	c.Flag = NewFlag(c, cmd, args)
+	logs.Debug.Println("flag", c.Flag)
+
 	return c
 }
 
-// Handler returns a discordgo handler function for the router.
-func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
+// Handle returns a discordgo handler function for the Handler.
+func (h *Handler) Handle(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 	return func(s *dg.Session, m *dg.MessageCreate) {
 		logs.Debug.Println("handling")
 
@@ -107,7 +114,7 @@ func (rr *Router) Handler(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 				continue
 			}
 
-			c := rr.Ctx(pfx, s, m.Message, line)
+			c := h.Ctx(pfx, s, m.Message, line)
 			if c == nil {
 				continue
 			}

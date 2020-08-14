@@ -1,87 +1,75 @@
 package route_test
 
-/*
-func TestOkayAnyTrue(t *testing.T) {
-	_, _, _, _, _,
-		c := ctxDummy("owo")
+import (
+	"testing"
 
-	ok := route.Any(
-		route.False,
-		route.False,
-		route.True,
-		route.False,
-	)
-	if !ok(c) {
-		t.Fatal("!ok(c)")
-	}
+	"github.com/go-snart/snart/route"
+	"github.com/go-snart/snart/test"
+)
+
+func TestOkay(t *testing.T) {
+	c := test.Ctx("./route")
+
+	t.Run("any-true", func(t *testing.T) {
+		if !route.Any(
+			route.False,
+			route.False,
+			route.True,
+			route.False,
+		)(c) {
+			t.Error("!ok")
+		}
+	})
+
+	t.Run("any-false", func(t *testing.T) {
+		if route.Any(
+			route.False,
+			route.False,
+			route.False,
+			route.False,
+		)(c) {
+			t.Error("shouldn't be ok")
+		}
+	})
+
+	t.Run("all-true", func(t *testing.T) {
+		if !route.All(
+			route.True,
+			route.True,
+			route.True,
+			route.True,
+		)(c) {
+			t.Error("should be ok")
+		}
+	})
+
+	t.Run("all-false", func(t *testing.T) {
+		if route.All(
+			route.True,
+			route.True,
+			route.False,
+			route.True,
+		)(c) {
+			t.Error("shouldn't be ok")
+		}
+	})
+
+	t.Run("admin-true", func(t *testing.T) {
+		c := test.Ctx("./yeet")
+		c.Message.ID = "707316494132052008"
+		c.Message.ChannelID = "614088693216706590"
+		c.Message.GuildID = "466269100214321154"
+		c.Message.Author.ID = "304000458144481280"
+
+		if !route.GuildAdmin(c) {
+			t.Error("should be ok")
+		}
+	})
+
+	t.Run("admin-false", func(t *testing.T) {
+		ok := route.GuildAdmin(c)
+		if ok {
+			t.Error("shouldn't be ok")
+		}
+	})
 }
-
-func TestOkayAnyFalse(t *testing.T) {
-	_, _, _, _, _,
-		c := ctxDummy("owo")
-
-	ok := route.Any(
-		route.False,
-		route.False,
-		route.False,
-		route.False,
-	)
-	if ok(c) {
-		t.Fatal("ok(c)")
-	}
-}
-
-func TestOkayAllTrue(t *testing.T) {
-	_, _, _, _, _,
-		c := ctxDummy("owo")
-
-	ok := route.All(
-		route.True,
-		route.True,
-		route.True,
-		route.True,
-	)
-	if !ok(c) {
-		t.Fatal("!ok(c)")
-	}
-}
-
-func TestOkayAllFalse(t *testing.T) {
-	_, _, _, _, _,
-		c := ctxDummy("owo")
-
-	ok := route.All(
-		route.True,
-		route.True,
-		route.False,
-		route.True,
-	)
-	if ok(c) {
-		t.Fatal("ok(c)")
-	}
-}
-
-func TestOkayGuildAdmin(t *testing.T) {
-	_, _, _, _, _,
-		c := ctxDummy("owo")
-	c.Message.ID = "707316494132052008"
-	c.Message.ChannelID = "614088693216706590"
-	c.Message.GuildID = "466269100214321154"
-	c.Message.Author.ID = "304000458144481280"
-
-	ok := route.GuildAdmin(c)
-	if !ok {
-		t.Fatal("should be ok")
-	}
-}
-
-func TestOkayGuildAdminBad(t *testing.T) {
-	_, _, _, _, _,
-		c := ctxDummy("owo")
-
-	ok := route.GuildAdmin(c)
-	if ok {
-		t.Fatal("shouldn't be ok")
-	}
-}
-*/

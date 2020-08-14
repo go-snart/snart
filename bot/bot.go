@@ -17,8 +17,8 @@ type Bot struct {
 	DB      *db.DB
 	Session *dg.Session
 
-	Router *route.Router
-	Gamers []Gamer
+	Handler *route.Handler
+	Gamers  []Gamer
 
 	Interrupt chan Interrupt
 	Startup   time.Time
@@ -37,8 +37,8 @@ func NewFromDB(d *db.DB) *Bot {
 		DB:      d,
 		Session: nil,
 
-		Router: route.NewRouter(),
-		Gamers: []Gamer{GamerUptime},
+		Handler: &route.Handler{},
+		Gamers:  []Gamer{GamerUptime},
 
 		Interrupt: make(chan Interrupt),
 		Startup:   time.Now(),

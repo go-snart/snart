@@ -14,7 +14,7 @@ func (b *Bot) Start() {
 	b.Session = token.Open(b.DB, &b.Ready)
 	defer b.Session.Close()
 
-	b.Session.AddHandler(b.Router.Handler(b.DB))
+	b.Session.AddHandler(b.Handler.Handle(b.DB))
 
 	b.Startup = time.Now()
 

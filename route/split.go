@@ -1,9 +1,9 @@
 package route
 
-import "github.com/go-snart/snart/logs"
+import re2 "github.com/dlclark/regexp2"
 
 // Splitter is the *re2.Regexp used in Split.
-var Splitter = MustMatch(`((\x60{1,3})(.*)\2)|(\S+)`)
+var Splitter = re2.MustCompile(`(\x60+)(.*?)\1|(\S+)`, 0)
 
 // Split splits a string using a backtick quoting method.
 func Split(s string) []string {
@@ -13,7 +13,6 @@ func Split(s string) []string {
 	for {
 		m, err := Splitter.FindRunesMatch(subj)
 		if err != nil {
-			logs.Warn.Println(err)
 			break
 		}
 
@@ -23,14 +22,14 @@ func Split(s string) []string {
 
 		gs := m.Groups()
 
-		match := gs[4].Capture.String()
+		match := gs[3].Capture.String()
 		if match == "" {
-			match = gs[3].Capture.String()
+			match = gs[2].Capture.String()
 		}
 
 		args = append(args, match)
 
-		l := m.Group.Capture.Length + 1
+		l := gs[0].Capture.Length + 1
 		if l > len(subj) {
 			break
 		}

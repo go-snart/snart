@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	// CtxRouter is a cached *route.Router for Ctx.
-	CtxRouter = Router()
+	// CtxHandler is a cached route.Handler for Ctx.
+	CtxHandler = Handler()
 
 	// CtxPrefix is a cached *prefix.Prefix for Ctx.
 	CtxPrefix = Prefix()
@@ -19,7 +19,7 @@ var (
 
 // Ctx gets a test *route.Ctx.
 func Ctx(content string) *route.Ctx {
-	return CtxRouter.Ctx(
+	return CtxHandler.Ctx(
 		CtxPrefix,
 		CtxSession,
 		Message(content),

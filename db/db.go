@@ -18,8 +18,8 @@ type DB struct {
 }
 
 // New creates a DB using redis.NewClient.
-func New(name string, extra ...string) *DB {
-	for _, connString := range append(extra, ConnStrings(name)...) {
+func New(name string) *DB {
+	for _, connString := range EnvStrings(name, "db") {
 		opts, err := redis.ParseURL(connString)
 		if err != nil {
 			err = fmt.Errorf("parse url %q: %w", connString, err)
@@ -49,7 +49,8 @@ func New(name string, extra ...string) *DB {
 func NewFromCmdable(c redis.Cmdable, name string, opts *redis.Options) *DB {
 	return &DB{
 		Cmdable: c,
-		Name:    name,
-		Opts:    opts,
+
+		Name: name,
+		Opts: opts,
 	}
 }

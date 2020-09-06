@@ -4,31 +4,31 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/go-snart/snart/log"
 )
 
-// EnvName returns the name of the environment variable used to load a conn string.
-func EnvName(name string, idx int) string {
-	s := strings.ToUpper(name) + "_DB"
+// EnvStrings gets strings for the given type from env vars in the form TYP or TYP_N.
+// It will only check N in order above 1 (eg TYP, TYP_1, TYP_2). Skipping an N will end the search.
+func EnvStrings(name, typ string) []string {
+	strs := []string(nil)
 
-	if idx >= 0 {
-		s += "_" + strconv.Itoa(idx)
-	}
+	env := strings.ToUpper(name + "_" + typ)
 
-	return s
-}
+	for n := 0; ; n++ {
+		env := env
 
-// EnvConnStrings returns the conn strings listed in the EnvName environment variable.
-func EnvConnStrings(name string) []string {
-	connStrings := []string(nil)
-
-	for i := -1; ; i++ {
-		iName := EnvName(name, i)
-
-		connString, ok := os.LookupEnv(iName)
-		if !ok {
-			return connStrings
+		if n > 0 {
+			env += "_" + strconv.Itoa(n)
 		}
 
-		connStrings = append(connStrings, connString)
+		log.Info.Printf("checking env %s...\n", env)
+
+		str, ok := os.LookupEnv(env)
+		if !ok {
+			return strs
+		}
+
+		strs = append(strs, str)
 	}
 }

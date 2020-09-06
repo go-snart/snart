@@ -2,12 +2,10 @@
 package bot
 
 import (
-	"time"
-
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/bot/gamer"
-	"github.com/go-snart/snart/bot/plugin"
+	"github.com/go-snart/snart/bot/halt"
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/route"
 )
@@ -16,37 +14,27 @@ import (
 type Bot struct {
 	DB      *db.DB
 	Session *dg.Session
+	Halt    chan halt.Halt
 
-	Plugins []plugin.Plugin
-
-	Intents   dg.Intent
-	Handler   *route.Handler
-	Gamers    []gamer.Gamer
-	Interrupt chan Interrupt
-	Startup   time.Time
+	Handler *route.Handler
+	Intents dg.Intent
+	Gamers  []gamer.Gamer
 }
 
 // New creates a Bot.
-func New() *Bot {
-	return NewFromDB(db.New("bot"))
+func New(name string) *Bot {
+	return NewFromDB(db.New(name))
 }
 
 // NewFromDB creates a Bot from the given *db.DB.
 func NewFromDB(d *db.DB) *Bot {
-	b := &Bot{
+	return &Bot{
 		DB:      d,
 		Session: nil,
+		Halt:    halt.Chan(),
 
-		Plugins: plugin.OpenAll(),
-
-		Intents:   dg.IntentsAllWithoutPrivileged,
-		Handler:   &route.Handler{},
-		Gamers:    nil,
-		Interrupt: make(chan Interrupt),
-		Startup:   time.Now(),
+		Handler: &route.Handler{},
+		Intents: dg.IntentsAllWithoutPrivileged,
+		Gamers:  []gamer.Gamer{gamer.Uptime()},
 	}
-
-	b.Gamers = append(b.Gamers, b.Uptime)
-
-	return b
 }

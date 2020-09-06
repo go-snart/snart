@@ -1,51 +1,47 @@
-// Package plugin provides an interface for loading functionality into Snart.
-package plugin
+// Package plug provides plugin functionality for Snart.
+package plug
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"plugin"
 
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/bot/gamer"
+	"github.com/go-snart/snart/bot/halt"
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/log"
 	"github.com/go-snart/snart/route"
 )
 
-// PluginsEnv is the environment variable used to add plugin directories.
-const PluginsEnv = "SNART_PLUGINS"
-
-// Plugin provides all the components of a snart plugin.
-type Plugin interface {
-	Session(*dg.Session)
-	DB(*db.DB)
-
-	Intents() dg.Intent
-	Routes() []*route.Route
-	Gamers() []gamer.Gamer
-
+// Plug provides all the components of a Snart plugin.
+type Plug interface {
 	String() string
+
+	PlugDB(*db.DB)
+	PlugSession(*dg.Session)
+	PlugHalt(chan halt.Halt)
+
+	Routes() []*route.Route
+	Intents() dg.Intent
+	Gamers() []gamer.Gamer
 }
 
-// OpenAll returns all of the Plugins.
-func OpenAll() []Plugin {
-	dirs := []string{"plugins"}
+// Plugs loads and returns all of the Plugs.
+func Plugs(name string) []Plug {
+	dirs := append(
+		[]string{"plugs"},
+		db.EnvStrings(name, "plugs")...,
+	)
 
-	env, ok := os.LookupEnv(PluginsEnv)
-	if ok {
-		dirs = append(dirs, filepath.SplitList(env)...)
-	}
-
-	plugs := []Plugin(nil)
+	plugs := []Plug(nil)
 
 	for _, dir := range dirs {
-		dplugs := []Plugin(nil)
+		dplugs := []Plug(nil)
 
 		glob := filepath.Join(dir, "*")
-		log.Info.Printf("loading plugins from %q\n", glob)
+		log.Info.Printf("loading plugs from %q\n", glob)
 
 		pfs, err := filepath.Glob(glob)
 		if err != nil {
@@ -64,7 +60,7 @@ func OpenAll() []Plugin {
 				continue
 			}
 
-			const name = "Plugin"
+			const name = "Plug"
 
 			sym, err := plug.Lookup(name)
 			if err != nil {
@@ -74,10 +70,17 @@ func OpenAll() []Plugin {
 				continue
 			}
 
-			dplugs = append(dplugs, sym.(Plugin))
+			psym, ok := sym.(Plug)
+			if !ok {
+				log.Warn.Println("sym was not a Plug")
+
+				continue
+			}
+
+			dplugs = append(dplugs, psym)
 		}
 
-		log.Info.Printf("loaded %d plugins - %v\n", len(dplugs), dplugs)
+		log.Info.Printf("loaded %d plugs - %v\n", len(dplugs), dplugs)
 
 		plugs = append(plugs, dplugs...)
 	}

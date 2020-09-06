@@ -7,35 +7,40 @@ import (
 
 	dg "github.com/bwmarrin/discordgo"
 
+	"github.com/go-snart/snart/bot/plug"
 	"github.com/go-snart/snart/db/token"
+	"github.com/go-snart/snart/log"
 	logs "github.com/go-snart/snart/log"
 )
 
-// Start performs the Bot's startup functions, and waits until an interrupt.
-func (b *Bot) Start() {
-	for _, p := range b.Plugins {
-		p.DB(b.DB)
+// Run performs the Bot's startup functions, and waits for a Halt.
+func (b *Bot) Run() {
+	plugs := plug.Plugs(b.DB.Name)
+	for _, p := range plugs {
+		p.PlugDB(b.DB)
+		p.PlugHalt(b.Halt)
 
 		b.Intents |= p.Intents()
-
-		go p.Session(b.Session)
-
 		b.Handler.Add(p.Routes()...)
-
 		b.Gamers = append(b.Gamers, p.Gamers()...)
 	}
 
 	b.Session = token.Open(b.DB, b.Intents)
-	defer b.Session.Close()
+
+	for _, p := range plugs {
+		p.PlugSession(b.Session)
+	}
 
 	b.Session.AddHandler(b.Handler.Handle(b.DB))
-
-	b.Startup = time.Now()
+	defer b.Session.Close()
 
 	go b.cycleGamers()
 
-	b.handleInterrupts()
-	logs.Info.Println("bye :)")
+	err := error(<-b.Halt)
+	if err != nil {
+		err = fmt.Errorf("halt: %w", err)
+		log.Warn.Println(err)
+	}
 }
 
 func (b *Bot) cycleGamers() {

@@ -7,21 +7,30 @@ import (
 
 	dg "github.com/bwmarrin/discordgo"
 
+	"github.com/go-snart/snart/admin"
 	"github.com/go-snart/snart/bot/plug"
 	"github.com/go-snart/snart/db/token"
+	"github.com/go-snart/snart/help"
 	"github.com/go-snart/snart/log"
 	logs "github.com/go-snart/snart/log"
 )
 
 // Run performs the Bot's startup functions, and waits for a Halt.
 func (b *Bot) Run() {
-	plugs := plug.Plugs(b.DB.Name)
+	plugs := append(
+		[]plug.Plug{
+			admin.Plug,
+			help.Plug,
+		},
+		plug.Plugs(b.DB.Name)...,
+	)
+
 	for _, p := range plugs {
 		p.PlugDB(b.DB)
+		p.PlugHandler(b.Handler)
 		p.PlugHalt(b.Halt)
 
 		b.Intents |= p.Intents()
-		b.Handler.Add(p.Routes()...)
 		b.Gamers = append(b.Gamers, p.Gamers()...)
 	}
 

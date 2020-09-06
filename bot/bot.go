@@ -14,9 +14,9 @@ import (
 type Bot struct {
 	DB      *db.DB
 	Session *dg.Session
+	Handler *route.Handler
 	Halt    chan halt.Halt
 
-	Handler *route.Handler
 	Intents dg.Intent
 	Gamers  []gamer.Gamer
 }

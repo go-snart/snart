@@ -21,9 +21,9 @@ type Plug interface {
 
 	PlugDB(*db.DB)
 	PlugSession(*dg.Session)
+	PlugHandler(*route.Handler)
 	PlugHalt(chan halt.Halt)
 
-	Routes() []*route.Route
 	Intents() dg.Intent
 	Gamers() []gamer.Gamer
 }

@@ -27,6 +27,7 @@ var (
 // RouteFunc is the route func used by Route.
 func RouteFunc(c *route.Ctx) error {
 	c.Route.Desc = RouteDescNew
+
 	return nil
 }
 

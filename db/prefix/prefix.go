@@ -8,7 +8,7 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/db"
-	"github.com/go-snart/snart/logs"
+	"github.com/go-snart/snart/log"
 )
 
 // Prefix represents a command prefix Value for a given Guild, as well as a human-readable Clean prefix.
@@ -26,7 +26,7 @@ func GuildPrefix(d *db.DB, id string) (*Prefix, error) {
 		}
 
 		err = fmt.Errorf("hget %q prefix: %w %T", id, err, err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func DefaultPrefix(d *db.DB) (*Prefix, error) {
 	pfx, err := GuildPrefix(d, "")
 	if err != nil {
 		err = fmt.Errorf("guild prefix %q: %w", "", err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func DefaultPrefix(d *db.DB) (*Prefix, error) {
 
 func userPrefix(ses *dg.Session, cont string, gpfx, dpfx *Prefix) *Prefix {
 	ument := ses.State.User.Mention()
-	logs.Debug.Printf("%q %q", cont, ument)
+	log.Debug.Printf("%q %q", cont, ument)
 
 	if strings.HasPrefix(cont, ument) {
 		pfx := &Prefix{
@@ -80,7 +80,7 @@ func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Pre
 	mme, err := ses.GuildMember(guild, me)
 	if err != nil {
 		err = fmt.Errorf("member %q %q (@me): %w", guild, me, err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil, err
 	}
@@ -110,12 +110,12 @@ func memberPrefix(ses *dg.Session, guild, cont string, gpfx, dpfx *Prefix) (*Pre
 
 // FindPrefix finds a matching prefix for a given guild and message content.
 func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) {
-	logs.Debug.Printf("prefix %s", guild)
+	log.Debug.Printf("prefix %s", guild)
 
 	gpfx, err := GuildPrefix(d, guild)
 	if err != nil {
 		err = fmt.Errorf("guild prefix %q: %w", guild, err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 	dpfx, err := DefaultPrefix(d)
 	if err != nil {
 		err = fmt.Errorf("default prefix: %w", err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func FindPrefix(d *db.DB, ses *dg.Session, guild, cont string) (*Prefix, error) 
 	mpfx, err := memberPrefix(ses, guild, cont, gpfx, dpfx)
 	if err != nil {
 		err = fmt.Errorf("member prefix: %w", err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil, err
 	}

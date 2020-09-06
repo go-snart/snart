@@ -1,5 +1,5 @@
-// Package logs provides utilities for getting sensible loggers.
-package logs
+// Package log provides utilities for getting sensible loggers.
+package log
 
 import (
 	"github.com/logrusorgru/aurora"

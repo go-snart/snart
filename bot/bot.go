@@ -6,24 +6,24 @@ import (
 
 	dg "github.com/bwmarrin/discordgo"
 
+	"github.com/go-snart/snart/bot/gamer"
+	"github.com/go-snart/snart/bot/plugin"
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/route"
 )
 
 // Bot holds all the internal workings of a Snart bot.
 type Bot struct {
-	Name string
-
 	DB      *db.DB
 	Session *dg.Session
 
-	Handler *route.Handler
-	Gamers  []Gamer
+	Plugins []plugin.Plugin
 
+	Intents   dg.Intent
+	Handler   *route.Handler
+	Gamers    []gamer.Gamer
 	Interrupt chan Interrupt
 	Startup   time.Time
-
-	Ready bool
 }
 
 // New creates a Bot.
@@ -33,16 +33,20 @@ func New() *Bot {
 
 // NewFromDB creates a Bot from the given *db.DB.
 func NewFromDB(d *db.DB) *Bot {
-	return &Bot{
+	b := &Bot{
 		DB:      d,
 		Session: nil,
 
-		Handler: &route.Handler{},
-		Gamers:  []Gamer{GamerUptime},
+		Plugins: plugin.OpenAll(),
 
+		Intents:   dg.IntentsAllWithoutPrivileged,
+		Handler:   &route.Handler{},
+		Gamers:    nil,
 		Interrupt: make(chan Interrupt),
 		Startup:   time.Now(),
-
-		Ready: false,
 	}
+
+	b.Gamers = append(b.Gamers, b.Uptime)
+
+	return b
 }

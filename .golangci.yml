@@ -8,6 +8,8 @@ linters:
     - gochecknoinits
     - gomnd
     - goconst
+    - funlen
+    - gci
   fast: true
 
 issues:

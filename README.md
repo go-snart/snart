@@ -4,7 +4,7 @@ a discord bot framework. currently still a little janky, but feel free to use if
 
 requirements
 ------------
-- postgres instance
+- redis instance
 
 example bot
 -----------

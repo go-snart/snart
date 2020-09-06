@@ -1,6 +1,6 @@
 // +build !debug
 
-package logs
+package log
 
 import (
 	"log"

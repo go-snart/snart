@@ -5,7 +5,7 @@ import (
 
 	dg "github.com/bwmarrin/discordgo"
 
-	"github.com/go-snart/snart/logs"
+	"github.com/go-snart/snart/log"
 )
 
 // Okay is a function which checks if a Ctx should be used.
@@ -53,7 +53,7 @@ var GuildAdmin Okay = func(c *Ctx) bool {
 	if err != nil {
 		err = fmt.Errorf("perm: %w", err)
 
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return false
 	}

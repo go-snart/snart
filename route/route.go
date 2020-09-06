@@ -6,7 +6,7 @@ import (
 
 	re2 "github.com/dlclark/regexp2"
 
-	"github.com/go-snart/snart/logs"
+	"github.com/go-snart/snart/log"
 )
 
 // Route is a command route.
@@ -24,7 +24,7 @@ func MustMatch(match string) *re2.Regexp {
 	r, err := re2.Compile(match, re2.IgnoreCase)
 	if err != nil {
 		err = fmt.Errorf("re2 compile %q: %w", match, err)
-		logs.Warn.Fatalln(err)
+		log.Warn.Fatalln(err)
 
 		return nil
 	}

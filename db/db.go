@@ -6,7 +6,7 @@ import (
 
 	redis "gopkg.in/redis.v5"
 
-	"github.com/go-snart/snart/logs"
+	"github.com/go-snart/snart/log"
 )
 
 // DB wraps a redis.Cmdable, along with a Name and Opts used in creation.
@@ -18,26 +18,29 @@ type DB struct {
 }
 
 // New creates a DB using redis.NewClient.
-func New(name string) *DB {
-	for _, connString := range ConnStrings(name) {
+func New(name string, extra ...string) *DB {
+	for _, connString := range append(extra, ConnStrings(name)...) {
 		opts, err := redis.ParseURL(connString)
 		if err != nil {
 			err = fmt.Errorf("parse url %q: %w", connString, err)
-			logs.Warn.Println(err)
+			log.Warn.Println(err)
 
 			continue
 		}
 
-		c := redis.NewClient(opts)
+		log.Debug.Printf("trying %q\n", connString)
 
+		c := redis.NewClient(opts)
 		if c.Ping().Err() != nil {
+			log.Debug.Println("ping failed")
+
 			continue
 		}
 
 		return NewFromCmdable(c, name, opts)
 	}
 
-	logs.Warn.Fatalln("no good options found")
+	log.Warn.Fatalf("no good options found for db %q", name)
 
 	return nil
 }

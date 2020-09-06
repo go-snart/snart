@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/db/prefix"
-	"github.com/go-snart/snart/logs"
+	"github.com/go-snart/snart/log"
 )
 
 // Handler is a slice of Routes.
@@ -29,30 +29,32 @@ func (h *Handler) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line str
 		Route:   nil,
 	}
 
-	logs.Debug.Println("line", line)
+	log.Debug.Println("line", line)
 
 	line = strings.TrimSpace(strings.TrimPrefix(line, pfx.Value))
 
-	logs.Debug.Println("line", line)
+	log.Debug.Println("line", line)
 
 	args := Split(line)
 
-	logs.Debug.Println("args", args)
+	log.Debug.Println("args", args)
 
 	if len(args) == 0 {
-		logs.Debug.Println("0 args")
+		log.Debug.Println("0 args")
+
 		return nil
 	}
 
 	cmd := args[0]
-	logs.Debug.Println("cmd", cmd)
+	log.Debug.Println("cmd", cmd)
 
 	args = args[1:]
-	logs.Debug.Println("args", args)
+	log.Debug.Println("args", args)
 
 	for _, r := range *h {
 		m, _ := r.Match.FindStringMatch(cmd)
-		logs.Debug.Println("m", m)
+		log.Debug.Println("m", m)
+
 		if m == nil || m.Index > 0 {
 			continue
 		}
@@ -68,14 +70,14 @@ func (h *Handler) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line str
 		}
 	}
 
-	logs.Debug.Println("route", c.Route)
+	log.Debug.Println("route", c.Route)
 
 	if c.Route == nil {
 		return nil
 	}
 
 	c.Flag = NewFlag(c, cmd, args)
-	logs.Debug.Println("flag", c.Flag)
+	log.Debug.Println("flag", c.Flag)
 
 	return c
 }
@@ -83,34 +85,37 @@ func (h *Handler) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line str
 // Handle returns a discordgo handler function for the Handler.
 func (h *Handler) Handle(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 	return func(s *dg.Session, m *dg.MessageCreate) {
-		logs.Debug.Println("handling")
+		log.Debug.Println("handling")
 
 		if m.Message.Author.ID == s.State.User.ID {
-			logs.Debug.Println("ignore self")
+			log.Debug.Println("ignore self")
+
 			return
 		}
 
 		if m.Message.Author.Bot {
-			logs.Debug.Println("ignore bot")
+			log.Debug.Println("ignore bot")
+
 			return
 		}
 
 		lines := strings.Split(m.Message.Content, "\n")
-		logs.Debug.Printf("lines %#v", lines)
+		log.Debug.Printf("lines %#v", lines)
 
 		for _, line := range lines {
-			logs.Debug.Printf("line %q", line)
+			log.Debug.Printf("line %q", line)
 
 			pfx, err := prefix.FindPrefix(d, s, m.GuildID, line)
 			if err != nil {
 				err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
-				logs.Warn.Println(err)
+				log.Warn.Println(err)
 
 				continue
 			}
 
 			if pfx == nil {
-				logs.Warn.Println("nil pfx")
+				log.Warn.Println("nil pfx")
+
 				continue
 			}
 
@@ -122,7 +127,7 @@ func (h *Handler) Handle(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 			err = c.Run()
 			if err != nil {
 				err = fmt.Errorf("c run: %w", err)
-				logs.Warn.Println(err)
+				log.Warn.Println(err)
 
 				continue
 			}

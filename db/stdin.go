@@ -6,7 +6,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/go-snart/snart/logs"
+	"github.com/go-snart/snart/log"
 )
 
 var stdinMu = &sync.Mutex{}
@@ -15,7 +15,7 @@ func stdinPiped() bool {
 	fi, err := os.Stdin.Stat()
 	if err != nil {
 		err = fmt.Errorf("stat stdin: %w", err)
-		logs.Warn.Fatalln(err)
+		log.Warn.Fatalln(err)
 
 		return false
 	}
@@ -35,10 +35,10 @@ func StdinStrings(name string) []string {
 	strs := []string(nil)
 	scanner := bufio.NewScanner(os.Stdin)
 
-	logs.Info.Printf("getting %q strings from stdin\n", name)
+	log.Info.Printf("getting %q strings from stdin\n", name)
 
 	for {
-		logs.Info.Printf("enter a new %q string, or nothing to finish\n", name)
+		log.Info.Printf("enter a new %q string, or nothing to finish\n", name)
 		fmt.Print(" > ")
 
 		if !scanner.Scan() {
@@ -56,7 +56,7 @@ func StdinStrings(name string) []string {
 	err := scanner.Err()
 	if err != nil {
 		err = fmt.Errorf("scanner err: %w", err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil
 	}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-snart/snart/db"
-	"github.com/go-snart/snart/logs"
+	"github.com/go-snart/snart/log"
 	"github.com/go-snart/snart/route"
 )
 
@@ -15,7 +15,7 @@ func IsAdmin(d *db.DB) route.Okay {
 		admins, err := List(d)
 		if err != nil {
 			err = fmt.Errorf("list admins: %w", err)
-			logs.Warn.Println(err)
+			log.Warn.Println(err)
 
 			return false
 		}
@@ -29,7 +29,7 @@ func IsAdmin(d *db.DB) route.Okay {
 		app, err := c.Session.Application("@me")
 		if err != nil {
 			err = fmt.Errorf("app @me: %w", err)
-			logs.Warn.Println(err)
+			log.Warn.Println(err)
 
 			return false
 		}
@@ -59,7 +59,7 @@ func List(d *db.DB) ([]string, error) {
 	count, err := d.LLen("admins").Result()
 	if err != nil {
 		err = fmt.Errorf("len admins: %w", err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func List(d *db.DB) ([]string, error) {
 	admins, err := d.LRange("admins", 0, count).Result()
 	if err != nil {
 		err = fmt.Errorf("range admins %d %d: %w", 0, count, err)
-		logs.Warn.Println(err)
+		log.Warn.Println(err)
 
 		return nil, err
 	}

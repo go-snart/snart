@@ -7,9 +7,12 @@ import (
 )
 
 // SessionDB is a cache *db.DB for Session.
-var SessionDB = DB()
+var (
+	SessionDB     = DB()
+	SessionIntent = Intent()
+)
 
 // Session gets a test *dg.Session.
 func Session() *dg.Session {
-	return token.Open(SessionDB, nil)
+	return token.Open(SessionDB, SessionIntent)
 }

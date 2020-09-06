@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/go-snart/snart/logs"
+	"github.com/go-snart/snart/log"
 )
 
 // Interrupt wraps an os.Signal or error which causes a Bot to exit.
@@ -41,7 +41,6 @@ func (b *Bot) handleInterrupts() {
 
 	go func(sig chan os.Signal, interrupt chan Interrupt) {
 		for s := range sig {
-			fmt.Println()
 			interrupt <- Interrupt{Sig: s}
 		}
 	}(sig, b.Interrupt)
@@ -50,5 +49,5 @@ func (b *Bot) handleInterrupts() {
 	signal.Notify(sig, syscall.SIGTERM)
 
 	err := fmt.Errorf("interrupt: %w", <-b.Interrupt)
-	logs.Warn.Println(err)
+	log.Warn.Println(err)
 }

@@ -1,6 +1,7 @@
 package halt
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
@@ -35,17 +36,21 @@ func (h Halt) Unwrap() error {
 }
 
 // Chan prepares a Halt channel with running signal notifications.
-func Chan() chan Halt {
+func Chan(ctx context.Context) chan Halt {
 	halts := make(chan Halt, 1)
+	sig := make(chan os.Signal, 1)
+
+	signal.Notify(sig, os.Interrupt)
+	signal.Notify(sig, syscall.SIGTERM)
 
 	go func() {
-		sig := make(chan os.Signal, 1)
-
-		signal.Notify(sig, os.Interrupt)
-		signal.Notify(sig, syscall.SIGTERM)
-
-		for s := range sig {
-			halts <- Halt{Sig: s}
+		for {
+			select {
+			case s := <-sig:
+				halts <- Halt{Sig: s}
+			case <-ctx.Done():
+				halts <- Halt{Err: ctx.Err()}
+			}
 		}
 	}()
 

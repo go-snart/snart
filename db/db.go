@@ -2,9 +2,10 @@
 package db
 
 import (
+	"context"
 	"fmt"
 
-	redis "gopkg.in/redis.v5"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/go-snart/snart/log"
 )
@@ -18,8 +19,13 @@ type DB struct {
 }
 
 // New creates a DB using redis.NewClient.
-func New(name string) *DB {
-	for _, connString := range EnvStrings(name, "db") {
+func New(ctx context.Context, name string) *DB {
+	for _, connString := range append(
+		EnvStrings(name, "db"),
+
+		"redis://"+name+"_db",
+		"redis://"+name+"_db.docker",
+	) {
 		opts, err := redis.ParseURL(connString)
 		if err != nil {
 			err = fmt.Errorf("parse url %q: %w", connString, err)
@@ -31,7 +37,7 @@ func New(name string) *DB {
 		log.Debug.Printf("trying %q\n", connString)
 
 		c := redis.NewClient(opts)
-		if c.Ping().Err() != nil {
+		if c.Ping(ctx).Err() != nil {
 			log.Debug.Println("ping failed")
 
 			continue

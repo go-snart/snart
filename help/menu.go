@@ -11,15 +11,15 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
-func (h *Help) routesByCat(ctx *route.Ctx) map[string][]*route.Route {
+func (h *Help) routesByCat(c *route.Ctx) map[string][]*route.Route {
 	byCat := map[string][]*route.Route{}
 
-	for _, r := range *h.Handler {
+	for _, r := range h.Handler.Routes {
 		if r.Okay == nil {
 			r.Okay = route.True
 		}
 
-		if r.Okay(ctx) {
+		if r.Okay(c) {
 			cat := r.Cat
 			if cat == "" {
 				cat = "misc"
@@ -33,8 +33,8 @@ func (h *Help) routesByCat(ctx *route.Ctx) map[string][]*route.Route {
 }
 
 // Help gives a help menu.
-func (h *Help) Menu(ctx *route.Ctx) error {
-	err := ctx.Flag.Parse()
+func (h *Help) Menu(c *route.Ctx) error {
+	err := c.Flag.Parse()
 	if err != nil {
 		err = fmt.Errorf("flag parse: %w", err)
 		log.Warn.Println(err)
@@ -42,34 +42,34 @@ func (h *Help) Menu(ctx *route.Ctx) error {
 		return err
 	}
 
-	args := ctx.Flag.Args()
+	args := c.Flag.Args()
 	if len(args) > 0 {
 		cmd := args[0]
 
-		rctx := h.Handler.Ctx(ctx.Prefix, ctx.Session, nil, ctx.Prefix.Value+cmd+" -help")
-		if rctx == nil {
-			rep := ctx.Reply()
+		hc := h.Handler.Ctx(c, c.Prefix, c.Session, nil, c.Prefix.Value+cmd+" -help")
+		if hc == nil {
+			rep := c.Reply()
 			rep.Content = fmt.Sprintf("command `%s` not known", cmd)
 			return rep.Send()
 		}
 
-		err = rctx.Run()
+		err = hc.Run()
 		if err != nil {
-			err = fmt.Errorf("rctx run: %w", err)
+			err = fmt.Errorf("hc run: %w", err)
 			log.Warn.Println(err)
 			return err
 		}
 	}
 
-	pfx := ctx.Prefix.Clean
+	pfx := c.Prefix.Clean
 
-	rep := ctx.Reply()
+	rep := c.Reply()
 	rep.Embed = &dg.MessageEmbed{
-		Title:       ctx.Session.State.User.Username + " Help",
+		Title:       c.Session.State.User.Username + " Help",
 		Description: fmt.Sprintf("Prefix: `%s`", pfx),
 	}
 
-	byCat := h.routesByCat(ctx)
+	byCat := h.routesByCat(c)
 
 	cats := make([]string, 0)
 

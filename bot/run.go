@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -8,15 +9,16 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/admin"
+	"github.com/go-snart/snart/bot/halt"
 	"github.com/go-snart/snart/bot/plug"
-	"github.com/go-snart/snart/db/token"
 	"github.com/go-snart/snart/help"
 	"github.com/go-snart/snart/log"
-	logs "github.com/go-snart/snart/log"
 )
 
 // Run performs the Bot's startup functions, and waits for a Halt.
-func (b *Bot) Run() {
+func (b *Bot) Run(ctx context.Context) error {
+	b.Halt = halt.Chan(ctx)
+
 	plugs := append(
 		[]plug.Plug{
 			admin.Plug,
@@ -34,7 +36,7 @@ func (b *Bot) Run() {
 		b.Gamers = append(b.Gamers, p.Gamers()...)
 	}
 
-	b.Session = token.Open(b.DB, b.Intents)
+	b.Session = b.Open(ctx)
 
 	for _, p := range plugs {
 		p.PlugSession(b.Session)
@@ -49,7 +51,10 @@ func (b *Bot) Run() {
 	if err != nil {
 		err = fmt.Errorf("halt: %w", err)
 		log.Warn.Println(err)
+		return err
 	}
+
+	return nil
 }
 
 func (b *Bot) cycleGamers() {
@@ -65,7 +70,7 @@ func (b *Bot) cycleGamers() {
 
 				if !errors.Is(err, dg.ErrWSNotFound) {
 					err = fmt.Errorf("update status: %w", err)
-					logs.Warn.Println(err)
+					log.Warn.Println(err)
 
 					break
 				}

@@ -2,6 +2,8 @@
 package bot
 
 import (
+	"context"
+
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/bot/gamer"
@@ -22,8 +24,8 @@ type Bot struct {
 }
 
 // New creates a Bot.
-func New(name string) *Bot {
-	return NewFromDB(db.New(name))
+func New(ctx context.Context, name string) *Bot {
+	return NewFromDB(db.New(ctx, name))
 }
 
 // NewFromDB creates a Bot from the given *db.DB.
@@ -31,7 +33,7 @@ func NewFromDB(d *db.DB) *Bot {
 	return &Bot{
 		DB:      d,
 		Session: nil,
-		Halt:    halt.Chan(),
+		Halt:    nil,
 
 		Handler: &route.Handler{},
 		Intents: dg.IntentsAllWithoutPrivileged,

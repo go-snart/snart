@@ -3,7 +3,6 @@ package admin
 
 import (
 	"github.com/go-snart/snart/bot/plug"
-	"github.com/go-snart/snart/db/admin"
 	"github.com/go-snart/snart/route"
 )
 
@@ -25,7 +24,7 @@ func (a *Admin) PlugHandler(r *route.Handler) {
 			Name:  "restart",
 			Match: route.MustMatch("restart"),
 			Desc:  "restart the bot",
-			Okay:  admin.IsAdmin(a.DB),
+			Okay:  route.BotAdmin(a.DB),
 			Cat:   a.String(),
 			Func:  a.Restart,
 		},

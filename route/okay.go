@@ -5,6 +5,7 @@ import (
 
 	dg "github.com/bwmarrin/discordgo"
 
+	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/log"
 )
 
@@ -60,4 +61,49 @@ var GuildAdmin Okay = func(c *Ctx) bool {
 
 	return perm&(dg.PermissionAdministrator|
 		dg.PermissionManageServer) > 0
+}
+
+// IsAdmin is a route.Okay that checks if the author has bot-wide admin privileges.
+func BotAdmin(d *db.DB) Okay {
+	return func(c *Ctx) bool {
+		admins, err := d.AdminList(c)
+		if err != nil {
+			err = fmt.Errorf("list admins: %w", err)
+			log.Warn.Println(err)
+
+			return false
+		}
+
+		for _, admin := range admins {
+			if c.Message.Author.ID == admin {
+				return true
+			}
+		}
+
+		app, err := c.Session.Application("@me")
+		if err != nil {
+			err = fmt.Errorf("app @me: %w", err)
+			log.Warn.Println(err)
+
+			return false
+		}
+
+		if app.Owner != nil && c.Message.Author.ID == app.Owner.ID {
+			return true
+		}
+
+		if app.Team != nil {
+			if c.Message.Author.ID == app.Team.OwnerID {
+				return true
+			}
+
+			for _, member := range app.Team.Members {
+				if c.Message.Author.ID == member.User.ID {
+					return true
+				}
+			}
+		}
+
+		return false
+	}
 }

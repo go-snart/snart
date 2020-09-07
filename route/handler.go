@@ -1,27 +1,36 @@
 package route
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/db"
-	"github.com/go-snart/snart/db/prefix"
 	"github.com/go-snart/snart/log"
 )
 
 // Handler is a slice of Routes.
-type Handler []*Route
+type Handler struct {
+	Routes []*Route
+}
 
 // Add adds a Route to the Handler.
 func (h *Handler) Add(rs ...*Route) {
-	*h = append(*h, rs...)
+	h.Routes = append(h.Routes, rs...)
 }
 
 // Ctx gets a Ctx by finding an appropriate Route for a given prefix, session, message, etc.
-func (h *Handler) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line string) *Ctx {
+func (h *Handler) Ctx(
+	ctx context.Context,
+	pfx *db.Prefix,
+	s *dg.Session,
+	m *dg.Message,
+	line string,
+) *Ctx {
 	c := &Ctx{
+		Context: ctx,
 		Prefix:  pfx,
 		Session: s,
 		Message: m,
@@ -51,7 +60,7 @@ func (h *Handler) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line str
 	args = args[1:]
 	log.Debug.Println("args", args)
 
-	for _, r := range *h {
+	for _, r := range h.Routes {
 		m, _ := r.Match.FindStringMatch(cmd)
 		log.Debug.Println("m", m)
 
@@ -85,6 +94,8 @@ func (h *Handler) Ctx(pfx *prefix.Prefix, s *dg.Session, m *dg.Message, line str
 // Handle returns a discordgo handler function for the Handler.
 func (h *Handler) Handle(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 	return func(s *dg.Session, m *dg.MessageCreate) {
+		ctx := context.Background()
+
 		log.Debug.Println("handling")
 
 		if m.Message.Author.ID == s.State.User.ID {
@@ -105,7 +116,7 @@ func (h *Handler) Handle(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 		for _, line := range lines {
 			log.Debug.Printf("line %q", line)
 
-			pfx, err := prefix.FindPrefix(d, s, m.GuildID, line)
+			pfx, err := d.FindPrefix(ctx, s, m.GuildID, line)
 			if err != nil {
 				err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
 				log.Warn.Println(err)
@@ -119,7 +130,7 @@ func (h *Handler) Handle(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
 				continue
 			}
 
-			c := h.Ctx(pfx, s, m.Message, line)
+			c := h.Ctx(ctx, pfx, s, m.Message, line)
 			if c == nil {
 				continue
 			}

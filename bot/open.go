@@ -1,19 +1,19 @@
-package token
+package bot
 
 import (
+	"context"
 	"fmt"
 
 	dg "github.com/bwmarrin/discordgo"
 
-	"github.com/go-snart/snart/db"
 	"github.com/go-snart/snart/log"
 )
 
 // Open opens a *dg.Session for you, pulling tokens from various sources.
-func Open(d *db.DB, intents dg.Intent) *dg.Session {
+func (b *Bot) Open(ctx context.Context) *dg.Session {
 	log.Debug.Println("enter->toks")
 
-	toks := Tokens(d)
+	toks := b.DB.Tokens(ctx)
 
 	log.Debug.Println("toks->tries")
 
@@ -29,8 +29,6 @@ func Open(d *db.DB, intents dg.Intent) *dg.Session {
 			continue
 		}
 
-		session.LogLevel = logLevel
-
 		ready := make(chan *dg.Session)
 
 		session.AddHandler(func(ses *dg.Session, _ *dg.Ready) {
@@ -40,7 +38,7 @@ func Open(d *db.DB, intents dg.Intent) *dg.Session {
 
 		log.Debug.Println("new->open")
 
-		session.Identify.Intents = dg.MakeIntent(intents)
+		session.Identify.Intents = dg.MakeIntent(b.Intents)
 
 		err = session.Open()
 		if err != nil {

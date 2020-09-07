@@ -38,7 +38,7 @@ func (h *Help) aboutGeneral() *dg.MessageEmbedField {
 	guilds := len(h.Session.State.Guilds)
 	chans := 0
 	users := 0
-	routes := len(*h.Handler)
+	routes := len(h.Handler.Routes)
 	uptime := time.Since(h.Startup).Truncate(time.Second)
 
 	for _, g := range h.Session.State.Guilds {

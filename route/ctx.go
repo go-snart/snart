@@ -1,14 +1,18 @@
 package route
 
 import (
+	"context"
+
 	dg "github.com/bwmarrin/discordgo"
 
-	"github.com/go-snart/snart/db/prefix"
+	"github.com/go-snart/snart/db"
 )
 
 // Ctx holds a command context.
 type Ctx struct {
-	Prefix  *prefix.Prefix
+	context.Context
+
+	Prefix  *db.Prefix
 	Session *dg.Session
 	Message *dg.Message
 	Flag    *Flag

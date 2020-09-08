@@ -59,26 +59,27 @@ func (b *Bot) Run(ctx context.Context) error {
 
 func (b *Bot) cycleGamers() {
 	for {
-		for _, gamer := range b.Gamers {
-			for {
-				err := b.Session.UpdateStatusComplex(
-					dg.UpdateStatusData{Game: gamer()},
-				)
-				if err == nil {
-					break
-				}
+		game := b.Gamers.Random()()
+		log.Debug.Printf("%v\n", game)
 
-				if !errors.Is(err, dg.ErrWSNotFound) {
-					err = fmt.Errorf("update status: %w", err)
-					log.Warn.Println(err)
-
-					break
-				}
-
-				time.Sleep(time.Second / 10)
+		for {
+			err := b.Session.UpdateStatusComplex(
+				dg.UpdateStatusData{Game: game},
+			)
+			if err == nil {
+				break
 			}
 
-			time.Sleep(time.Second * 12)
+			if !errors.Is(err, dg.ErrWSNotFound) {
+				err = fmt.Errorf("update status: %w", err)
+				log.Warn.Println(err)
+
+				break
+			}
+
+			time.Sleep(time.Second / 10)
 		}
+
+		time.Sleep(time.Second * 12)
 	}
 }

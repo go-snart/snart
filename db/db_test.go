@@ -1,13 +1,15 @@
 package db_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-snart/snart/test"
 )
 
 func TestDB(t *testing.T) {
-	d := test.DB()
+	ctx := context.Background()
+	d := test.DB(ctx)
 
 	if d == nil {
 		t.Error("d == nil")
@@ -20,7 +22,8 @@ func TestDB(t *testing.T) {
 	})
 
 	t.Run("ping", func(t *testing.T) {
-		err := d.Ping().Err()
+		ctx := context.Background()
+		err := d.Ping(ctx).Err()
 		if err != nil {
 			t.Errorf("ping err: %w", err)
 		}

@@ -6,8 +6,10 @@ import "github.com/go-snart/snart/route"
 var HandlerRoute = Route()
 
 // Handler gets a test route.Handler.
-func Handler() route.Handler {
-	return route.Handler{
-		HandlerRoute,
+func Handler() *route.Handler {
+	return &route.Handler{
+		Routes: []*route.Route{
+			HandlerRoute,
+		},
 	}
 }

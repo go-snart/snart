@@ -13,7 +13,7 @@ func (d *DB) Tokens(ctx context.Context) []string {
 
 	dtoks, err := d.LRange(ctx, "tokens", 0, -1).Result()
 	if err != nil {
-		err = fmt.Errorf("lrange tokens 0 -1: %w", 0, -1, err)
+		err = fmt.Errorf("lrange tokens 0 -1: %w", err)
 		log.Warn.Println(err)
 
 		return nil

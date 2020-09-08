@@ -1,6 +1,7 @@
 package route_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-snart/snart/route"
@@ -8,7 +9,8 @@ import (
 )
 
 func TestOkay(t *testing.T) {
-	c := test.Ctx("./route")
+	ctx := context.Background()
+	c := test.Ctx(ctx, "./route")
 
 	t.Run("any-true", func(t *testing.T) {
 		if !route.Any(
@@ -54,8 +56,9 @@ func TestOkay(t *testing.T) {
 		}
 	})
 
-	t.Run("admin-true", func(t *testing.T) {
-		c := test.Ctx("./yeet")
+	t.Run("guildadmin-true", func(t *testing.T) {
+		ctx := context.Background()
+		c := test.Ctx(ctx, "./yeet")
 		c.Message.ID = "707316494132052008"
 		c.Message.ChannelID = "614088693216706590"
 		c.Message.GuildID = "466269100214321154"
@@ -66,7 +69,7 @@ func TestOkay(t *testing.T) {
 		}
 	})
 
-	t.Run("admin-false", func(t *testing.T) {
+	t.Run("guildadmin-false", func(t *testing.T) {
 		ok := route.GuildAdmin(c)
 		if ok {
 			t.Error("shouldn't be ok")

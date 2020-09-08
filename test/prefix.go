@@ -1,6 +1,6 @@
 package test
 
-import "github.com/go-snart/snart/db/prefix"
+import "github.com/go-snart/snart/db"
 
 const (
 	// PrefixValue is the prefix value used by Prefix.
@@ -11,8 +11,8 @@ const (
 )
 
 // Prefix gets a test *prefix.Prefix.
-func Prefix() *prefix.Prefix {
-	return &prefix.Prefix{
+func Prefix() *db.Prefix {
+	return &db.Prefix{
 		Value: PrefixValue,
 		Clean: PrefixClean,
 	}

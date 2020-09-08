@@ -1,4 +1,4 @@
-// Package gamer provides an abstraction for generating dynamic statuses.
+// Package gamer provides Discord Game status generation.
 package gamer
 
 import (
@@ -8,16 +8,18 @@ import (
 	dg "github.com/bwmarrin/discordgo"
 )
 
-// Gamer provides a Discord Game status.
+// Gamer is a closure that generates a Discord Game status.
 type Gamer func() *dg.Game
 
 // Text returns a Gamer with the given name and type.
 func Text(name string, typ dg.GameType) Gamer {
+	game := &dg.Game{
+		Name: name,
+		Type: typ,
+	}
+
 	return func() *dg.Game {
-		return &dg.Game{
-			Name: name,
-			Type: typ,
-		}
+		return game
 	}
 }
 

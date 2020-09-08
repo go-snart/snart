@@ -1,18 +1,15 @@
 package test
 
 import (
+	"context"
+
 	dg "github.com/bwmarrin/discordgo"
-
-	"github.com/go-snart/snart/db/token"
 )
 
-// SessionDB is a cache *db.DB for Session.
-var (
-	SessionDB     = DB()
-	SessionIntent = Intent()
-)
+// SessionBot is a cached *bot.Bot for Session.
+var SessionBot = Bot()
 
 // Session gets a test *dg.Session.
-func Session() *dg.Session {
-	return token.Open(SessionDB, SessionIntent)
+func Session(ctx context.Context) *dg.Session {
+	return SessionBot.Open(ctx)
 }

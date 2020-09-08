@@ -1,13 +1,15 @@
 package route_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-snart/snart/test"
 )
 
 func TestCtx(t *testing.T) {
-	c := test.Ctx("./route a b c")
+	ctx := context.Background()
+	c := test.Ctx(ctx, "./route a b c")
 
 	t.Run("nil", func(t *testing.T) {
 		if c == nil {

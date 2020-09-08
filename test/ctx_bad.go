@@ -1,15 +1,19 @@
 package test
 
-import "github.com/go-snart/snart/route"
+import (
+	"context"
+
+	"github.com/go-snart/snart/route"
+)
 
 // CtxBadSession is a cached *dg.Session for CtxBad.
 var CtxBadSession = SessionBad()
 
 // CtxBad gets a bad test *route.Ctx.
-func CtxBad() *route.Ctx {
-	ctx := Ctx("")
+func CtxBad(ctx context.Context) *route.Ctx {
+	c := Ctx(ctx, "")
 
-	ctx.Session = CtxBadSession
+	c.Session = CtxBadSession
 
-	return ctx
+	return c
 }

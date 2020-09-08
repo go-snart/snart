@@ -16,13 +16,13 @@ func TestNewHandler(t *testing.T) {
 	})
 
 	t.Run("len", func(t *testing.T) {
-		if len(handler) != 1 {
-			t.Errorf("len(handler) == %d != 1", len(handler))
+		if len(handler.Routes) != 1 {
+			t.Errorf("len(handler.Routes) == %d != 1", len(handler.Routes))
 		}
 	})
 
 	t.Run("[0].name", func(t *testing.T) {
-		name := handler[0].Name
+		name := handler.Routes[0].Name
 		const ename = "route"
 
 		if name != ename {

@@ -1,6 +1,7 @@
 package route_test
 
 import (
+	"context"
 	"reflect"
 	"testing"
 
@@ -8,7 +9,8 @@ import (
 )
 
 func TestFlag(t *testing.T) {
-	flag := test.Flag("./route a `b c` ``d ` e`` ```f `` g ` h```")
+	ctx := context.Background()
+	flag := test.Flag(ctx, "./route a `b c` ``d ` e`` ```f `` g ` h```")
 
 	t.Run("parse", func(t *testing.T) {
 		err := flag.Parse()
@@ -48,7 +50,8 @@ func TestFlag(t *testing.T) {
 }
 
 func TestFlagsFlags(t *testing.T) {
-	flag := test.Flag("./route -foo bar -baz")
+	ctx := context.Background()
+	flag := test.Flag(ctx, "./route -foo bar -baz")
 
 	foo := flag.String("foo", "", "foo flag")
 	baz := flag.Bool("baz", false, "baz flag")

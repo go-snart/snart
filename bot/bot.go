@@ -20,7 +20,7 @@ type Bot struct {
 	Halt    chan halt.Halt
 
 	Intents dg.Intent
-	Gamers  []gamer.Gamer
+	Gamers  gamer.Queue
 }
 
 // New creates a Bot.
@@ -37,6 +37,6 @@ func NewFromDB(d *db.DB) *Bot {
 
 		Handler: &route.Handler{},
 		Intents: dg.IntentsAllWithoutPrivileged,
-		Gamers:  []gamer.Gamer{gamer.Uptime()},
+		Gamers:  gamer.Queue{gamer.Uptime()},
 	}
 }

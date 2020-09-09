@@ -54,7 +54,6 @@ func (d *DB) DefaultPrefix(ctx context.Context) (*Prefix, error) {
 }
 
 func (d *DB) userPrefix(
-	ctx context.Context,
 	ses *dg.Session,
 	cont string,
 	gpfx, dpfx *Prefix,
@@ -83,7 +82,6 @@ func (d *DB) userPrefix(
 }
 
 func (d *DB) memberPrefix(
-	ctx context.Context,
 	ses *dg.Session,
 	guild, cont string,
 	gpfx, dpfx *Prefix,
@@ -157,12 +155,12 @@ func (d *DB) FindPrefix(
 		}
 	}
 
-	upfx := d.userPrefix(ctx, ses, cont, gpfx, dpfx)
+	upfx := d.userPrefix(ses, cont, gpfx, dpfx)
 	if upfx != nil {
 		return upfx, nil
 	}
 
-	mpfx, err := d.memberPrefix(ctx, ses, guild, cont, gpfx, dpfx)
+	mpfx, err := d.memberPrefix(ses, guild, cont, gpfx, dpfx)
 	if err != nil {
 		err = fmt.Errorf("member prefix: %w", err)
 		log.Warn.Println(err)

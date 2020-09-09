@@ -1,4 +1,4 @@
-// Package admin is a Snart plug which provides basic administration commands.
+// Package admin provides a Snart plug with basic administration features.
 package admin
 
 import (
@@ -6,8 +6,10 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
+// Plug is a pre-allocated Admin, to follow the same pattern as when loading with plugin.
 var Plug = plug.Plug(&Admin{})
 
+// Admin is a Plug with basic administration features.
 type Admin struct {
 	plug.Base
 }
@@ -16,6 +18,7 @@ func (a *Admin) String() string {
 	return "admin"
 }
 
+// PlugHandler adds the Admin's routes to the given Handler.
 func (a *Admin) PlugHandler(r *route.Handler) {
 	a.Base.PlugHandler(r)
 

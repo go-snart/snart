@@ -51,6 +51,7 @@ func (b *Bot) Run(ctx context.Context) error {
 	if err != nil {
 		err = fmt.Errorf("halt: %w", err)
 		log.Warn.Println(err)
+
 		return err
 	}
 

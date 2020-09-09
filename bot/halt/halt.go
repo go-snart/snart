@@ -1,3 +1,4 @@
+// Package halt provides a wrapper for various things that could halt a Bot.
 package halt
 
 import (

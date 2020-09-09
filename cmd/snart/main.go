@@ -13,5 +13,6 @@ func main() {
 	ctx := context.Background()
 	_, name := filepath.Split(os.Args[0])
 
+	// nolint:errcheck
 	bot.New(ctx, name).Run(ctx)
 }

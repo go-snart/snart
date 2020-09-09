@@ -63,7 +63,7 @@ var GuildAdmin Okay = func(c *Ctx) bool {
 		dg.PermissionManageServer) > 0
 }
 
-// IsAdmin is a route.Okay that checks if the author has bot-wide admin privileges.
+// BotAdmin is a route.Okay that checks if the author has bot-wide admin privileges.
 func BotAdmin(d *db.DB) Okay {
 	return func(c *Ctx) bool {
 		admins, err := d.Admins(c)

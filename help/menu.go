@@ -32,7 +32,7 @@ func (h *Help) routesByCat(c *route.Ctx) map[string][]*route.Route {
 	return byCat
 }
 
-// Help gives a help menu.
+// Menu gives a help menu.
 func (h *Help) Menu(c *route.Ctx) error {
 	err := c.Flag.Parse()
 	if err != nil {
@@ -50,6 +50,7 @@ func (h *Help) Menu(c *route.Ctx) error {
 		if hc == nil {
 			rep := c.Reply()
 			rep.Content = fmt.Sprintf("command `%s` not known", cmd)
+
 			return rep.Send()
 		}
 
@@ -57,6 +58,7 @@ func (h *Help) Menu(c *route.Ctx) error {
 		if err != nil {
 			err = fmt.Errorf("hc run: %w", err)
 			log.Warn.Println(err)
+
 			return err
 		}
 	}

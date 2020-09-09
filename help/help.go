@@ -8,10 +8,12 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
+// Plug is a pre-allocated Help, to follow the same pattern as when loading with plugin.
 var Plug = plug.Plug(&Help{
 	Startup: time.Now(),
 })
 
+// Help provides basic help and info menus.
 type Help struct {
 	plug.Base
 
@@ -22,6 +24,7 @@ func (h *Help) String() string {
 	return "help"
 }
 
+// PlugHandler adds the Help's Routes to the given Handler.
 func (h *Help) PlugHandler(r *route.Handler) {
 	h.Base.PlugHandler(r)
 

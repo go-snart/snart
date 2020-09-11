@@ -3,6 +3,7 @@ package bot
 
 import (
 	"context"
+	"time"
 
 	dg "github.com/bwmarrin/discordgo"
 
@@ -35,8 +36,10 @@ func NewFromDB(d *db.DB) *Bot {
 		Session: nil,
 		Halt:    nil,
 
-		Handler: &route.Handler{},
+		Handler: route.NewHandler(d),
 		Intents: dg.IntentsAllWithoutPrivileged,
-		Gamers:  gamer.Queue{gamer.Uptime()},
+		Gamers: gamer.Queue{
+			gamer.Uptime(time.Now()),
+		},
 	}
 }

@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	dg "github.com/bwmarrin/discordgo"
@@ -9,11 +10,19 @@ import (
 	"github.com/go-snart/snart/log"
 )
 
+var ErrNoSession = errors.New("no session found")
+
 // Open opens a *dg.Session for you, pulling tokens from various sources.
-func (b *Bot) Open(ctx context.Context) *dg.Session {
+func (b *Bot) Open(ctx context.Context) (*dg.Session, error) {
 	log.Debug.Println("enter->toks")
 
-	toks := b.DB.Tokens(ctx)
+	toks, err := b.DB.Tokens(ctx)
+	if err != nil {
+		err = fmt.Errorf("toks: %w", err)
+		log.Warn.Println(err)
+
+		return nil, err
+	}
 
 	log.Debug.Println("toks->tries")
 
@@ -51,12 +60,10 @@ func (b *Bot) Open(ctx context.Context) *dg.Session {
 
 		log.Debug.Printf("open %q->success", tok)
 
-		return <-ready
+		return <-ready, nil
 	}
 
 	log.Debug.Println("tries->exit")
 
-	log.Info.Fatal("no suitable tokens found")
-
-	return nil
+	return nil, ErrNoSession
 }

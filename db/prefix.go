@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	dg "github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis/v8"
+	"github.com/gomodule/redigo/redis"
 
 	"github.com/go-snart/snart/log"
 )
@@ -20,13 +20,22 @@ type Prefix struct {
 
 // GuildPrefix gets the prefix for a given guild.
 func (d *DB) GuildPrefix(ctx context.Context, id string) (*Prefix, error) {
-	pfx, err := d.HGet(ctx, id, "prefix").Result()
+	conn, err := d.GetContext(ctx)
 	if err != nil {
-		if errors.Is(err, redis.Nil) {
+		err = fmt.Errorf("get conn: %w", err)
+		log.Warn.Println(err)
+
+		return nil, err
+	}
+	defer conn.Close()
+
+	pfx, err := redis.String(conn.Do("HGET", id, "prefix"))
+	if err != nil {
+		if errors.Is(err, redis.ErrNil) {
 			return nil, nil
 		}
 
-		err = fmt.Errorf("hget %q prefix: %w %T", id, err, err)
+		err = fmt.Errorf("hget %q prefix: %w", id, err)
 		log.Warn.Println(err)
 
 		return nil, err

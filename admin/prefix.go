@@ -10,11 +10,11 @@ import (
 )
 
 // Prefix is a command that can change prefixes.
-func (a *Admin) Prefix(ctx *route.Ctx) error {
-	guild := ctx.Flag.String("guild", ctx.Message.GuildID, "guild to change the prefix for")
-	value := ctx.Flag.String("value", ctx.Prefix.Value, "prefix value to use")
+func (a *Admin) Prefix(c *route.Ctx) error {
+	guild := c.Flag.String("guild", c.Message.GuildID, "guild id to view/change prefix for")
+	// set := c.Flag.String("set", "", "new prefix value to set")
 
-	err := ctx.Flag.Parse()
+	err := c.Flag.Parse()
 	if err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return nil
@@ -26,8 +26,27 @@ func (a *Admin) Prefix(ctx *route.Ctx) error {
 		return err
 	}
 
-	rep := ctx.Reply()
-	rep.Content = fmt.Sprintf("guild=%#q value=%#q", *guild, *value)
+	gid := *guild
+
+	if gid == "default" {
+		gid = ""
+	}
+
+	pfx, err := a.DB.GuildPrefix(c, gid)
+	if err != nil {
+		err = fmt.Errorf("guild prefix: %w", err)
+		log.Warn.Println(err)
+
+		return err
+	}
+
+	rep := c.Reply()
+
+	if pfx == nil {
+		rep.Content = fmt.Sprintf("no prefix for guild `%s`", *guild)
+	} else {
+		rep.Content = fmt.Sprintf("prefix for guild `%s` is `%s`", *guild, pfx.Value)
+	}
 
 	return rep.Send()
 }

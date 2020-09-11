@@ -9,28 +9,25 @@ import (
 )
 
 // Gamer is a closure that generates a Discord Game status.
-type Gamer func() *dg.Game
-
-// Text returns a Gamer with the given name and type.
-func Text(name string, typ dg.GameType) Gamer {
-	game := &dg.Game{
-		Name: name,
-		Type: typ,
-	}
-
-	return func() *dg.Game {
-		return game
-	}
+type Gamer interface {
+	Game() *dg.Game
 }
 
-// Uptime returns a Gamer that shows the uptime (since Uptime was called).
-func Uptime() Gamer {
-	startup := time.Now()
+// Static is a Gamer that returns itself.
+type Static dg.Game
 
-	return func() *dg.Game {
-		return &dg.Game{
-			Name: fmt.Sprintf("for %s", time.Since(startup).Round(time.Second)),
-			Type: dg.GameTypeGame, // playing...
-		}
+// Game implements Gamer.
+func (s *Static) Game() *dg.Game {
+	return (*dg.Game)(s)
+}
+
+// Uptime is a Gamer that shows the duration since its value.
+type Uptime time.Time
+
+// Game implements Gamer.
+func (u Uptime) Game() *dg.Game {
+	return &dg.Game{
+		Name: fmt.Sprintf("for %s", time.Since(time.Time(u)).Round(time.Second)),
+		Type: dg.GameTypeGame, // playing...
 	}
 }

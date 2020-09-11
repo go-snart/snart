@@ -14,6 +14,15 @@ import (
 // Handler is a slice of Routes.
 type Handler struct {
 	Routes []*Route
+	DB     *db.DB
+}
+
+// NewHandler creates a Handler.
+func NewHandler(d *db.DB) *Handler {
+	return &Handler{
+		Routes: []*Route(nil),
+		DB:     d,
+	}
 }
 
 // Add adds a Route to the Handler.
@@ -92,56 +101,52 @@ func (h *Handler) Ctx(
 }
 
 // Handle returns a discordgo handler function for the Handler.
-func (h *Handler) Handle(d *db.DB) func(s *dg.Session, m *dg.MessageCreate) {
-	return func(s *dg.Session, m *dg.MessageCreate) {
-		ctx := context.Background()
+func (h *Handler) Handle(s *dg.Session, m *dg.MessageCreate) {
+	ctx := context.Background()
 
-		log.Debug.Println("handling")
+	log.Debug.Println("handling")
 
-		if m.Message.Author.ID == s.State.User.ID {
-			log.Debug.Println("ignore self")
+	if m.Message.Author.ID == s.State.User.ID {
+		log.Debug.Println("ignore self")
 
-			return
+		return
+	}
+
+	if m.Message.Author.Bot {
+		log.Debug.Println("ignore bot")
+
+		return
+	}
+
+	lines := strings.Split(m.Message.Content, "\n")
+	log.Debug.Printf("lines %#v", lines)
+
+	for _, line := range lines {
+		log.Debug.Printf("line %q", line)
+
+		pfx, err := h.DB.FindPrefix(ctx, s, m.GuildID, line)
+		if err != nil {
+			err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
+			log.Warn.Println(err)
+
+			continue
 		}
 
-		if m.Message.Author.Bot {
-			log.Debug.Println("ignore bot")
-
-			return
+		if pfx == nil {
+			continue
 		}
 
-		lines := strings.Split(m.Message.Content, "\n")
-		log.Debug.Printf("lines %#v", lines)
+		c := h.Ctx(ctx, pfx, s, m.Message, line)
+		if c == nil {
+			continue
+		}
 
-		for _, line := range lines {
-			log.Debug.Printf("line %q", line)
+		err = c.Run()
+		if err != nil {
+			err = fmt.Errorf("c run: %w", err)
+			log.Warn.Println(err)
 
-			pfx, err := d.FindPrefix(ctx, s, m.GuildID, line)
-			if err != nil {
-				err = fmt.Errorf("prefix %q %q: %w", m.GuildID, line, err)
-				log.Warn.Println(err)
-
-				continue
-			}
-
-			if pfx == nil {
-				log.Warn.Println("nil pfx")
-
-				continue
-			}
-
-			c := h.Ctx(ctx, pfx, s, m.Message, line)
-			if c == nil {
-				continue
-			}
-
-			err = c.Run()
-			if err != nil {
-				err = fmt.Errorf("c run: %w", err)
-				log.Warn.Println(err)
-
-				continue
-			}
+			continue
 		}
 	}
 }

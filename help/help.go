@@ -8,7 +8,7 @@ import (
 	"github.com/go-snart/snart/route"
 )
 
-// Plug is a pre-allocated Help, to follow the same pattern as when loading with plugin.
+// Plug is a pre-allocated Help, to follow the same pattern as when loading using plugin.
 var Plug = plug.Plug(&Help{
 	Startup: time.Now(),
 })

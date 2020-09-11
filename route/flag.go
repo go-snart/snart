@@ -2,6 +2,7 @@ package route
 
 import (
 	"flag"
+	"fmt"
 
 	dg "github.com/bwmarrin/discordgo"
 
@@ -49,8 +50,8 @@ func (f *Flag) Usage() *Reply {
 
 	f.VisitAll(func(f *flag.Flag) {
 		field := &dg.MessageEmbedField{
-			Name:  "Flag `-" + f.Name + "`",
-			Value: f.Usage,
+			Name:  fmt.Sprintf("Flag `-%s`", f.Name),
+			Value: fmt.Sprintf("(default `%s`)\n%s", f.DefValue, f.Usage),
 		}
 		rep.Embed.Fields = append(rep.Embed.Fields, field)
 	})

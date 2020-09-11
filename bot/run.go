@@ -2,11 +2,7 @@ package bot
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"time"
-
-	dg "github.com/bwmarrin/discordgo"
 
 	"github.com/go-snart/snart/admin"
 	"github.com/go-snart/snart/bot/halt"
@@ -36,18 +32,26 @@ func (b *Bot) Run(ctx context.Context) error {
 		b.Gamers = append(b.Gamers, p.Gamers()...)
 	}
 
-	b.Session = b.Open(ctx)
+	ses, err := b.Open(ctx)
+	if err != nil {
+		err = fmt.Errorf("open ses: %w", err)
+		log.Warn.Println(err)
+
+		return err
+	}
+	defer ses.Close()
+
+	b.Session = ses
+
+	b.Session.AddHandler(b.Handler.Handle)
 
 	for _, p := range plugs {
 		p.PlugSession(b.Session)
 	}
 
-	b.Session.AddHandler(b.Handler.Handle(b.DB))
-	defer b.Session.Close()
+	go b.Gamers.Cycle(ctx, b.Session)
 
-	go b.cycleGamers()
-
-	err := error(<-b.Halt)
+	err = error(<-b.Halt)
 	if err != nil {
 		err = fmt.Errorf("halt: %w", err)
 		log.Warn.Println(err)
@@ -56,31 +60,4 @@ func (b *Bot) Run(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (b *Bot) cycleGamers() {
-	for {
-		game := b.Gamers.Random()()
-		log.Debug.Printf("%v\n", game)
-
-		for {
-			err := b.Session.UpdateStatusComplex(
-				dg.UpdateStatusData{Game: game},
-			)
-			if err == nil {
-				break
-			}
-
-			if !errors.Is(err, dg.ErrWSNotFound) {
-				err = fmt.Errorf("update status: %w", err)
-				log.Warn.Println(err)
-
-				break
-			}
-
-			time.Sleep(time.Second / 10)
-		}
-
-		time.Sleep(time.Second * 12)
-	}
 }

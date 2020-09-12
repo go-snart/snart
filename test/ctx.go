@@ -4,6 +4,8 @@ import (
 	"context"
 	"strings"
 
+	dg "github.com/bwmarrin/discordgo"
+
 	"github.com/go-snart/snart/route"
 )
 
@@ -15,7 +17,14 @@ var (
 	CtxPrefix = Prefix()
 
 	// CtxSession is a cached *dg.Session for Ctx.
-	CtxSession = Session(context.Background())
+	CtxSession = func() *dg.Session {
+		ses, err := Session(context.Background())
+		if err != nil {
+			panic(err)
+		}
+
+		return ses
+	}()
 )
 
 // Ctx gets a test *route.Ctx.

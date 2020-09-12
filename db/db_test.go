@@ -23,7 +23,13 @@ func TestDB(t *testing.T) {
 
 	t.Run("ping", func(t *testing.T) {
 		ctx := context.Background()
-		err := d.Ping(ctx).Err()
+
+		conn, err := d.GetContext(ctx)
+		if err != nil {
+			t.Fatalf("get conn: %s", err)
+		}
+
+		_, err = conn.Do("ping")
 		if err != nil {
 			t.Errorf("ping err: %w", err)
 		}

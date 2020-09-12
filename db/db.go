@@ -25,6 +25,7 @@ func New(ctx context.Context, name string) *DB {
 		name+"_db:6379",
 		name+"_db.docker:6379",
 	) {
+		addr := addr
 		pool := &redis.Pool{
 			MaxIdle:     3,
 			IdleTimeout: 240 * time.Second,

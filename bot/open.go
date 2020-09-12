@@ -10,6 +10,7 @@ import (
 	"github.com/go-snart/snart/log"
 )
 
+// ErrNoSession occurs when Open is unable to open a session.
 var ErrNoSession = errors.New("no session found")
 
 // Open opens a *dg.Session for you, pulling tokens from various sources.

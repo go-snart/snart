@@ -1,7 +1,9 @@
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/go-snart/snart)
+[![latest github tag](https://img.shields.io/github/v/tag/go-snart/snart)](https://github.com/go-snart/snart/tags)
+[![pkg.go.dev docs](https://img.shields.io/badge/pkg.go.dev-docs-blue.svg)](https://pkg.go.dev/github.com/go-snart/snart@latest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/go-snart/snart)](https://goreportcard.com/report/github.com/go-snart/snart)
 
-Snart v0.1
-==========
+Snart
+=====
 A Discord bot framework in Go. Currently still a little janky, but feel free to use it if you know what you're doing!
 
 Requirements

@@ -1,6 +1,6 @@
 [![latest github tag](https://img.shields.io/github/v/tag/go-snart/snart)](https://github.com/go-snart/snart/tags)
 [![pkg.go.dev docs](https://img.shields.io/badge/pkg.go.dev-docs-blue.svg)](https://pkg.go.dev/github.com/go-snart/snart@latest)
-[![Go Report Card](https://goreportcard.com/badge/github.com/go-snart/snart)](https://goreportcard.com/report/github.com/go-snart/snart)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/go-snart/snart/golangci-lint)](https://github.com/go-snart/snart/actions?query=workflow%3Agolangci-lint)
 
 Snart
 =====
@@ -18,7 +18,7 @@ How does it work?
 -----------------
 Currently, the process is as such:
  - Get the name to use for the Bot:
-   - Generally parsed from os.Args[0].
+   - Generally parsed from `os.Args[0]`.
    - The following entries will be using the name "snart".
  - Create a Bot:
    - Open a DB:
@@ -44,6 +44,6 @@ Currently, the process is as such:
      - Try the tokens until a working one is found.
      - Wait for the Discord "ready" event.
    - Add the Handler to the Session.
-   - Iterate the Plugs again, and Plug the Session.
+   - Iterate the Plugs again, and plug the Session.
    - Spawn the Gamer Queue cycling on the Session.
-   - Wait for a Halt from the Halt channel, and handle it like an error.
+   - Wait for a Halt from the Halt channel, and return it as an error.

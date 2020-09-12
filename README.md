@@ -1,5 +1,6 @@
 [![latest tag](https://img.shields.io/github/v/tag/go-snart/snart)](https://github.com/go-snart/snart/tags)
-[![lint status](https://img.shields.io/github/workflow/status/go-snart/snart/golangci-lint)](https://github.com/go-snart/snart/actions?query=workflow%3Agolangci-lint)
+[![build status](https://github.com/go-snart/snart/workflows/build/badge.svg)](https://github.com/go-snart/snart/actions?query=workflow:build)
+[![lint status](https://github.com/go-snart/snart/workflows/lint/badge.svg)](https://github.com/go-snart/snart/actions?query=workflow:lint)
 [![pkg.go.dev docs](https://img.shields.io/badge/pkg.go.dev-docs-blue.svg)](https://pkg.go.dev/github.com/go-snart/snart@latest)
 [![open issues](https://img.shields.io/github/issues/go-snart/snart)](https://github.com/go-snart/snart/issues)
 

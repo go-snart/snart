@@ -1,6 +1,7 @@
-[![latest github tag](https://img.shields.io/github/v/tag/go-snart/snart)](https://github.com/go-snart/snart/tags)
+[![latest tag](https://img.shields.io/github/v/tag/go-snart/snart)](https://github.com/go-snart/snart/tags)
+[![lint status](https://img.shields.io/github/workflow/status/go-snart/snart/golangci-lint)](https://github.com/go-snart/snart/actions?query=workflow%3Agolangci-lint)
 [![pkg.go.dev docs](https://img.shields.io/badge/pkg.go.dev-docs-blue.svg)](https://pkg.go.dev/github.com/go-snart/snart@latest)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/go-snart/snart/golangci-lint)](https://github.com/go-snart/snart/actions?query=workflow%3Agolangci-lint)
+[![open issues](https://img.shields.io/github/issues/go-snart/snart)](https://github.com/go-snart/snart/issues)
 
 Snart
 =====

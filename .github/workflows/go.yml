@@ -1,4 +1,4 @@
-name: Go
+name: go
 
 on:
   push:
@@ -39,4 +39,7 @@ jobs:
       run: go build -v ./cmd/snart
 
     - name: Test
-      run: TEST_DB=:6379 go test -v ./...
+      run: go test -v ./...
+      env: # Or as an environment variable
+        TEST_DB: :6379
+        TEST_TOKEN: ${{ secrets.TEST_TOKEN }}

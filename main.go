@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/go-snart/snart/bot"
+	"github.com/go-snart/bot"
 )
 
 func main() {

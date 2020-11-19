@@ -1,24 +1,24 @@
 // Package main is the command for Snart.
-//
-// The initialization and running are done under the same context.Background().
-// The bot name is guessed from the name of the executable (args[0]).
 package main
 
 import (
-	"context"
-	"os"
-	"path/filepath"
-	"strings"
+	"flag"
 
-	"github.com/go-snart/bot"
+	"github.com/go-snart/snart"
+	"github.com/go-snart/snart/logs"
 )
 
+var db = flag.String("db", "", "database uri")
+
 func main() {
-	ctx := context.Background()
+	flag.Parse()
 
-	_, name := filepath.Split(os.Args[0])
-	name = strings.Split(name, ".")[0]
+	if *db == "" {
+		logs.Warn.Fatalln("please provide a database uri")
+	}
 
-	// nolint:errcheck
-	bot.New(ctx, name).Run(ctx)
+	err := snart.New(*db).Run(ctx)
+	if err != nil {
+		logs.Warn.Fatalln(err)
+	}
 }

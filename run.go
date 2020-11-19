@@ -1,44 +1,49 @@
-package bot
+package snart
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/go-snart/logs"
 	"github.com/go-snart/plug"
-	"github.com/go-snart/plug/admin"
-	"github.com/go-snart/plug/help"
+	"github.com/go-snart/snart/errs"
+	"github.com/go-snart/snart/logs"
 )
 
-// Run performs the Bot's startup functions, and waits for an error.
-func (b *Bot) Run(ctx context.Context) error {
-	b.Err = SigChan(ctx)
-
-	plugs := append(
-		[]plug.Plug{
-			admin.Plug,
-			help.Plug,
-		},
-		plug.Plugs(b.DB.Name)...,
-	)
-
-	for _, p := range plugs {
-		p.PlugDB(b.DB)
-		p.PlugHandler(b.Handler)
-		p.PlugErr(b.Err)
-
-		b.Intents |= p.Intents()
-		b.Gamers = append(b.Gamers, p.Gamers()...)
-	}
-
-	ses, err := b.Open(ctx)
+func (s *Snart) Load(name string) error {
+	p, err := plug.Get(name)
 	if err != nil {
-		err = fmt.Errorf("open ses: %w", err)
-		logs.Warn.Println(err)
-
-		return err
+		return fmt.Errorf("get plug %q: %w", err)
 	}
-	defer ses.Close()
+
+	s.Plugs[name] = p
+
+	p.PlugDB(s.DB)
+	p.PlugHandler(s.Handler)
+	p.PlugErr(s.Err)
+
+	s.Intents |= p.Intents()
+	b.Gamers = append(s.Gamers, p.Gamers()...)
+
+	return nil
+}
+
+// Run performs the Bot's startup functions, and waits for an error.
+func (s *Snart) Run(ctx context.Context) error {
+	errs.Notify(b.Err)
+
+	names := b.PlugNames()
+
+	for _, name := range names {
+		err := s.Load(name)
+		if err != nil {
+			err = fmt.Errorf("load %q: %w", err)
+			logs.Warn.Println(err)
+
+			continue
+		}
+	}
+
+	defer b.State.Close()
 
 	b.Session = ses
 

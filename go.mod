@@ -3,6 +3,7 @@ module github.com/go-snart/snart
 go 1.15
 
 require (
+	github.com/bwmarrin/discordgo v0.22.0
 	github.com/diamondburned/arikawa v1.3.15-0.20201118235528-545149cd5a53
 	github.com/go-snart/db v0.5.4
 	github.com/go-snart/logs v0.2.6

@@ -9,9 +9,9 @@ import (
 	"github.com/diamondburned/arikawa/state"
 
 	"github.com/go-snart/db"
-	"github.com/go-snart/logs"
-	"github.com/go-snart/plug/gamer"
 	"github.com/go-snart/route"
+	"github.com/go-snart/snart/gamer"
+	"github.com/go-snart/snart/logs"
 )
 
 // DefaultIntents are the unprivileged intents used by default.
@@ -25,8 +25,8 @@ var DefaultIntents = gateway.IntentGuilds | gateway.IntentGuildBans | gateway.In
 	gateway.IntentGuildMessageTyping | gateway.IntentDirectMessages | gateway.IntentDirectMessageReactions |
 	gateway.IntentDirectMessageTyping
 
-// Snart holds all the workings of a Snart bot.
-type Snart struct {
+// Bot holds all the workings of a Snart bot.
+type Bot struct {
 	DB    *db.DB
 	State *state.State
 	Route *route.Route
@@ -36,8 +36,8 @@ type Snart struct {
 	Gamers  gamer.Queue
 }
 
-// Open creates a Snart.
-func Open(uri string) (*Snart, error) {
+// Open creates a Bot from the given database uri.
+func Open(uri string) (*Bot, error) {
 	d, err := db.Open(uri)
 	if err != nil {
 		return nil, fmt.Errorf("db open %q: %w", err)
@@ -46,9 +46,9 @@ func Open(uri string) (*Snart, error) {
 	return New(d)
 }
 
-// New creates a Snart from the given DB.
-func New(d *db.DB) (*Snart, error) {
-	s := &Snart{
+// New creates a Bot from the given DB.
+func New(d *db.DB) (*Bot, error) {
+	b := &Bot{
 		DB:      d,
 		State:   nil,
 		Route:   nil,
@@ -59,7 +59,7 @@ func New(d *db.DB) (*Snart, error) {
 		},
 	}
 
-	tok, err := s.Token()
+	tok, err := b.Token()
 	if err != nil {
 		return nil, err
 	}
@@ -84,15 +84,15 @@ func New(d *db.DB) (*Snart, error) {
 	<-ready
 	rm()
 
-	return s, nil
+	return b, nil
 }
 
-func (s *Snart) Token() (string, error) {
+func (b *Bot) Token() (string, error) {
 	const key = "token"
 
 	tok := ""
 
-	err := s.DB.Get(key, &tok)
+	err := b.DB.Get(key, &tok)
 	if err != nil {
 		return "", fmt.Errorf("db get %q: %w", key, err)
 	}

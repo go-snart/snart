@@ -1,4 +1,5 @@
-go.sum
+# binary
+/snart
 
 # Binaries for programs and plugins
 *.exe

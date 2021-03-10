@@ -18,7 +18,7 @@ func (a *Admin) Restart(t *route.Trigger) error {
 	rep.Content = "restarting..."
 	_ = rep.Send()
 
-	a.Bot.Errs <- ErrRestart
+	a.Errs <- ErrRestart
 
 	return nil
 }

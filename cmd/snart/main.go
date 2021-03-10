@@ -5,14 +5,22 @@ import (
 	"log"
 	"os"
 
+	"github.com/go-snart/snart"
 	"github.com/go-snart/snart/admin"
-	"github.com/go-snart/snart/bot"
 )
 
-func main() {
-	db := os.Getenv("SNART_DB")
+// tokenEnv is the env var for the bot token.
+const tokenEnv = "SNART_TOKEN"
 
-	b, err := bot.Open(db)
+func main() {
+	log.SetFlags(log.Flags() | log.Llongfile)
+
+	token, ok := os.LookupEnv(tokenEnv)
+	if !ok {
+		log.Fatalf("please provide %s", tokenEnv)
+	}
+
+	b, err := snart.New(token)
 	if err != nil {
 		log.Fatalf("open: %s", err)
 	}

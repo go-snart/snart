@@ -1,7 +1,6 @@
-package bot
+package snart
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -18,51 +17,45 @@ type Gamer interface {
 func (b *Bot) selectGamer(i int) Gamer {
 	g := b.Gamers[i]
 
-	log.Printf("select gamer %d: %v", i, g)
-
+	// example: 5 gamers, selecting #2
+	// 01234
 	copy(b.Gamers[i:], b.Gamers[i+1:])
+	// 01344
 	copy(b.Gamers[len(b.Gamers)-1:], []Gamer{g})
+	// 01342
 
 	return g
 }
 
-func (b *Bot) randomGamer() (int, Gamer) {
+func (b *Bot) randomGamer() Gamer {
 	//nolint:gomnd,gosec
-	// 2 is for selecting the first half
-	// this doesn't need to be secure lmao
+	// selectGamer pushes to the end, so select from the first half (older)
 	i := rand.Intn((len(b.Gamers) + 1) / 2)
 
-	log.Printf("random gamer %d", i)
-
-	return i, b.selectGamer(i)
+	return b.selectGamer(i)
 }
 
 // CycleGamers continually updates the Bot's status using a random Gamer, on an interval.
 func (b *Bot) CycleGamers() {
-	log.Printf("cycling gamers")
+	const interval = time.Second * 12
 
-	tick := time.NewTicker(time.Second * 12).C
+	tick := time.NewTicker(interval)
 
 	for {
-		log.Printf("gamer cycle")
-
-		i, g := b.randomGamer()
+		g := b.randomGamer()
 		a := g.Activity()
 
-		//nolint:exhaustivestruct
-		// discord types are excessive
+		//nolint:exhaustivestruct // discord
 		data := gateway.UpdateStatusData{
-			Activities: &[]discord.Activity{a},
+			Activities: []discord.Activity{a},
 		}
 
 		err := b.State.Gateway.UpdateStatus(data)
 		if err != nil {
-			log.Printf("update status %d: %s", i, err)
+			log.Printf("update status (%#v): %s", g, err)
 		}
 
-		log.Printf("updated status")
-
-		<-tick
+		<-tick.C
 	}
 }
 
@@ -71,8 +64,6 @@ type GamerFunc func() discord.Activity
 
 // Activity simply calls the GamerFunc and returns the returned Activity.
 func (f GamerFunc) Activity() discord.Activity {
-	log.Printf("calling gamer func")
-
 	return f()
 }
 
@@ -81,28 +72,19 @@ type GamerStatic discord.Activity
 
 // Activity simply returns the GamerStatic as an Activity.
 func (s GamerStatic) Activity() discord.Activity {
-	log.Printf("returning gamer static")
-
 	return discord.Activity(s)
 }
 
 // GamerTimer is a Time that is a Gamer.
 type GamerTimer time.Time
 
-// String returns the GamerTimer formatted as "since Jan _2 15:04:05".
-func (t GamerTimer) String() string {
-	return "since " + time.Time(t).Format(time.Stamp)
-}
-
 // Activity returns an Activity that describes the duration since the GamerTimer.
 func (t GamerTimer) Activity() discord.Activity {
 	since := time.Since(time.Time(t)).Round(time.Second)
-	log.Printf("timer gamer: %s", since)
 
-	//nolint:exhaustivestruct
-	// discord types are excessive
+	//nolint:exhaustivestruct // discord
 	return discord.Activity{
-		Name: fmt.Sprintf("for %s", since),
+		Name: "for " + since.String(),
 		Type: discord.GameActivity,
 	}
 }

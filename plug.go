@@ -1,9 +1,14 @@
-package bot
+package snart
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 // Plug describes a plugin for a Bot.
 type Plug interface {
+	fmt.Stringer
+
 	Plug(*Bot) error
 }
 

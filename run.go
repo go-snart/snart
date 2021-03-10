@@ -1,4 +1,4 @@
-package bot
+package snart
 
 import (
 	"fmt"
@@ -14,13 +14,7 @@ type sigError struct {
 
 // Error implements error.
 func (s sigError) Error() string {
-	return fmt.Sprintf("killed by signal %s", s.Signal)
-}
-
-func streamSigError(errs chan error, sigs chan os.Signal) {
-	errs <- sigError{
-		Signal: <-sigs,
-	}
+	return "killed by signal " + s.Signal.String()
 }
 
 // Run performs the Bot's startup functions, and waits for an error.
@@ -28,7 +22,13 @@ func (b *Bot) Run() error {
 	log.Println("running bot")
 
 	sigs := make(chan os.Signal, 1)
-	go streamSigError(b.Errs, sigs)
+
+	go func() {
+		b.Errs <- sigError{
+			Signal: <-sigs,
+		}
+	}()
+
 	signal.Notify(sigs, os.Interrupt)
 	log.Println("listening for sigs")
 
@@ -36,12 +36,14 @@ func (b *Bot) Run() error {
 	log.Println("router handler added")
 
 	b.State.Gateway.Identifier.Intents = b.Intents
+
 	log.Println("intents injected")
 
 	err := b.State.Open()
 	if err != nil {
 		return fmt.Errorf("open state: %w", err)
 	}
+
 	log.Println("state opened")
 
 	defer b.State.Close()
@@ -49,5 +51,10 @@ func (b *Bot) Run() error {
 	go b.CycleGamers()
 	log.Println("gamers cycling")
 
-	return <-b.Errs
+	err = <-b.Errs
+	if err != nil {
+		return fmt.Errorf("from errs chan: %w", err)
+	}
+
+	return nil
 }

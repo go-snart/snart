@@ -4,29 +4,32 @@ import (
 	"log"
 
 	"github.com/go-snart/route"
-	"github.com/go-snart/snart/bot"
+	"github.com/go-snart/snart"
 )
 
 // Plug is the default instance of Admin.
 //nolint:gochecknoglobals // plug convention
 var Plug = &Admin{
-	Bot: nil,
+	Errs: nil,
 }
 
-// Plug injects the Admin into the given Bot.
-func (a *Admin) Plug(b *bot.Bot) error {
-	log.Println("injecting admin")
+// Plug connects the Admin with the given Bot.
+func (a *Admin) Plug(b *snart.Bot) error {
+	log.Println("plugging admin")
 
-	a.Bot = b
+	a.Errs = b.Errs
+
 	log.Println("set bot")
 
-	b.Route.Add("admin", &route.Command{
+	b.Route.AddCmds(route.Cmd{
 		Name:  "restart",
 		Desc:  "restart the bot",
+		Cat:   a.String(),
 		Func:  a.Restart,
 		Hide:  true,
 		Flags: nil,
 	})
+
 	log.Println("added routes")
 
 	return nil

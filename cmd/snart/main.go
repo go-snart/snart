@@ -2,30 +2,37 @@
 package main
 
 import (
+	"flag"
 	"log"
-	"os"
+
+	"github.com/superloach/confy"
 
 	"github.com/go-snart/snart"
-	"github.com/go-snart/snart/admin"
+
+	admin "github.com/go-snart/plug-admin"
 )
 
-// tokenEnv is the env var for the bot token.
-const tokenEnv = "SNART_TOKEN"
+var (
+	confyDir = flag.String("confyDir", ".", "base directory for configuration files")
+	confyExt = flag.String("confyExt", ".json", "file extension for configuration files")
+)
 
 func main() {
+	flag.Parse()
+
 	log.SetFlags(log.Flags() | log.Llongfile)
 
-	token, ok := os.LookupEnv(tokenEnv)
-	if !ok {
-		log.Fatalf("please provide %s", tokenEnv)
+	c, err := confy.NewOS(*confyDir, *confyExt)
+	if err != nil {
+		log.Fatalf("confy: %s", err)
 	}
 
-	b, err := snart.New(token)
+	b, err := snart.New(c)
 	if err != nil {
 		log.Fatalf("open: %s", err)
 	}
 
-	err = b.Plug(admin.Plug)
+	err = b.Plug(&admin.Admin{})
 	if err != nil {
 		log.Fatalf("plug admin: %s", err)
 	}

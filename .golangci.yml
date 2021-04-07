@@ -1,16 +1,17 @@
 linters:
   enable-all: true
   disable:
-    - gci
+    - gci # conflict with other formatters
     - maligned # deprecated
     - interfacer # deprecated
+    - scopelint # deprecated
 
 issues:
   exclude-rules:
-    - path: _test\.go
+    - path: _test\.go # go test files
       linters:
-        - exhaustivestruct
-        - gochecknoglobals
+        - gochecknoglobals # useful for reusing test values
+        - exhaustivestruct # decrease verbosity of discord types
 
   include:
-    - EXC0002 # disable excluding of issues about comments from golint
+    - EXC0002 # issues about comments from golint
